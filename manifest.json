@@ -15,9 +15,10 @@
     ],
     "content_scripts": [
         {
-            "matches": ["http://*/*", "https://*/*"],
+            "matches": ["https://*.slack.com/*"],
             "css": ["style.css"],
-            "js": ["main.js"]
+            "js": ["jquery-1.7.1.min.js", "trello.js", "main.js"],
+            "run_at": "document_start"
         }
     ]
 }
