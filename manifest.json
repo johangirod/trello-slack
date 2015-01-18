@@ -16,8 +16,15 @@
     "content_scripts": [
         {
             "matches": ["https://*.slack.com/*"],
-            "css": ["style.css"],
-            "js": ["jquery-1.7.1.min.js", "trello.js", "main.js"],
+            "css": ["css/style.css"],
+            "js": [
+                "vendors/jquery-1.7.1.min.js", 
+                "vendors/trello.js", 
+                "/js/ProjectHelper.js",
+                "/js/ProjectManager.js",
+                "/js/CurrentProjectRenderer.js",
+                "main.js"
+            ],
             "run_at": "document_start"
         }
     ]

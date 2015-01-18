@@ -1,45 +1,27 @@
-function addDiv() {
-    
+var TS = TS || {};
+
+TS.Initializer = {
+    /**
+    * Let's go!
+    */
+    init: function() {
+        TS.ProjectManager.init("l49f2LxM").then(this.searchCurrentProject.bind(this));
+    },
+
+    renderCurrentProject: function(project) {
+        TS.CurrentProjectRenderer.render(project);
+    },
+
+    searchCurrentProject: function() {
+        var project = TS.ProjectHelper.getProjectNameFromUrl(document.URL);
+        TS.ProjectManager.searchProject(project).then(function(project) {
+            this.renderCurrentProject(project);
+        }.bind(this)).catch(function(msg) {
+            alert(msg);
+        });
+    }
 }
 
 window.onload = function() {
-    var parts = document.URL.split('/');
-    var channel = parts[4];
-    channelParts = channel.split('-');
-    if (channelParts[0] == "p") {
-        var project = channelParts[1];
-        project = project.replace(/_/g, " ");
-        Trello.authorize({
-            type: 'popup',
-            name: 'trello-slack',
-            persist: true,
-            expiration: 'never',
-            success: function() {
-                Trello.boards.get("l49f2LxM", function() {
-                    Trello.get("/search", {
-                        "query": project, 
-                        "idOrganizations": "54b7c3805bcb2dd4a42f4a69",
-                        "idBoards" : "54b7c3955fdb8e63ba5819d8"
-                    }, function(result) {
-                        cards = result.cards;
-                        if (cards.length !== 1 ) {
-                            alert('nok');
-                        } else {
-                            var card = cards[0];
-                            alert(card.name);
-                        }
-                    }, function() {
-                        alert('nok');
-                    });
-                }, function() {
-                    alert('nok');
-                });
-                
-            }
-
-        })
-    }
+    TS.Initializer.init();
 }
-/*
-var url = window.location;
-*/
