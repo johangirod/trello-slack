@@ -5,7 +5,7 @@ TS.Initializer = {
     * Let's go!
     */
     init: function() {
-        TS.ProjectManager.init("l49f2LxM").then(this.searchCurrentProject.bind(this));
+        TS.ProjectManager.init(["l49f2LxM", "IVh8Diai"]).then(this.searchCurrentProject.bind(this));
     },
 
     renderCurrentProject: function(project) {

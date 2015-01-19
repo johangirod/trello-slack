@@ -1,1 +1,11 @@
-    
+#TS-project {
+    position: absolute;
+    padding: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+    width: 362px;
+    bottom: 10px;
+    height: auto;
+    top: 55px;
+    right: 20px;
+}

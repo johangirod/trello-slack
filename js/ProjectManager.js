@@ -1,6 +1,6 @@
 var TS = TS || {};
 TS.ProjectManager = {
-    mainBoardUrlId: null,
+    boardIdsWithProjects: [],
     /*
     closed
     desc
@@ -14,31 +14,34 @@ TS.ProjectManager = {
     shortUrl
     url
     */
-    mainBoard: null,
+    boardsWithProjects: null,
 
     onError: function() {
         alert('nok');
     },
 
-    init: function(id) {
-        this.mainBoardUrlId = id;
+    init: function(ids) {
+        this.boardIdsWithProjects = ids;
         return new Promise(function(success, error) {
             this.initTrelloConnection().then(function() {
-                Promise.all([
-                    new Promise(function(success, error) {
-                        this.getBoardFromId(this.mainBoardUrlId).then(function(board) {
+                var promises = [];
+                for ( var i = 0 ; i < this.boardIdsWithProjects.length ; i++) {
+                    promises.push(new Promise(function(success, error) {
+                        this.getBoardFromId(this.boardIdsWithProjects[i]).then(function(board) {
                             success(board);
+                        }).catch(function() {
+                            alert('nok');
                         });
-                    }.bind(this)),
-                    new Promise(function(success, error) {
-                        this.setMe().then(function() {
-                            success();
-                        })
-                    }.bind(this))
-                ]).then(function(values) {
-                    this.mainBoard = values[0];
+                    }.bind(this)));
+                };
+                Promise.all(promises)
+                .then(function(values) {
+                    this.boardsWithProjects = values;
                     success();
-                }.bind(this));
+                }.bind(this))
+                .catch(function() {
+                    alert('nok');
+                });
             }.bind(this)).catch(this.onError);
         }.bind(this));
     },
@@ -55,7 +58,7 @@ TS.ProjectManager = {
 
     getBoardFromId: function(id) {
         return new Promise(function(success, error) {
-            Trello.boards.get("l49f2LxM", success, error);
+            Trello.boards.get(id, success, error);
         });
     },
 
@@ -75,9 +78,9 @@ TS.ProjectManager = {
     searchProject: function(query) {
         return new Promise(function(success, error) {
             Trello.get("/search", {
-                "query": query, 
-                "idOrganizations": this.mainBoard.idOrganization,
-                "idBoards" : this.mainBoard.id
+                "query": query,
+                "idOrganizations": _.map(this.boardsWithProjects, function(board) {return board.idOrganization}),
+                "idBoards" : _.map(this.boardsWithProjects, function(board) {return board.id})
             }, function(result) {
                 cards = result.cards;
                 if (cards.length !== 1 ) {
