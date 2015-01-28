@@ -22,6 +22,7 @@
                 "vendors/underscore-min.js",
                 "vendors/trello.js",
                 "vendors/markdown.min.js",
+                "vendors/ejs_production.js",
                 "/js/ProjectHelper.js",
                 "/js/ProjectManager.js",
                 "/js/views/MembersRenderer.js",
@@ -31,5 +32,8 @@
             "run_at": "document_start"
         }
     ],
-    "web_accessible_resources": ["js/injectedCode.js"]
+    "web_accessible_resources": [
+        "js/injectedCode.js",
+        "js/views/project.ejs"
+    ]
 }

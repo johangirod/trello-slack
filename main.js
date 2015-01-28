@@ -1,13 +1,14 @@
 var TS = TS || {};
 
 TS.Initializer = {
+    boardsIds: ["IVh8Diai", "l49f2LxM"],
     /**
     * Let's go!
     */
     init: function() {
         this.injectCode("js/injectedCode.js");
 
-        TS.ProjectManager.init(["l49f2LxM", "IVh8Diai"]).then(function() {
+        TS.ProjectManager.init(this.boardsIds).then(function() {
             this.checkChange();
         }.bind(this))
 
@@ -15,6 +16,7 @@ TS.Initializer = {
     },
 
     renderCurrentProject: function(project) {
+        TS.CurrentProjectRenderer.setBoards(TS.ProjectManager.boardsWithProjects);
         TS.CurrentProjectRenderer.render(project);
     },
 

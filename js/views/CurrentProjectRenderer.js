@@ -1,13 +1,24 @@
 var TS = TS || {};
 TS.CurrentProjectRenderer = {
+
+    template: null,
+    initTemplate: function() {
+        if (this.template === null) {
+            this.template = new EJS({url: chrome.extension.getURL('js/views/project.ejs')});
+        }
+    },
+
+    // array of selectable boards
+    boards: null,
+    setBoards: function(boards) {
+        this.boards = boards;
+    },
+
     width: null,
     project: null,
     render: function(project) {
-
-        // Initialize events
-        if (!this.evenInitialized) {
-            this.initEvents();
-        };
+        this.initTemplate();
+        this.initEvents();
 
         this.reset();
         this.project = project;
@@ -17,9 +28,12 @@ TS.CurrentProjectRenderer = {
             this.addTitle();
         }.bind(this));
     },
+
     evenInitialized: false,
     initEvents: function() {
-        this.evenInitialized = true;
+        if (!this.evenInitialized) {
+            this.evenInitialized = true;
+        }
     },
 
     reset: function() {
@@ -38,39 +52,14 @@ TS.CurrentProjectRenderer = {
     addDiv: function() {
         // Create the div if not here
         if ($("#projects_tab").length == 0) {
-            var membersView = TS.MembersRenderer.render(this.project.members);
-            if (this.project.board) { var boardName = this.project.board.name; } else {
-                var boardName = "";
-            }
-            var desc = markdown.toHTML(this.project.desc);
-            var div = '\
-            <div class="tab-pane active" id="projects_tab">\
-                <div id="file_list_container">\
-                    <div class="heading">\
-                        <a id="file_list_heading" class="menu_heading">\
-                            <span class="heading_label">' + this.project.name + '</span> \
-                        </a>\
-                    </div>\
-                    <div class="toolbar">\
-                        <div class="TS-board_name">' + boardName + '</div>\
-                        <div id="file_list_toggle" class="btn-group">\
-                            <button id="file_list_toggle_all" class="file_list_toggle active btn btn-mini btn-outline">Everyone</button>\
-                            <button id="file_list_toggle_user" class="file_list_toggle btn btn-mini btn-outline">Just You</button>\
-                            <button id="file_list_toggle_users" class="file_list_toggle btn btn-mini btn-outline">test</button>\
-                        </div>\
-                    </div>\
-                    <div class="TS-tab-content">\
-                        <div class="TS-members">' + membersView + '</div>\
-                        <a href="' + this.project.url + '" target="_blank" id="file_listing_bottom_button" class="bottom_margin btn full_width">\
-                            See this project on Trello...\
-                        </a>\
-                        <div class="subsection" data-filter="all">\
-                            <p>' + desc + '</p>\
-                        </div>\
-                    </div>\
-                </div>\
-            </div>';
+
+            var div = '<div class="tab-pane active" id="projects_tab"></div>';
             this.div = $(div).appendTo("#flex_contents");
+            this.template.update("projects_tab", {
+                project: this.project,
+                boards: this.boards,
+                members: this.project.members
+            });
         }
     },
 

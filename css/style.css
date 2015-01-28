@@ -47,3 +47,21 @@
     height: 30px;
     width: 30px;
 }
+
+.TS-board-names li {
+    display: inline;
+    list-style-type: none;
+    padding-left: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    color: #ccc;
+}
+
+.TS-description {
+    clear: both;
+    padding-top: 10px;
+}
+
+.TS-board-names li:hover, .TS-board-names li.selected {
+    color: black;
+}
