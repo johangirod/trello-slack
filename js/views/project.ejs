@@ -15,11 +15,13 @@
                     <% }) %>
                 </ul>
             </div>
-            <div id="file_list_toggle" class="btn-group">
-                <button id="file_list_toggle_all" class="file_list_toggle active btn btn-mini btn-outline">Everyone</button>
-                <button id="file_list_toggle_user" class="file_list_toggle btn btn-mini btn-outline">Just You</button>
-                <button id="file_list_toggle_users" class="file_list_toggle btn btn-mini btn-outline">test</button>
+            <% boards.forEach(function(board) { %>
+            <div id="file_list_toggle TS-lists TS-list-<%= board.id %>" class="btn-group" <% if (project.board && board.id != project.board.id) { %>style="display:none;"<% } %>>
+                <% board.lists.forEach(function(list) { %>
+                <button id="file_list_toggle_all" class="file_list_toggle <% if (list.id == project.idList) { %>active<% } %> btn btn-mini btn-outline"><%= list.name %></button>
+                <% }) %>
             </div>
+            <% }) %>
         </div>
         <div class="TS-tab-content">
             <div class="TS-members">

@@ -24,25 +24,66 @@ TS.ProjectManager = {
         this.boardIdsWithProjects = ids;
         return new Promise(function(success, error) {
             this.initTrelloConnection().then(function() {
-                var promises = [];
-                for ( var i = 0 ; i < this.boardIdsWithProjects.length ; i++) {
-                    promises.push(new Promise(function(success, error) {
-                        this.getBoardFromId(this.boardIdsWithProjects[i]).then(function(board) {
-                            success(board);
-                        }).catch(function() {
-                            alert('nok');
-                        });
-                    }.bind(this)));
-                };
-                Promise.all(promises)
-                .then(function(values) {
-                    this.boardsWithProjects = values;
-                    success();
-                }.bind(this))
-                .catch(function() {
-                    alert('nok');
-                });
+                this.initBoards().then(success);
             }.bind(this)).catch(this.onError);
+        }.bind(this));
+    },
+
+    initBoards: function() {
+        return new Promise(function(success, error) {
+            var promises = [];
+            for ( var i = 0 ; i < this.boardIdsWithProjects.length ; i++) {
+                promises.push(new Promise(function(success, error) {
+                    this.getBoardFromId(this.boardIdsWithProjects[i]).then(function(board) {
+                        success(board);
+                    }).catch(function() {
+                        alert('nok');
+                    });
+                }.bind(this)));
+            };
+            Promise.all(promises)
+            .then(function(values) {
+                this.boardsWithProjects = values;
+                this.addListsToBoards(values).then(function() {
+                    success();
+                });
+            }.bind(this))
+            .catch(function() {
+                alert('nok');
+            });
+        }.bind(this));
+    },
+
+    addListsToBoards: function(boards) {
+        return new Promise(function(success, error) {
+            var promises = [];
+            for ( var i = 0 ; i < boards.length ; i++) {
+                promises.push(new Promise(function(successi, error) {
+                    this.addListsToBoard(boards[i]).then(function(lists) {
+                        successi();
+                    }).catch(function() {
+                        alert('nok');
+                    });
+                }.bind(this)));
+            };
+            Promise.all(promises)
+            .then(function(values) {
+                success();
+            }.bind(this))
+            .catch(function() {
+                alert('nok');
+            });
+        }.bind(this));
+    },
+
+    addListsToBoard: function(board) {
+        return new Promise(function(success, error) {
+            Trello.get("boards/" + board.id + "/lists", function(lists) {
+                board.lists = lists;
+                success(lists, board);
+            }, function() {
+                alert('nok lists');
+            });
         }.bind(this));
     },
 

@@ -25,7 +25,6 @@
                 "vendors/ejs_production.js",
                 "/js/ProjectHelper.js",
                 "/js/ProjectManager.js",
-                "/js/views/MembersRenderer.js",
                 "/js/views/CurrentProjectRenderer.js",
                 "main.js"
             ],

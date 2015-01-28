@@ -9,10 +9,10 @@ TS.Initializer = {
         this.injectCode("js/injectedCode.js");
 
         TS.ProjectManager.init(this.boardsIds).then(function() {
+            this.searchCurrentProject();
             this.checkChange();
         }.bind(this))
 
-        this.searchCurrentProject();
     },
 
     renderCurrentProject: function(project) {

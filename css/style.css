@@ -65,3 +65,7 @@
 .TS-board-names li:hover, .TS-board-names li.selected {
     color: black;
 }
+
+TS-lists.TS-hide {
+    display:none;
+}
