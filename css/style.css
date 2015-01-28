@@ -1,11 +1,53 @@
-#TS-project {
+.TS-board_name {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+
+.TS-member {
+    background-color: #dbdbdb;
+    border-radius: 3px;
+    color: #4d4d4d;
+    display: block;
+    float: left;
+    height: 30px;
+    margin: 0 4px 4px 0;
+    overflow: hidden;
+    position: relative;
+    width: 30px;
+    cursor: pointer;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    z-index: 0;
+    text-decoration: none;
+}
+
+.TS-member-initials {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    height: 30px;
+    left: 0;
+    line-height: 30px;
+    overflow: hidden;
     position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+}
+
+.TS-tab-content {
     padding: 10px;
-    background-color: #ddd;
-    border-radius: 5px;
-    width: 362px;
-    bottom: 10px;
-    height: auto;
-    top: 55px;
-    right: 20px;
+}
+
+.TS-member-avatar {
+    height: 30px;
+    width: 30px;
+}
+
+#connection_div {
+    margin-right: 392px;
 }

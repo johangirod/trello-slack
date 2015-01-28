@@ -93,6 +93,7 @@ TS.ProjectManager = {
                 }
             }.bind(this), function() {
                 error("There was an error with the query to Trello...");
+                console.log(arguments);
             }.bind(this));
         }.bind(this));
 
@@ -100,6 +101,8 @@ TS.ProjectManager = {
 
     completeCard: function(card) {
         return new Promise(function(success, error) {
+            card.board = _.find(this.boardsWithProjects, function(board) {return card.idBoard == board.id});
+
             var promises = [];
             card.members = [];
             for(var i = 0 ; i < card.idMembers.length ; i++) {
