@@ -27,6 +27,7 @@ TS.Initializer = {
     searchCurrentProject: function() {
         var project = TS.ProjectHelper.getProjectNameFromUrl(document.URL);
         if (this.currentProject !== project) {
+            TS.CurrentProjectRenderer.reset();
             this.currentProject = project;
             if (this.currentProject !== null) {
                 TS.ProjectManager.searchProject(this.currentProject).then(function(project) {

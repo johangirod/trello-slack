@@ -40,6 +40,7 @@ TS.CurrentProjectRenderer = {
 
     reset: function() {
         console.log('reset');
+        this.project = null;
         // remove div
         if (this.div !== null) {
             this.div.remove();
@@ -54,14 +55,12 @@ TS.CurrentProjectRenderer = {
     div: null,
     addDiv: function() {
         // Create the div if not here
-        if ($("#projects_tab").length == 0) {
-
+        if (this.project !== null && $("#projects_tab").length == 0) {
             var div = '<div class="tab-pane active" id="projects_tab"></div>';
             this.div = $(div).appendTo("#flex_contents");
             this.template.update("projects_tab", {
                 project: this.project,
-                boards: this.boards,
-                members: this.project.members
+                boards: this.boards
             });
         }
     },
@@ -70,6 +69,9 @@ TS.CurrentProjectRenderer = {
 
     renderLoop: function(callback) {
         // Very beautiful way to know if the layout has been changed
+        if (this.timerId !== null) {
+            clearInterval(this.timerId);
+        }
         this.timerId = setInterval(function() {
             callback();
         }.bind(this), 100);
@@ -77,7 +79,7 @@ TS.CurrentProjectRenderer = {
 
     titleDiv: null,
     addTitle: function() {
-        if ($(".TS-title").length == 0) {
+        if (this.project !== null && $(".TS-title").length == 0) {
             var dom = '<span class="name TS-title">' + this.project.name + '</span>';
             this.titleDiv = $(dom).appendTo("#active_channel_name");
         }

@@ -25,9 +25,9 @@
         </div>
         <div class="TS-tab-content">
             <div class="TS-members">
-                <% members.forEach(function(member) {%>
+                <% project.members.forEach(function(member) {%>
                     <% if (member.avatarHash === null) { %>
-                    <div class="TS-member">\
+                    <div class="TS-member">
                         <div class="TS-member-initials"> <%= member.fullName.match(/\b\w/g).join('') %> </div>
                     </div>
                     <% } else {%>
