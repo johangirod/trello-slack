@@ -6,7 +6,7 @@ TS.Initializer = {
     * Let's go!
     */
     init: function() {
-        this.injectCode("js/injectedCode.js");
+        TS.CodeInjector.injectFile("js/injectedCode.js");
 
         TS.ProjectManager.init(this.boardsIds).then(function() {
             this.checkChange();
@@ -51,16 +51,6 @@ TS.Initializer = {
         this.timerId = setInterval(function() {
             this.searchCurrentProject();
         }.bind(this), 100);
-    },
-
-    injectCode: function(fileName) {
-        var s = document.createElement('script');
-        // TODO: add "script.js" to web_accessible_resources in manifest.json
-        s.src = chrome.extension.getURL(fileName);
-        s.onload = function() {
-            this.parentNode.removeChild(this);
-        };
-        (document.head||document.documentElement).appendChild(s);
     }
 }
 

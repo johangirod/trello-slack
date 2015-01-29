@@ -23,6 +23,7 @@
                 "vendors/trello.js",
                 "vendors/markdown.min.js",
                 "vendors/ejs_production.js",
+                "/js/CodeInjector.js",
                 "/js/ProjectHelper.js",
                 "/js/ProjectManager.js",
                 "/js/views/CurrentProjectRenderer.js",

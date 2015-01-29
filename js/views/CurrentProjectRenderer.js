@@ -50,6 +50,13 @@ TS.CurrentProjectRenderer = {
             this.titleDiv.remove();
         }
 
+        // close panel
+        TS.CodeInjector.injectCode('\
+        if ($(".flex_pane_showing #flex_toggle").length != 0) {\
+            $("#flex_toggle").trigger("click");\
+        }\
+        ');
+
     },
 
     div: null,
