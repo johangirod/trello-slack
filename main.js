@@ -11,15 +11,27 @@ TS.Initializer = {
         TS.CodeInjector.injectFile("js/injectedCode.js");
         TS.TrelloManager
             .initConnection()
-            .then(TS.BoardManager.init(this.boardsIds))
-            .then(TS.CurrentProjectRenderer.setBoards)
-            .then(this.checkChange)
+            .then(function() {
+                return TS.BoardManager.init(this.boardsIds)
+            }.bind(this))
+            .then(function () {
+                TS.CurrentProjectRenderer.setBoards(TS.BoardManager.boards);
+                return this.checkChange();
+            }.bind(this))
+            .catch(function (error) {
+                console.error(error);
+            })
     },
 
     renderCurrentProject: function() {
-        TS.BoardManager.getProject(projectName).then(
-            TS.CurrentProjectRenderer.render, 
-            TS.CurrentProjectRenderer.renderNoProject
+        return TS.BoardManager.findProject(this.currentProjectName).then(
+            function success (project) {
+                TS.CurrentProjectRenderer.render(project)
+            },
+            function error (error) {
+                TS.CurrentProjectRenderer.renderNoProject();
+                console.warn(error)
+            }
         );
     },
     projectHasChanged: function () {
@@ -29,13 +41,13 @@ TS.Initializer = {
     checkChange: function(callback) {
         console.log("hoho")
         // Very beautiful way to know if the layout has been changed
-        return TS.Utils.waitUntil(this.projectHasChanged).then(function () {
-        console.log("jf")
-
-            this.currentProjectName = TS.Utils.getProjectNameFromUrl(document.URL);
-            this.renderCurrentProject();
-            return this.checkChange();
-        }.bind(this))
+        return TS.Utils
+            .waitUntil(this.projectHasChanged.bind(this))
+            .then(function () {
+                this.currentProjectName = TS.Utils.getProjectNameFromUrl(document.URL);
+                this.renderCurrentProject()
+                return this.checkChange();
+            }.bind(this))
     }
 }
 

@@ -5,7 +5,10 @@ var TS = TS || {};
 */
 
 var panelIsHere = function () {
-    return $("#projects_tab").length
+    return $("#flex_contents").length
+}
+var titleIsHere = function () {
+    return $("#active_channel_name").length
 }
 
 TS.CurrentProjectRenderer = {
@@ -30,10 +33,18 @@ TS.CurrentProjectRenderer = {
         this.reset();
 
         this.project = project;
-        this.addTitle(this.getDueDate() + ': ' + this.project.name);
-        // wait until the panel is here :(
-        return TS.Utils.waitUntil(panelIsHere)
-            .then(this.addDiv)
+
+        TS.Utils
+            .waitUntil(titleIsHere)
+            .then(function () {
+                this.addTitle(this.getDueDate() + ': ' + this.project.name);
+            }.bind(this))
+
+        TS.Utils
+            .waitUntil(panelIsHere)
+            .then(function () {
+                this.addDiv();
+            }.bind(this))
     },
 
     renderNoProject: function() {
@@ -42,6 +53,7 @@ TS.CurrentProjectRenderer = {
 
     reset: function() {
         console.log('reset, yo');
+
         this.project = null;
         // remove div
         if (this.div !== null) {
@@ -66,27 +78,26 @@ TS.CurrentProjectRenderer = {
         // Create the div if not here
         var div = '<div class="tab-pane active" id="projects_tab"></div>';
         this.div = $(div).appendTo("#flex_contents");
+
+        console.log("yo")
+        console.log(this.boards, this.project)
         this.template.update("projects_tab", {
             project: this.project,
             boards: this.boards
         });
+        console.log("yeia")
     },
 
     titleDiv: null,
     addTitle: function(title) {
-        if ($(".TS-title").length == 0) {
-            var dom = '<span class="name TS-title">' + title + '</span>';
-            this.titleDiv = $(dom).appendTo("#active_channel_name");
-        }
-
+        var dom = '<span class="name TS-title">' + title + '</span>';
+        this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
     error: '',
     addErrorTitle: function(message) {
         this.error = message;
-        if ($(".TS-title").length == 0) {
-            var dom = '<span class="name TS-title error">' + message + '</span>';
-            this.titleDiv = $(dom).appendTo("#active_channel_name");
-        }
+        var dom = '<span class="name TS-title error">' + message + '</span>';
+        this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
 
     getDueDate: function() {

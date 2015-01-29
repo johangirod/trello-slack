@@ -6,6 +6,7 @@
 .TS-member {
     background-color: #dbdbdb;
     border-radius: 3px;
+    border: solid 2px transparent;
     color: #4d4d4d;
     display: block;
     float: left;
@@ -76,4 +77,8 @@
 
 #active_channel_name .name.TS-title.error {
     color:red;
+}
+
+.TS-leader {
+    border: 2px solid gold;
 }
