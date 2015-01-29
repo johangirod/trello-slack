@@ -23,10 +23,12 @@ TS.CurrentProjectRenderer = {
         this.reset();
         this.project = project;
         // wait since the panel is here :(
-        this.renderLoop(function() {
-            this.addDiv();
-            this.addTitle();
-        }.bind(this));
+        if (this.project !== null) {
+            this.renderLoop(function() {
+                this.addDiv();
+                this.addTitle();
+            }.bind(this));
+        }
     },
 
     evenInitialized: false,
@@ -37,6 +39,7 @@ TS.CurrentProjectRenderer = {
     },
 
     reset: function() {
+        console.log('reset');
         // remove div
         if (this.div !== null) {
             this.div.remove();

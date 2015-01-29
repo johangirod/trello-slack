@@ -9,13 +9,15 @@ TS.Initializer = {
         this.injectCode("js/injectedCode.js");
 
         TS.ProjectManager.init(this.boardsIds).then(function() {
-            this.searchCurrentProject();
             this.checkChange();
         }.bind(this))
 
     },
 
     renderCurrentProject: function(project) {
+        if (project == null) {
+            TS.CurrentProjectRenderer.reset();
+        }
         TS.CurrentProjectRenderer.setBoards(TS.ProjectManager.boardsWithProjects);
         TS.CurrentProjectRenderer.render(project);
     },
@@ -26,11 +28,18 @@ TS.Initializer = {
         var project = TS.ProjectHelper.getProjectNameFromUrl(document.URL);
         if (this.currentProject !== project) {
             this.currentProject = project;
-            TS.ProjectManager.searchProject(this.currentProject).then(function(project) {
-                this.renderCurrentProject(project);
-            }.bind(this)).catch(function(msg) {
-                alert(msg);
-            });
+            if (this.currentProject !== null) {
+                TS.ProjectManager.searchProject(this.currentProject).then(function(project) {
+                    this.renderCurrentProject(project);
+                }.bind(this)).catch(function(msg) {
+                    console.log(msg);
+                    console.log(arguments);
+                    TS.CurrentProjectRenderer.reset();
+                });
+            } else {
+                this.renderCurrentProject(null);
+            }
+
         }
     },
     timerId: null,
