@@ -27,7 +27,7 @@ TS.CurrentProjectRenderer = {
             this.renderLoop(function() {
                 this.addDiv();
                 if (this.project !== null) {
-                    this.addTitle(this.project.name);
+                    this.addTitle(this.getDueDate() + ' ' + this.project.name);
                 }
                 if (this.error !== '') {
                     this.addErrorTitle(this.error);
@@ -109,6 +109,15 @@ TS.CurrentProjectRenderer = {
         if ($(".TS-title").length == 0) {
             var dom = '<span class="name TS-title error">' + message + '</span>';
             this.titleDiv = $(dom).appendTo("#active_channel_name");
+        }
+    },
+
+    getDueDate: function() {
+        if (this.project && this.project.due) {
+            var due = this.project.due;
+            return due.substring(8, 10) + '/' + due.substring(5, 7) + '/' + due.substring(0, 4)
+        } else {
+            return '';
         }
     }
 }
