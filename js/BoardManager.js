@@ -38,7 +38,7 @@ TS.BoardManager = {
 
     findProject: function(query) {
         return TS.TrelloManager.request("get","/search", {
-                "query": query,
+                "query": '"'+query+'"',
                 "idOrganizations": _.map(this.boardIds, function(board) {return board.idOrganization}),
                 "idBoards" : _.map(this.boardIds, function(board) {return board.id})
             })
