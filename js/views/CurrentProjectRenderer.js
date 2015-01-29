@@ -26,9 +26,18 @@ TS.CurrentProjectRenderer = {
         if (this.project !== null) {
             this.renderLoop(function() {
                 this.addDiv();
-                this.addTitle();
+                if (this.project !== null) {
+                    this.addTitle(this.project.name);
+                }
+                if (this.error !== '') {
+                    this.addErrorTitle(this.error);
+                }
             }.bind(this));
         }
+    },
+
+    renderNoProject: function() {
+        this.addErrorTitle("Pas de carte sur trello ;(");
     },
 
     evenInitialized: false,
@@ -49,6 +58,8 @@ TS.CurrentProjectRenderer = {
         if (this.titleDiv !== null) {
             this.titleDiv.remove();
         }
+
+        this.error = '';
 
         // close panel
         TS.CodeInjector.injectCode('\
@@ -85,11 +96,19 @@ TS.CurrentProjectRenderer = {
     },
 
     titleDiv: null,
-    addTitle: function() {
-        if (this.project !== null && $(".TS-title").length == 0) {
-            var dom = '<span class="name TS-title">' + this.project.name + '</span>';
+    addTitle: function(title) {
+        if ($(".TS-title").length == 0) {
+            var dom = '<span class="name TS-title">' + title + '</span>';
             this.titleDiv = $(dom).appendTo("#active_channel_name");
         }
 
+    },
+    error: '',
+    addErrorTitle: function(message) {
+        this.error = message;
+        if ($(".TS-title").length == 0) {
+            var dom = '<span class="name TS-title error">' + message + '</span>';
+            this.titleDiv = $(dom).appendTo("#active_channel_name");
+        }
     }
 }

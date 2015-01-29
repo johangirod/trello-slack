@@ -66,6 +66,10 @@
     color: black;
 }
 
-TS-lists.TS-hide {
+.TS-lists.TS-hide {
     display:none;
+}
+
+#active_channel_name .name.TS-title.error {
+    color:red;
 }

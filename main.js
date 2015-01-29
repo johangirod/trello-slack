@@ -15,9 +15,6 @@ TS.Initializer = {
     },
 
     renderCurrentProject: function(project) {
-        if (project == null) {
-            TS.CurrentProjectRenderer.reset();
-        }
         TS.CurrentProjectRenderer.setBoards(TS.ProjectManager.boardsWithProjects);
         TS.CurrentProjectRenderer.render(project);
     },
@@ -33,12 +30,10 @@ TS.Initializer = {
                 TS.ProjectManager.searchProject(this.currentProject).then(function(project) {
                     this.renderCurrentProject(project);
                 }.bind(this)).catch(function(msg) {
-                    console.log(msg);
-                    console.log(arguments);
-                    TS.CurrentProjectRenderer.reset();
+                    TS.CurrentProjectRenderer.renderNoProject();
                 });
             } else {
-                this.renderCurrentProject(null);
+                TS.CurrentProjectRenderer.reset();
             }
 
         }
