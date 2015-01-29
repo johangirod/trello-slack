@@ -23,6 +23,7 @@
                 "vendors/trello.js",
                 "vendors/markdown.min.js",
                 "vendors/ejs_production.js",
+                "vendors/moment-with-locales.js",
                 "/js/CodeInjector.js",
                 "/js/ProjectHelper.js",
                 "/js/ProjectManager.js",

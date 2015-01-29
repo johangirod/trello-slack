@@ -70,6 +70,10 @@
     display:none;
 }
 
+#active_channel_name .name.TS-title {
+    font-size: 16px;
+}
+
 #active_channel_name .name.TS-title.error {
     color:red;
 }

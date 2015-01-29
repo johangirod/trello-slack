@@ -27,7 +27,7 @@ TS.CurrentProjectRenderer = {
             this.renderLoop(function() {
                 this.addDiv();
                 if (this.project !== null) {
-                    this.addTitle(this.getDueDate() + ' ' + this.project.name);
+                    this.addTitle(this.getDueDate() + ': ' + this.project.name);
                 }
                 if (this.error !== '') {
                     this.addErrorTitle(this.error);
@@ -115,9 +115,10 @@ TS.CurrentProjectRenderer = {
     getDueDate: function() {
         if (this.project && this.project.due) {
             var due = this.project.due;
-            return due.substring(8, 10) + '/' + due.substring(5, 7) + '/' + due.substring(0, 4)
+            moment.locale("fr");
+            return moment(due).fromNow();
         } else {
-            return '';
+            return '?/?/?';
         }
     }
 }
