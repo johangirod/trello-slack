@@ -24,6 +24,7 @@
                 "/js/Utils.js",
                 
                 "/js/BoardManager.js",
+                "/js/ProjectManager.js",
                 "/js/TrelloManager.js",
                 
                 "/js/views/CurrentProjectRenderer.js",

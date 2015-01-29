@@ -36,7 +36,7 @@ TS.BoardManager = {
 
     },
 
-    getProject: function(query) {
+    findProject: function(query) {
         return TS.TrelloManager.request("get","/search", {
                 "query": query,
                 "idOrganizations": _.map(this.boardIds, function(board) {return board.idOrganization}),
@@ -50,18 +50,8 @@ TS.BoardManager = {
             if (cards.length > 1) {
                 console.warn("There is several Trello cards associated to this project !")
             } 
-            return this.initCard(cards[0])
+            return TS.ProjectManager.initProject(cards[0])
         }.bind(this));
     },
-
-    initCard: function(card) {
-        return Promise.all(card.idMembers.map(function (idMember) {
-            return TS.TrelloManager.request("members.get", idMember)
-        }))
-        .then(function (members) {
-            card.members = members;
-            return card
-        })
-    }
 
 };

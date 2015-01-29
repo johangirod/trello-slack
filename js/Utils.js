@@ -28,5 +28,18 @@ TS.Utils = {
              return project.replace(/_/g, " ");
         }
         */
+    },
+
+    unaccent: function (s) {
+        var accentMap = {
+            'ô':'o', 
+            'é':'e', 'è':'e','ê':'e', 'ë':'e', 
+            'à': 'a', 
+            'î':'i', 'ï': 'i',
+            'ç':'c'
+        };
+        return [].map.call(s, function (c) {
+            return accentMap[c] || c;
+        }).join('')
     }
 }

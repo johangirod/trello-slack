@@ -24,7 +24,7 @@ TS.Initializer = {
     },
 
     renderCurrentProject: function() {
-        return TS.BoardManager.getProject(this.currentProjectName).then(
+        return TS.BoardManager.findProject(this.currentProjectName).then(
             function success (project) {
                 TS.CurrentProjectRenderer.render(project)
             },
@@ -43,7 +43,6 @@ TS.Initializer = {
         return TS.Utils
             .waitUntil(this.projectHasChanged.bind(this))
             .then(function () {
-                console.log("CHANGED")
                 this.currentProjectName = TS.Utils.getProjectNameFromUrl(document.URL);
                 this.renderCurrentProject()
                 return this.checkChange();
