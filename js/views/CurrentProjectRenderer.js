@@ -1,4 +1,17 @@
 var TS = TS || {};
+
+/*
+    PRIVATE FUNCTIONS
+*/
+
+var panelIsHere = function () {
+    return $("#flex_contents").length
+}
+var titleIsHere = function () {
+    return $("#active_channel_name").length
+}
+
+
 TS.CurrentProjectRenderer = {
 
     template: null,
@@ -8,47 +21,38 @@ TS.CurrentProjectRenderer = {
         }
     },
 
-    // array of selectable boards
     boards: null,
+    project: null,
+
     setBoards: function(boards) {
         this.boards = boards;
+        return this;
     },
 
-    width: null,
-    project: null,
     render: function(project) {
         this.initTemplate();
-        this.initEvents();
-
         this.reset();
+
         this.project = project;
-        // wait since the panel is here :(
-        if (this.project !== null) {
-            this.renderLoop(function() {
+        
+        TS.Utils
+            .waitUntil(titleIsHere)
+            .then(function () {
+                this.addTitle(this.getDueDate() + ' ' + this.project.name);
+            }.bind(this))
+
+        TS.Utils
+            .waitUntil(panelIsHere)
+            .then(function () {
                 this.addDiv();
-                if (this.project !== null) {
-                    this.addTitle(this.getDueDate() + ' ' + this.project.name);
-                }
-                if (this.error !== '') {
-                    this.addErrorTitle(this.error);
-                }
-            }.bind(this));
-        }
+            }.bind(this))
     },
 
     renderNoProject: function() {
         this.addErrorTitle("Pas de carte sur trello ;(");
     },
 
-    evenInitialized: false,
-    initEvents: function() {
-        if (!this.evenInitialized) {
-            this.evenInitialized = true;
-        }
-    },
-
     reset: function() {
-        console.log('reset');
         this.project = null;
         // remove div
         if (this.div !== null) {
@@ -58,8 +62,6 @@ TS.CurrentProjectRenderer = {
         if (this.titleDiv !== null) {
             this.titleDiv.remove();
         }
-
-        this.error = '';
 
         // close panel
         TS.CodeInjector.injectCode('\
@@ -73,43 +75,27 @@ TS.CurrentProjectRenderer = {
     div: null,
     addDiv: function() {
         // Create the div if not here
-        if (this.project !== null && $("#projects_tab").length == 0) {
-            var div = '<div class="tab-pane active" id="projects_tab"></div>';
-            this.div = $(div).appendTo("#flex_contents");
-            this.template.update("projects_tab", {
-                project: this.project,
-                boards: this.boards
-            });
-        }
-    },
-
-    timerId: null,
-
-    renderLoop: function(callback) {
-        // Very beautiful way to know if the layout has been changed
-        if (this.timerId !== null) {
-            clearInterval(this.timerId);
-        }
-        this.timerId = setInterval(function() {
-            callback();
-        }.bind(this), 100);
+        var div = '<div class="tab-pane active" id="projects_tab"></div>';
+        this.div = $(div).appendTo("#flex_contents");
+        console.log("yo")
+        console.log(this.boards, this.project)
+        this.template.update("projects_tab", {
+            project: this.project,
+            boards: this.boards
+        });
+        console.log("yeia")
     },
 
     titleDiv: null,
     addTitle: function(title) {
-        if ($(".TS-title").length == 0) {
-            var dom = '<span class="name TS-title">' + title + '</span>';
-            this.titleDiv = $(dom).appendTo("#active_channel_name");
-        }
-
+        var dom = '<span class="name TS-title">' + title + '</span>';
+        this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
     error: '',
     addErrorTitle: function(message) {
         this.error = message;
-        if ($(".TS-title").length == 0) {
-            var dom = '<span class="name TS-title error">' + message + '</span>';
-            this.titleDiv = $(dom).appendTo("#active_channel_name");
-        }
+        var dom = '<span class="name TS-title error">' + message + '</span>';
+        this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
 
     getDueDate: function() {

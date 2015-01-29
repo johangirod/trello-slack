@@ -2,50 +2,52 @@ var TS = TS || {};
 
 TS.Initializer = {
     boardsIds: ["IVh8Diai", "l49f2LxM"],
+
     /**
     * Let's go!
     */
+    currentProjectName: null,
     init: function() {
         TS.CodeInjector.injectFile("js/injectedCode.js");
-
-        TS.ProjectManager.init(this.boardsIds).then(function() {
-            this.checkChange();
-        }.bind(this))
-
+        TS.TrelloManager
+            .initConnection()
+            .then(function() {
+                return TS.BoardManager.init(this.boardsIds)
+            }.bind(this))
+            .then(function () {
+                TS.CurrentProjectRenderer.setBoards(TS.BoardManager.boards);
+                return this.checkChange();
+            }.bind(this))
+            .catch(function (error) {
+                console.error(error);
+            })
     },
 
-    renderCurrentProject: function(project) {
-        TS.CurrentProjectRenderer.setBoards(TS.ProjectManager.boardsWithProjects);
-        TS.CurrentProjectRenderer.render(project);
-    },
-
-    currentProject: null,
-
-    searchCurrentProject: function() {
-        var project = TS.ProjectHelper.getProjectNameFromUrl(document.URL);
-        if (this.currentProject !== project) {
-            TS.CurrentProjectRenderer.reset();
-            this.currentProject = project;
-            if (this.currentProject !== null) {
-                TS.ProjectManager.searchProject(this.currentProject).then(function(project) {
-                    this.renderCurrentProject(project);
-                }.bind(this)).catch(function(msg) {
-                    TS.CurrentProjectRenderer.renderNoProject();
-                });
-            } else {
-                TS.CurrentProjectRenderer.reset();
+    renderCurrentProject: function() {
+        return TS.BoardManager.getProject(this.currentProjectName).then(
+            function success (project) {
+                TS.CurrentProjectRenderer.render(project)
+            },
+            function error (error) {
+                TS.CurrentProjectRenderer.renderNoProject();
+                console.warn(error)
             }
-
-        }
+        );
     },
-    timerId: null,
-
+    projectHasChanged: function () {
+        var projectName = TS.Utils.getProjectNameFromUrl(document.URL);
+        return this.currentProjectName !== projectName
+    },
     checkChange: function(callback) {
         // Very beautiful way to know if the layout has been changed
-        this.searchCurrentProject();
-        this.timerId = setInterval(function() {
-            this.searchCurrentProject();
-        }.bind(this), 100);
+        return TS.Utils
+            .waitUntil(this.projectHasChanged.bind(this))
+            .then(function () {
+                console.log("CHANGED")
+                this.currentProjectName = TS.Utils.getProjectNameFromUrl(document.URL);
+                this.renderCurrentProject()
+                return this.checkChange();
+            }.bind(this))
     }
 }
 
