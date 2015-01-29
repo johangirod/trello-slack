@@ -4,10 +4,6 @@
     "name": "Trello-Slack",
     "description": "This extension makes the link between trello and slack",
     "version": "0.1",
-    "background": {
-        "scripts": ["eventPage.js"],
-        "persistent": false
-    },
     "permissions": [
         "http://*/*",
         "https://*/*",
@@ -25,8 +21,11 @@
                 "vendors/ejs_production.js",
                 "vendors/moment-with-locales.js",
                 "/js/CodeInjector.js",
-                "/js/ProjectHelper.js",
-                "/js/ProjectManager.js",
+                "/js/Utils.js",
+
+                "/js/BoardManager.js",
+                "/js/TrelloManager.js",
+
                 "/js/views/CurrentProjectRenderer.js",
                 "main.js"
             ],

@@ -1,5 +1,22 @@
 var TS = TS || {};
-TS.ProjectHelper = {
+
+TS.Utils = {
+    waitUntil: function(callback) {
+        			console.log("hey")
+        			console.log(callback)
+
+        return new Promise(function(success, error) {
+            var timerId
+            timerId = setInterval(function() {
+                if (callback()) {
+        			console.log("jfnoooy")
+                    clearInterval(timerId);
+                    return success();
+                }
+            }, 100);
+        })
+    },
+
     getProjectNameFromUrl: function(url) {
         var parts = url.split('/');
         var channel = parts[4];

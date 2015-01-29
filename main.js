@@ -2,50 +2,40 @@ var TS = TS || {};
 
 TS.Initializer = {
     boardsIds: ["IVh8Diai", "l49f2LxM"],
+
     /**
     * Let's go!
     */
+    currentProjectName: null,
     init: function() {
         TS.CodeInjector.injectFile("js/injectedCode.js");
-
-        TS.ProjectManager.init(this.boardsIds).then(function() {
-            this.checkChange();
-        }.bind(this))
-
+        TS.TrelloManager
+            .initConnection()
+            .then(TS.BoardManager.init(this.boardsIds))
+            .then(TS.CurrentProjectRenderer.setBoards)
+            .then(this.checkChange)
     },
 
-    renderCurrentProject: function(project) {
-        TS.CurrentProjectRenderer.setBoards(TS.ProjectManager.boardsWithProjects);
-        TS.CurrentProjectRenderer.render(project);
+    renderCurrentProject: function() {
+        TS.BoardManager.getProject(projectName).then(
+            TS.CurrentProjectRenderer.render, 
+            TS.CurrentProjectRenderer.renderNoProject
+        );
     },
-
-    currentProject: null,
-
-    searchCurrentProject: function() {
-        var project = TS.ProjectHelper.getProjectNameFromUrl(document.URL);
-        if (this.currentProject !== project) {
-            TS.CurrentProjectRenderer.reset();
-            this.currentProject = project;
-            if (this.currentProject !== null) {
-                TS.ProjectManager.searchProject(this.currentProject).then(function(project) {
-                    this.renderCurrentProject(project);
-                }.bind(this)).catch(function(msg) {
-                    TS.CurrentProjectRenderer.renderNoProject();
-                });
-            } else {
-                TS.CurrentProjectRenderer.reset();
-            }
-
-        }
+    projectHasChanged: function () {
+        var projectName = TS.Utils.getProjectNameFromUrl(document.URL);
+        return this.currentProjectName !== projectName
     },
-    timerId: null,
-
     checkChange: function(callback) {
+        console.log("hoho")
         // Very beautiful way to know if the layout has been changed
-        this.searchCurrentProject();
-        this.timerId = setInterval(function() {
-            this.searchCurrentProject();
-        }.bind(this), 100);
+        return TS.Utils.waitUntil(this.projectHasChanged).then(function () {
+        console.log("jf")
+
+            this.currentProjectName = TS.Utils.getProjectNameFromUrl(document.URL);
+            this.renderCurrentProject();
+            return this.checkChange();
+        }.bind(this))
     }
 }
 
