@@ -23,11 +23,16 @@
                 "/js/CodeInjector.js",
                 "/js/Utils.js",
 
+                "/js/PanelInitializer.js",
+                "/js/ProjectsListInitializer.js",
+
                 "/js/BoardManager.js",
                 "/js/ProjectManager.js",
                 "/js/TrelloManager.js",
+                "/js/MemberManager.js",
 
                 "/js/views/CurrentProjectRenderer.js",
+                "/js/views/ProjectsListRenderer.js",
                 "main.js"
             ],
             "run_at": "document_start"
@@ -35,6 +40,7 @@
     ],
     "web_accessible_resources": [
         "js/injectedCode.js",
-        "js/views/project.ejs"
+        "js/views/project.ejs",
+        "js/views/projectsList.ejs"
     ]
 }

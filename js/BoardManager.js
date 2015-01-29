@@ -48,9 +48,9 @@ TS.BoardManager = {
                 return Promise.reject("there is no card in Trello with the name: " + query);
             }
             if (cards.length > 1) {
-                console.warn("There is several Trello cards associated to this project !")
+                console.warn("There is several Trello cards associated to this project !");
             }
-            return TS.ProjectManager.initProject(cards[0])
+            return TS.ProjectManager.initProject(cards[0]);
         }.bind(this));
     },
 };
