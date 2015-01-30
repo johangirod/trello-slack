@@ -9,9 +9,13 @@ var waitUntilChannelsAreHere = function() {
 };
 
 var projectNames = [];
+var dataChannelIds = [];
 var setProjectNames = function() {
     projectNames = $.map($("#channel-list li .overflow-ellipsis"), function(li, index) {
         return $(li).text().replace(/(\r\n|\n|\r|\s+)/gm,"").slice(1);
+    });
+    dataChannelIds = $.map($("#channel-list a.channel_name"), function(a, index) {
+        return $(a).attr("data-channel-id");
     });
 };
 var myProjects = [];
@@ -24,6 +28,8 @@ var setProjects = function() {
             return new Promise(function(sucess, error) {
                 TS.BoardManager.findProject(projectName)
                 .then(function(project) {
+                    project.slack = projectName;
+                    project.slackId = dataChannelIds[_.indexOf(projectNames, projectName)];
                     projects.push(project);
                     sucess(project);
                 }.bind(this))
@@ -53,6 +59,7 @@ var setProjects = function() {
 
 TS.ProjectsListInitalizer = {
     init: function() {
+        TS.CodeInjector.injectFile("js/projectsListInjectedCode.js");
         waitUntilChannelsAreHere()
             .then(setProjectNames)
             .then(setProjects);

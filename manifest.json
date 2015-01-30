@@ -39,7 +39,12 @@
         }
     ],
     "web_accessible_resources": [
+
+        //injected code
         "js/injectedCode.js",
+        "js/projectsListInjectedCode.js",
+
+        //template
         "js/views/project.ejs",
         "js/views/projectsList.ejs"
     ]

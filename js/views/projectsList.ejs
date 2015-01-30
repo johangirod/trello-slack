@@ -3,10 +3,10 @@
 <ul id="starred-list">
     <% projects.forEach(function(project) { %>
     <li class="channel ">
-        <a class="channel_name" data-channel-id="<%= project.id %>">
+        <a class="channel_name" data-channel-id="<%= project.slackId %>">
             <span class="overflow-ellipsis">
                 <span class="prefix">#</span>
-                <%= project.name %>
+                <%= project.slack %>
             </span>
         </a>
     </li>
