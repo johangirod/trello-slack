@@ -39,6 +39,9 @@
                 "/js/apps/MyProjects/MyProjectsInitializer.js",
                 "/js/apps/MyProjects/views/MyProjectsRenderer.js",
 
+                //app CheckTrelloSlack
+                "/js/apps/CheckTrelloSlack/CheckTrelloSlackInitializer.js",
+
                 "main.js"
             ],
             "run_at": "document_start"

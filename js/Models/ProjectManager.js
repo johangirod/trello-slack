@@ -33,8 +33,11 @@ var parseLeader = function (project) {
 }
 
 var parseSlack = function(project) {
-    project.slack = SPM.Utils.parseGetValueFromKey(project.desc, 'slack').slice(1);
-    project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
+    project.slack = SPM.Utils.parseGetValueFromKey(project.desc, 'slack');
+    if (project.slack) {
+        project.slack = project.slack.slice(1);
+        project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
+    }
     return project.slack;
 }
 
@@ -55,8 +58,8 @@ SPM.ProjectManager = {
     findProject: function(query) {
         return SPM.TrelloConnector.request("get","/search", {
                 "query": '"'+query+'"',
-                "idOrganizations": _.map(this.boardIds, function(board) {return board.idOrganization}),
-                "idBoards" : _.map(this.boardIds, function(board) {return board.id})
+                "idOrganizations": _.map(SPM.BoardManager.boards, function(board) {return board.idOrganization}),
+                "idBoards" : _.map(SPM.BoardManager.boards, function(board) {return board.id})
             })
         .then(function(result) {
             cards = result.cards;
@@ -93,6 +96,28 @@ SPM.ProjectManager = {
                 if (project && project.slackId) {
                     return _.find(project.members, function(member) {
                         return SPM.MemberManager.me.id == member.id;
+                    })
+                } else {
+                    return false;
+                }
+            });
+        });
+    },
+
+    getAllProjectsInArborium: function() {
+        return SPM.TrelloConnector.request("get","/boards/IVh8Diai/cards").then(function(projects) {
+            return projects;
+        });
+    },
+
+    getMyProjectsInArborium: function() {
+        return this.getAllProjectsInArborium()
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project) {
+                    parseSlack(project);
+                    return _.find(project.idMembers, function(idMember) {
+                        return SPM.MemberManager.me.id == idMember;
                     })
                 } else {
                     return false;

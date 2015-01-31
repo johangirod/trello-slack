@@ -19,6 +19,8 @@ SPM.Initializer = {
             .then(function () {
                 SPM.Apps.ProjectPanel.PanelInitalizer.init();
                 SPM.Apps.MyProjects.MyProjectsInitalizer.init();
+                SPM.Apps.CheckTrelloSlack.CheckTrelloSlackInitializer.init();
+
             }.bind(this))
             .catch(function (error) {
                 console.error(error);
