@@ -104,6 +104,23 @@ SPM.PanelRenderer = {
         if (this.project && this.project.due) {
             var due = this.project.due;
             moment.locale("fr");
+            moment.locale('fr', {
+                relativeTime : {
+                    future: "%s",
+                    past:   "/!\\ date passée!",
+                    s:  "J",
+                    m:  "J",
+                    mm: "J",
+                    h:  "J",
+                    hh: "J",
+                    d:  "J-1",
+                    dd: "J-%d",
+                    M:  "M-1",
+                    MM: "M-%d",
+                    y:  "Y-1",
+                    yy: "Y-%d"
+                }
+            });
             return moment(due).fromNow();
         } else {
             return '?/?/?';
