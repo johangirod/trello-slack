@@ -1,5 +1,5 @@
-var TS = TS || {};
-TS.CodeInjector = {
+var SPM = SPM || {};
+SPM.CodeInjector = {
 
     injectFile: function(fileName) {
         var s = document.createElement('script');

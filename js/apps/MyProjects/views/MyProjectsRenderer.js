@@ -1,6 +1,9 @@
-var TS = TS || {};
+var SPM = SPM || {};
+SPM.Apps = SPM.Apps || {};
+SPM.Apps.MyProjects = SPM.Apps.MyProjects || {};
+SPM.Apps.MyProjects.Views = SPM.Apps.MyProjects.Views || {};
 
-TS.ProjectsListRenderer = {
+SPM.Apps.MyProjects.Views.MyProjectsRenderer = {
     render: function(projects) {
         this.projects = projects;
         this.initTemplate();
@@ -23,21 +26,21 @@ TS.ProjectsListRenderer = {
 
 
     addDiv: function() {
-        var div = '<div id="TS-my_project" class="section_holder"></div>';
+        var div = '<div id="SPM-my_project" class="section_holder"></div>';
         if ($("#starred_div").length > 0) {
             $("#starred_div").after(div);
         } else {
             $("#channels_scroller").prepend(div);
         }
 
-        this.template.update("TS-my_project", {
+        this.template.update("SPM-my_project", {
             projects: this.projects
         });
 
     },
 
     updateStateOfProject: function() {
-        $("#TS-my_project li.channel").each(function(index) {
+        $("#SPM-my_project li.channel").each(function(index) {
             var id = $(this).find(".channel_name").attr("data-channel-id");
             if ($(this)[0].outerHTML != $("#channel-list .channel_"+id)[0].outerHTML) {
                 $(this).replaceWith($("#channel-list .channel_"+id).clone());
@@ -48,7 +51,7 @@ TS.ProjectsListRenderer = {
     template: null,
     initTemplate: function() {
         if (this.template === null) {
-            this.template = new EJS({url: chrome.extension.getURL('js/views/projectsList.ejs')});
+            this.template = new EJS({url: chrome.extension.getURL('js/apps/MyProjects/views/myProjects.ejs')});
         }
     },
 

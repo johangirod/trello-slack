@@ -1,6 +1,6 @@
-var TS = TS || {};
+var SPM = SPM || {};
 
-TS.Utils = {
+SPM.Utils = {
     waitUntil: function(isReady) {
         return new Promise(function(success, error) {
             var timerId
@@ -41,5 +41,19 @@ TS.Utils = {
         return [].map.call(s, function (c) {
             return accentMap[c] || c;
         }).join('')
+    },
+
+    parseGetValueFromKey: function(desc, key) {
+        var value = desc
+            .toLowerCase()
+            .match(new RegExp(key + ".*?:[ ]*#?[\\w]+.*?\\n"));
+        if (!value) {return false}
+        value = value[0]
+        value = value.slice(value.indexOf(':') + 1)
+            .trim()
+            .split(' ')[0]
+        return SPM.Utils.unaccent(value);
     }
+
+
 }

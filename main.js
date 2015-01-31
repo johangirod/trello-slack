@@ -1,6 +1,6 @@
-var TS = TS || {};
+var SPM = SPM || {};
 
-TS.Initializer = {
+SPM.Initializer = {
     boardsIds: ["IVh8Diai", "l49f2LxM"],
 
     /**
@@ -8,15 +8,17 @@ TS.Initializer = {
     */
     currentProjectName: null,
     init: function() {
-        TS.TrelloManager
+        SPM.TrelloConnector
             .initConnection()
             .then(function() {
-                return TS.BoardManager.init(this.boardsIds)
+                SPM.MemberManager.setMe();
+            }.bind(this))
+            .then(function() {
+                return SPM.BoardManager.init(this.boardsIds);
             }.bind(this))
             .then(function () {
-                TS.CurrentProjectRenderer.setBoards(TS.BoardManager.boards);
-                TS.PanelInitalizer.init();
-                TS.ProjectsListInitalizer.init();
+                SPM.Apps.ProjectPanel.PanelInitalizer.init();
+                SPM.Apps.MyProjects.MyProjectsInitalizer.init();
             }.bind(this))
             .catch(function (error) {
                 console.error(error);
@@ -25,5 +27,5 @@ TS.Initializer = {
 }
 
 window.onload = function() {
-    TS.Initializer.init();
+    SPM.Initializer.init();
 }

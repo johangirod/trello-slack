@@ -20,32 +20,37 @@
                 "vendors/markdown.min.js",
                 "vendors/ejs_production.js",
                 "vendors/moment-with-locales.js",
-                "/js/CodeInjector.js",
-                "/js/Utils.js",
+                "/js/Utils/CodeInjector.js",
+                "/js/Utils/Utils.js",
 
-                "/js/PanelInitializer.js",
-                "/js/ProjectsListInitializer.js",
+                "/js/Models/BoardManager.js",
+                "/js/Models/BoardManager.js",
+                "/js/Models/ProjectManager.js",
+                "/js/Models/MemberManager.js",
+                "/js/Models/ChannelManager.js",
 
-                "/js/BoardManager.js",
-                "/js/ProjectManager.js",
-                "/js/TrelloManager.js",
-                "/js/MemberManager.js",
+                "/js/connectors/TrelloConnector.js",
 
-                "/js/views/CurrentProjectRenderer.js",
-                "/js/views/ProjectsListRenderer.js",
+                //app Project Panel
+                "/js/apps/ProjectPanel/PanelInitializer.js",
+                "/js/apps/ProjectPanel/views/PanelRenderer.js",
+
+                // app My projects
+                "/js/apps/MyProjects/MyProjectsInitializer.js",
+                "/js/apps/MyProjects/views/MyProjectsRenderer.js",
+
                 "main.js"
             ],
             "run_at": "document_start"
         }
     ],
     "web_accessible_resources": [
+        //app Project Panel
+        "js/apps/ProjectPanel/panelInjectedCode.js",
+        "js/apps/ProjectPanel/views/panel.ejs",
 
-        //injected code
-        "js/injectedCode.js",
-        "js/projectsListInjectedCode.js",
-
-        //template
-        "js/views/project.ejs",
-        "js/views/projectsList.ejs"
+        //app My projects
+        "js/apps/MyProjects/MyProjectsInjectedCode.js",
+        "js/apps/MyProjects/views/myProjects.ejs"
     ]
 }

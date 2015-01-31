@@ -1,9 +1,9 @@
-.TS-board_name {
+.SPM-board_name {
     font-size: 12px;
     margin-bottom: 2px;
 }
 
-.TS-member {
+.SPM-member {
     background-color: #dbdbdb;
     border-radius: 3px;
     border: solid 2px transparent;
@@ -26,7 +26,7 @@
     text-decoration: none;
 }
 
-.TS-member-initials {
+.SPM-member-initials {
     display: block;
     font-size: 12px;
     font-weight: 700;
@@ -40,16 +40,16 @@
     width: 100%;
 }
 
-.TS-tab-content {
+.SPM-tab-content {
     padding: 10px;
 }
 
-.TS-member-avatar {
+.SPM-member-avatar {
     height: 30px;
     width: 30px;
 }
 
-.TS-board-names li {
+.SPM-board-names li {
     display: inline;
     list-style-type: none;
     padding-left: 10px;
@@ -58,27 +58,27 @@
     color: #ccc;
 }
 
-.TS-description {
+.SPM-description {
     clear: both;
     padding-top: 10px;
 }
 
-.TS-board-names li:hover, .TS-board-names li.selected {
+.SPM-board-names li:hover, .SPM-board-names li.selected {
     color: black;
 }
 
-.TS-lists.TS-hide {
+.SPM-lists.SPM-hide {
     display:none;
 }
 
-#active_channel_name .name.TS-title {
+#active_channel_name .name.SPM-title {
     font-size: 16px;
 }
 
-#active_channel_name .name.TS-title.error {
+#active_channel_name .name.SPM-title.error {
     color:red;
 }
 
-.TS-leader {
+.SPM-leader {
     border: 2px solid gold;
 }

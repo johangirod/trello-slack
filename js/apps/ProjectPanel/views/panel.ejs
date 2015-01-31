@@ -5,8 +5,8 @@
         </a>
     </div>
     <div class="toolbar">
-        <div class="TS-board_name">
-            <ul class="TS-board-names">
+        <div class="SPM-board_name">
+            <ul class="SPM-board-names">
                 <% boards.forEach(function(board){ %>
                 <li class="<% if (project.board && board.name === project.board.name)  { %>selected<% } %>">
                     <%= board.name %>
@@ -15,26 +15,26 @@
             </ul>
         </div>
         <% boards.forEach(function(board) { %>
-        <div id="file_list_toggle TS-lists TS-list-<%= board.id %>" class="btn-group" <% if (project.board && board.id != project.board.id) { %>style="display:none;"<% } %>>
+        <div id="file_list_toggle SPM-lists SPM-list-<%= board.id %>" class="btn-group" <% if (project.board && board.id != project.board.id) { %>style="display:none;"<% } %>>
             <% board.lists.forEach(function(list) { %>
             <button id="file_list_toggle_all" class="file_list_toggle <% if (list.id == project.idList) { %>active<% } %> btn btn-mini btn-outline"><%= list.name %></button>
             <% }) %>
         </div>
         <% }) %>
     </div>
-    <div class="TS-tab-content">
-        <div class="TS-members">
+    <div class="SPM-tab-content">
+        <div class="SPM-members">
             <% project.members.forEach(function(member) {%>
-                <div class="TS-member <% if (member.isLeader) { %>TS-leader<% } %>">
+                <div class="SPM-member <% if (member.isLeader) { %>SPM-leader<% } %>">
                 <% if (member.avatarHash === null) { %>
-                    <div class="TS-member-initials"> <%= member.fullName.match(/\b\w/g).join('') %> </div>
+                    <div class="SPM-member-initials"> <%= member.fullName.match(/\b\w/g).join('') %> </div>
                 <% } else {%>
-                    <img class="TS-member-avatar" height="30" width="30" src="https://trello-avatars.s3.amazonaws.com/<%= member.avatarHash %>/30.png" alt="<% member.name %>" title="<% member.name %>">
+                    <img class="SPM-member-avatar" height="30" width="30" src="https://trello-avatars.s3.amazonaws.com/<%= member.avatarHash %>/30.png" alt="<% member.name %>" title="<% member.name %>">
                 <% } %>
                 </div>
             <% }) %>
         </div>
-        <div class="subsection TS-description" data-filter="all">
+        <div class="subsection SPM-description" data-filter="all">
             <p><%= markdown.toHTML(project.desc) %></p>
         </div>
     </div>

@@ -1,4 +1,4 @@
-var TS = TS || {};
+var SPM = SPM || {};
 
 /*
     PRIVATE FUNCTIONS
@@ -11,12 +11,12 @@ var titleIsHere = function () {
     return $("#active_channel_name").length
 }
 
-TS.CurrentProjectRenderer = {
+SPM.PanelRenderer = {
 
     template: null,
     initTemplate: function() {
         if (this.template === null) {
-            this.template = new EJS({url: chrome.extension.getURL('js/views/project.ejs')});
+            this.template = new EJS({url: chrome.extension.getURL('js/apps/ProjectPanel/views/panel.ejs')});
         }
     },
 
@@ -34,13 +34,13 @@ TS.CurrentProjectRenderer = {
 
         this.project = project;
 
-        TS.Utils
+        SPM.Utils
             .waitUntil(titleIsHere)
             .then(function () {
                 this.addTitle(this.getDueDate() + ': ' + this.project.name);
             }.bind(this))
 
-        TS.Utils
+        SPM.Utils
             .waitUntil(panelIsHere)
             .then(function () {
                 this.addDiv();
@@ -65,7 +65,7 @@ TS.CurrentProjectRenderer = {
         }
 
         // close panel
-        TS.CodeInjector.injectCode('\
+        SPM.CodeInjector.injectCode('\
         if ($(".flex_pane_showing #flex_toggle").length != 0) {\
             $("#flex_toggle").trigger("click");\
         }\
@@ -90,13 +90,13 @@ TS.CurrentProjectRenderer = {
 
     titleDiv: null,
     addTitle: function(title) {
-        var dom = '<span class="name TS-title">' + title + '</span>';
+        var dom = '<span class="name SPM-title">' + title + '</span>';
         this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
     error: '',
     addErrorTitle: function(message) {
         this.error = message;
-        var dom = '<span class="name TS-title error">' + message + '</span>';
+        var dom = '<span class="name SPM-title error">' + message + '</span>';
         this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
 

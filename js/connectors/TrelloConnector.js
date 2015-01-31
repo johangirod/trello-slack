@@ -1,5 +1,5 @@
-var TS = TS || {};
-TS.TrelloManager = {
+var SPM = SPM || {};
+SPM.TrelloConnector = {
     initConnection: function(success, error) {
         return new Promise(function(success, error) {
             Trello.authorize({

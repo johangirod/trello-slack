@@ -1,35 +1,37 @@
-var TS = TS || {};
+var SPM = SPM || {};
+SPM.Apps = SPM.Apps || {};
+SPM.Apps.ProjectPanel = SPM.Apps.ProjectPanel || {};
 
-TS.PanelInitalizer = {
+SPM.Apps.ProjectPanel.PanelInitalizer = {
     init: function() {
-        TS.CodeInjector.injectFile("js/injectedCode.js");
+        SPM.CodeInjector.injectFile("js/apps/ProjectPanel/panelInjectedCode.js");
         return this.checkChange();
     },
 
     renderCurrentProject: function() {
-        return TS.BoardManager.findProject(this.currentProjectName).then(
+        return SPM.ProjectManager.findProject(this.currentProjectName).then(
             function success (project) {
-                TS.CurrentProjectRenderer.render(project)
+                SPM.PanelRenderer.render(project)
             },
             function error (error) {
-                TS.CurrentProjectRenderer.renderNoProject();
+                SPM.PanelRenderer.renderNoProject();
                 console.warn(error)
             }
         );
     },
 
     projectHasChanged: function () {
-        var projectName = TS.Utils.getProjectNameFromUrl(document.URL);
+        var projectName = SPM.Utils.getProjectNameFromUrl(document.URL);
         return this.currentProjectName !== projectName
     },
 
     checkChange: function(callback) {
         console.log("hoho")
         // Very beautiful way to know if the layout has been changed
-        return TS.Utils
+        return SPM.Utils
             .waitUntil(this.projectHasChanged.bind(this))
             .then(function () {
-                this.currentProjectName = TS.Utils.getProjectNameFromUrl(document.URL);
+                this.currentProjectName = SPM.Utils.getProjectNameFromUrl(document.URL);
                 this.renderCurrentProject()
                 return this.checkChange();
             }.bind(this))
