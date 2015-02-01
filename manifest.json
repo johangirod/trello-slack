@@ -23,11 +23,15 @@
                 "/js/Utils/CodeInjector.js",
                 "/js/Utils/Utils.js",
 
+                // Models
                 "/js/Models/BoardManager.js",
                 "/js/Models/BoardManager.js",
                 "/js/Models/ProjectManager.js",
                 "/js/Models/MemberManager.js",
                 "/js/Models/ChannelManager.js",
+
+                //ViewHelpers
+                "/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js",
 
                 "/js/connectors/TrelloConnector.js",
 
@@ -37,7 +41,6 @@
 
                 // app My projects
                 "/js/apps/MyProjects/MyProjectsInitializer.js",
-                "/js/apps/MyProjects/views/MyProjectsRenderer.js",
 
                 //app CheckTrelloSlack
                 "/js/apps/CheckTrelloSlack/CheckTrelloSlackInitializer.js",
@@ -48,12 +51,12 @@
         }
     ],
     "web_accessible_resources": [
+        //ViewHelpers
+        "js/ViewHelpers/MenuSectionViewHelper/menuSection.ejs",
+        "js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js",
+
         //app Project Panel
         "js/apps/ProjectPanel/panelInjectedCode.js",
-        "js/apps/ProjectPanel/views/panel.ejs",
-
-        //app My projects
-        "js/apps/MyProjects/MyProjectsInjectedCode.js",
-        "js/apps/MyProjects/views/myProjects.ejs"
+        "js/apps/ProjectPanel/views/panel.ejs"
     ]
 }

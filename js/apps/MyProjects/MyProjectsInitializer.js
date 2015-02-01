@@ -11,29 +11,26 @@ var waitUntilChannelsAreHere = function() {
     });
 };
 
-var dataChannelIds = [];
-var setProjectNames = function() {
-    projectNames = SPM.Models.ChannelManager.getChannelNames();
-    dataChannelIds = SPM.Models.ChannelManager.getChannelIds();
-};
-var myProjects = [];
-var projects = [];
 var setProjects = function() {
-    return SPM.ProjectManager.findMyProjects()
+    SPM.ProjectManager.getNotMyProjectsChannels()
     .then(function (projects) {
-        SPM.Apps.MyProjects.Views.MyProjectsRenderer.render(projects);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", projects, false);
     })
     .catch(function() {
-        console.log('hello');
+        console.log('error setting projects');
+    });
+    SPM.ProjectManager.getMyProjectsInArborium()
+    .then(function (projects) {
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", projects, true);
+    })
+    .catch(function() {
+        console.log('error setting my projects');
     });
 }
 
 SPM.Apps.MyProjects.MyProjectsInitalizer = {
     init: function() {
-        SPM.PanelRenderer.setBoards(SPM.BoardManager.boards);
-        SPM.CodeInjector.injectFile("js/apps/MyProjects/MyProjectsInjectedCode.js");
         waitUntilChannelsAreHere()
-            .then(setProjectNames)
             .then(setProjects);
     }
 }

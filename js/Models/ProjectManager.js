@@ -55,6 +55,12 @@ SPM.ProjectManager = {
 		})
 	},
 
+    isMyProject: function(project) {
+        return _.find(project.members, function(member) {
+            return SPM.MemberManager.me.id == member.id;
+        })
+    },
+
     findProject: function(query) {
         return SPM.TrelloConnector.request("get","/search", {
                 "query": '"'+query+'"',
@@ -89,8 +95,8 @@ SPM.ProjectManager = {
         }.bind(this)))
     },
 
-    findMyProjects: function() {
-        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getChannelNames())
+    getMyProjectsWithChannels: function() {
+        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
         .then(function (projects) {
             return _.filter(projects, function(project){
                 if (project && project.slackId) {
@@ -101,6 +107,99 @@ SPM.ProjectManager = {
                     return false;
                 }
             });
+        });
+    },
+
+
+    getNotMyProjectsWithChannels: function() {
+        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project && project.slackId) {
+                    var isMe = _.find(project.members, function(member) {
+                        return SPM.MemberManager.me.id == member.id;
+                    })
+                    if (!isMe) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            });
+        });
+    },
+
+    getProjectsWithChannels: function() {
+        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project && project.slackId) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        });
+    },
+
+    getProjectsWithoutChannels: function() {
+        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project && project.slackId) {
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+        });
+    },
+
+    getProjectChannelsWithoutProjects: function() {
+        var projectChannels = SPM.Models.ChannelManager.getProjectChannelNames();
+        return SPM.ProjectManager.findProjects(projectChannels)
+        .then(function (projects) {
+            return _.filter(projectChannels, function(projectChannel){
+                var is = !_.find(projects, function(project) {
+                    if (project) {
+                        return project.slack == projectChannel;
+                    } else {
+                        return false;
+                    }
+                })
+                return is;
+            });
+        });
+    },
+
+    getNotMyProjectsChannels: function() {
+        var projectChannels = SPM.Models.ChannelManager.getProjectChannelNames();
+        return SPM.ProjectManager.findProjects(projectChannels)
+        .then(function (projects) {
+            var projectsChannelsFull = _.map(projectChannels, function(projectChannel){
+                var project = _.find(projects, function(project) {
+                    if (project && project.slack == projectChannel) {
+                        return project;
+                    } else {
+                        return false;
+                    }
+                })
+                if (project) {
+                    return project;
+                } else {
+                    return {
+                        name: null,
+                        slackId: SPM.Models.ChannelManager.getChannelIdFromChannelName(projectChannel),
+                        slack: projectChannel
+                    };
+                }
+            });
+            var notMyProjectsChannelsFull = _.filter(projectsChannelsFull, function(project) {
+                return !SPM.ProjectManager.isMyProject(project);
+            });
+            return notMyProjectsChannelsFull;
         });
     },
 
@@ -119,6 +218,60 @@ SPM.ProjectManager = {
                     return _.find(project.idMembers, function(idMember) {
                         return SPM.MemberManager.me.id == idMember;
                     })
+                } else {
+                    return false;
+                }
+            });
+        });
+    },
+
+
+    getMyProjectsInArborium: function() {
+        return this.getAllProjectsInArborium()
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project) {
+                    parseSlack(project);
+                    return _.find(project.idMembers, function(idMember) {
+                        return SPM.MemberManager.me.id == idMember;
+                    })
+                } else {
+                    return false;
+                }
+            });
+        });
+    },
+
+    getMyProjectsInArboriumWithoutChannel: function() {
+        return this.getAllProjectsInArborium()
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project) {
+                    parseSlack(project);
+                    return _.find(project.idMembers, function(idMember) {
+                        return SPM.MemberManager.me.id == idMember && !project.slackId;
+                    })
+                } else {
+                    return false;
+                }
+            });
+        });
+    },
+
+    getNotMyProjectsInArborium: function() {
+        return this.getAllProjectsInArborium()
+        .then(function (projects) {
+            return _.filter(projects, function(project){
+                if (project) {
+                    parseSlack(project);
+                    var isMe = _.find(project.idMembers, function(idMember) {
+                        return SPM.MemberManager.me.id == idMember;
+                    })
+                    if (!isMe) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 } else {
                     return false;
                 }
