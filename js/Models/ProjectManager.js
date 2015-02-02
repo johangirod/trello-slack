@@ -37,11 +37,23 @@ var parseLeader = function (project) {
 }
 
 var parseSlack = function(project) {
-    project.slack = SPM.Utils.parseGetValueFromKey(project.desc, 'slack');
-    if (project.slack) {
-        project.slack = project.slack.slice(1);
-        project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
+    var slack = SPM.Utils.parseGetValueFromKey(project.desc, '(slack|channel|chanel|chan)');
+    if (!slack) {
+        return
     }
+    if (slack[0] === '#') {
+        // With the # syntax
+        slack = slack.slice(1)
+    } else if(slack[0] === '[') {
+        // With the [name](url) syntax
+        var index = slack.indexOf(']');
+        slack = slack.slice(1, index);
+    }
+    if(slack.indexOf('p-') !== 0) {
+        return null;
+    }
+    project.slack = slack;
+    project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
     return project.slack;
 }
 
@@ -92,6 +104,14 @@ SPM.ProjectManager = {
             }
             return SPM.ProjectManager.initProject(cards[0]);
         }.bind(this));
+    },
+
+    findProjectByChanelName: function (chanelName) {
+        return this.findProject(chanelName).then(function (project) {
+            return (project.slack) ?
+                Promise.resolve(project):
+                Promise.reject('No project found for the slack channel ' + chanelName);
+        });
     },
 
     findProjects: function(queries) {

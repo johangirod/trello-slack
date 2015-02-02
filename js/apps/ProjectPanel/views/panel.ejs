@@ -46,15 +46,16 @@
                 </ul>
                 <div> <a class="btn btn-primary" href="<%=project.url%>"><span class="lambda-label">Compléter la carte</span></a></div>
             </div>
-        <%} else {%>
-            <div class="SPM-success-alert">
-                <h4>
-                    Le projet est à jour!
-                </h4>
-            </div>
-        <% } %>
+        <%}%>
         <div class="subsection SPM-description" data-filter="all">
             <p><%= markdown.toHTML(project.desc) %></p>
         </div>
+        <%if (!Object.keys(project.errors).length) {%>
+            <div class="SPM-info-alert clearfix">
+                <span class="emoji-outer emoji-sizer"><span class="emoji-inner" style="background: url(https://slack.global.ssl.fastly.net/19218/img/emoji_twitter_64_indexed_256colors.png);background-position:17.241379310344826% 100%;background-size:3000%" title="sun_with_face">:sun_with_face:</span></span>
+                <span class="SPM-text-info"> La carte Trello est à jour.</span>
+                <a class="btn btn-primary pull-right" href="<%=project.url%>"><span class="lambda-label">Voir la carte</span></a>
+            </div>
+        <% } %>
     </div>
 </div>

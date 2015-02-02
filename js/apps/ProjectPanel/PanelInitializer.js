@@ -9,9 +9,8 @@ SPM.Apps.ProjectPanel.PanelInitalizer = {
     },
 
     renderCurrentProject: function() {
-        return SPM.ProjectManager.findProject(this.currentProjectName).then(
+        return SPM.ProjectManager.findProjectByChanelName(this.currentProjectName).then(
             function success (project) {
-                console.log(project);
                 SPM.PanelRenderer.render(project);
             },
             function error (err) {

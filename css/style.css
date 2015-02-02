@@ -65,47 +65,29 @@
 .SPM-warning-alert {
     background-color: #fdf1c1;
     border-radius: 5px;
-    padding: 10px;
+    padding: 7px;
 }
 
-.SPM-success-alert {
-    background-color: rgb(87, 166, 218);
+.SPM-info-alert {
+    background-color: rgb(196, 229, 250);
     border-radius: 5px;
-    padding: 10px;
+    padding: 7px;
 }
 
-
-
-
-
-
-/*EMOJI*/
-.SPM-emoji-card-ok {
-    display: inline-block;
-    background: url(https://slack.global.ssl.fastly.net/19218/img/emoji_twitter_64_indexed_256colors.png);
-    background-position:79.3103448275862% 6.896551724137931%;
-    background-size:3000%;
-    width: 48px;
-    height: 48px;
-    transform: scale(0.5);
+#SPM-copy-slack-chan {
+    color: white;
 }
 
+.SPM-text-info {
+    position: relative;
+    top: 10px;
+    color: rgb(86, 133, 161);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.SPM-info-alert .emoji-outer {
+    position: relative;
+    top: 5px;
+}
 
 .SPM-description {
     clear: both;
@@ -145,4 +127,10 @@
     height: 18px;
     text-align: right;
     margin-right: 1px;
+}
+
+#SPM-notif {
+    height: 26px;
+    line-height: 18px;
+    background: #DA3838;
 }
