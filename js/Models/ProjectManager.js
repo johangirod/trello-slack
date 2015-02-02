@@ -218,14 +218,14 @@ SPM.ProjectManager = {
         });
     },
 
-    getAllProjectsInArborium: function() {
-        return SPM.TrelloConnector.request("get","/boards/IVh8Diai/cards").then(function(projects) {
+    getAllProjectsInBoard: function(boardId) {
+        return SPM.TrelloConnector.request("get","/boards/" + boardId + "/cards").then(function(projects) {
             return projects;
         });
     },
 
-    getMyProjectsInArborium: function() {
-        return this.getAllProjectsInArborium()
+    getMyProjectsInBoard: function(boardId) {
+        return this.getAllProjectsInBoard(boardId)
         .then(function (projects) {
             return _.filter(projects, function(project){
                 if (project) {
@@ -241,8 +241,8 @@ SPM.ProjectManager = {
     },
 
 
-    getMyProjectsInArborium: function() {
-        return this.getAllProjectsInArborium()
+    getMyProjectsInArborium: function(boardId) {
+        return this.getAllProjectsInBoard(boardId)
         .then(function (projects) {
             return _.filter(projects, function(project){
                 if (project) {
@@ -257,8 +257,8 @@ SPM.ProjectManager = {
         });
     },
 
-    getMyProjectsInArboriumWithoutChannel: function() {
-        return this.getAllProjectsInArborium()
+    getMyProjectsInBoardWithoutChannel: function(boardId) {
+        return this.getAllProjectsInBoard(boardId)
         .then(function (projects) {
             return _.filter(projects, function(project){
                 if (project) {
@@ -273,8 +273,8 @@ SPM.ProjectManager = {
         });
     },
 
-    getNotMyProjectsInArborium: function() {
-        return this.getAllProjectsInArborium()
+    getNotMyProjectsInBoard: function(boardId) {
+        return this.getAllProjectsInBoard(boardId)
         .then(function (projects) {
             return _.filter(projects, function(project){
                 if (project) {

@@ -5,9 +5,9 @@ var SPM = SPM || {};
 var initBoards = function(boardIds) {
     return Promise
         // 1- Getting all the boards
-        .all(boardIds.map(function(boardId) {
+        .all(_.map(boardIds, function(boardId) {
             return SPM.TrelloConnector.request("boards.get", boardId)
-        }))
+        }.bind(this)))
         // 2 - Gettin' all the list for all the boards
         .then(function (boards) {
             return Promise.all(boards.map(function (board) {
@@ -25,14 +25,20 @@ var initLists = function (board) {
 }
 
 SPM.BoardManager = {
-    boardIds: null,
-    boards: null,
+    boards: {},
     init: function(boardIds) {
         this.boardIds = boardIds;
         return initBoards(boardIds)
             .then(function (boards) {
+                _.each(boards, function(board) {
+                    this.boards[board.name] = board;
+                }.bind(this))
                 this.boards = boards;
             }.bind(this))
 
+    },
+
+    getBoardByName: function(boardName) {
+        return this.boards[boardName];
     }
 };

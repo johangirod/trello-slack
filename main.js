@@ -1,7 +1,10 @@
 var SPM = SPM || {};
 
 SPM.Initializer = {
-    boardsIds: ["IVh8Diai", "l49f2LxM"],
+    boardsIds: {
+        arborium: "IVh8Diai",
+        seeds: "l49f2LxM"
+    },
 
     /**
     * Let's go!

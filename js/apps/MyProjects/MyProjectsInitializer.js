@@ -14,11 +14,13 @@ var waitUntilChannelsAreHere = function() {
 var setProjects = function() {
     Promise.all([
         SPM.ProjectManager.getNotMyProjectsChannels(),
-        SPM.ProjectManager.getMyProjectsInArborium(),
-        SPM.ProjectManager.getNotProjectsChannels()
+        SPM.ProjectManager.getMyProjectsInArborium(SPM.Initializer.boardsIds.arborium),
+        SPM.ProjectManager.getNotProjectsChannels(),
+        SPM.ProjectManager.getMyProjectsInArborium(SPM.Initializer.boardsIds.seeds)
     ]).then(function(results) {
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-other_channe", "AUTRE CHANNELS", results[2]);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", results[0]);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES GRAINES", results[3]);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", results[1]);
         $("#channels").hide();
     })
