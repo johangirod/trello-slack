@@ -33,7 +33,7 @@ SPM.Initializer = {
         moment.locale('fr', {
             relativeTime : {
                 future: "%s",
-                past:   "/!\\ date passée!",
+                past:   "%s",
                 s:  "J",
                 m:  "J",
                 mm: "J",

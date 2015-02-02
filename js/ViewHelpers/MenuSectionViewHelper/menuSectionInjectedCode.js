@@ -1,7 +1,7 @@
 $( "body" ).on( "click", ".SPM-section-added .channel_name", function() {
     var id = $(this).attr("data-channel-id");
     //$("#channels").hide();
-    $("#channel-list [data-channel-id="+id+"]").trigger('click');
+    $("#channel-list [data-channel-id="+id+"], #starred-list [data-channel-id="+id+"]").trigger('click');
     /*
     setTimeout(function() {
         $("#channels").show();

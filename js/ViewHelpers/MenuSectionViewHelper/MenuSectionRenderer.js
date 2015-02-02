@@ -51,8 +51,8 @@ SPM.ViewHelpers.SectionRenderer = {
     updateMenuItem: function(section) {
         $("#" + section.id + " li.channel").each(function(index) {
             var id = $(this).find(".channel_name").attr("data-channel-id");
-            if ($(this)[0].outerHTML != $("#channel-list .channel_"+id)[0].outerHTML) {
-                $(this).replaceWith($("#channel-list .channel_"+id).clone());
+            if ($(this)[0].outerHTML != $("#channel-list .channel_" + id + ", #starred-list .channel_"+id)[0].outerHTML) {
+                $(this).replaceWith($("#channel-list .channel_" + id + ",#starred-list .channel_"+id).clone());
             }
         })
     },

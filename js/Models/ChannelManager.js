@@ -39,14 +39,16 @@ SPM.Models.ChannelManager = {
      */
     initChannels: function(force) {
         if (force || this.channelIds.length == 0) {
-
-            this.channelIds = $.map($("#channel-list a.channel_name"), function(a, index) {
+            // Get Channels in Channels list
+            this.channelIds = $.map($("#channel-list a.channel_name, #starred-list a.channel_name"), function(a, index) {
                 return $(a).attr("data-channel-id");
             });
 
-            this.channelNames = $.map($("#channel-list li .overflow-ellipsis"), function(li, index) {
+            this.channelNames = $.map($("#channel-list li .overflow-ellipsis, #starred-list li a.channel_name .overflow-ellipsis"), function(li, index) {
                 return $(li).text().replace(/(\r\n|\n|\r|\s+)/gm,"").slice(1);
             });
+
+            // Get Channels in Starred List
 
         }
     },

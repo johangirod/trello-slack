@@ -1,6 +1,6 @@
 
 <h2 id="starred_section_header" class="overflow-ellipsis"><%= title %></h2>
-<ul id="starred-list">
+<ul>
     <% channels.forEach(function(channel) { %>
         <li <% if (channel.slackId) { %> class="channel " <% } %>>
             <a <% if (channel.slackId) { %> class="channel_name" data-channel-id="<%= channel.slackId %>" <% } %>>
