@@ -44,16 +44,16 @@ SPM.PanelRenderer = {
             .waitUntil(panelIsHere)
             .then(function () {
                 this.addDiv();
+                this.openPanel();
             }.bind(this))
     },
 
     renderNoProject: function() {
+        this.reset();
         this.addErrorTitle("Pas de carte sur trello ;(");
     },
 
     reset: function() {
-        console.log('reset, yo');
-
         this.project = null;
         // remove div
         if (this.div !== null) {
@@ -63,14 +63,6 @@ SPM.PanelRenderer = {
         if (this.titleDiv !== null) {
             this.titleDiv.remove();
         }
-
-        // close panel
-        SPM.CodeInjector.injectCode('\
-        if ($(".flex_pane_showing #flex_toggle").length != 0) {\
-            $("#flex_toggle").trigger("click");\
-        }\
-        ');
-
     },
 
     div: null,
@@ -79,13 +71,10 @@ SPM.PanelRenderer = {
         var div = '<div class="tab-pane active" id="projects_tab"></div>';
         this.div = $(div).appendTo("#flex_contents");
 
-        console.log("yo")
-        console.log(this.boards, this.project)
         this.template.update("projects_tab", {
             project: this.project,
-            boards: this.boards
+            boards: SPM.BoardManager.boards
         });
-        console.log("yeia")
     },
 
     titleDiv: null,
@@ -98,5 +87,20 @@ SPM.PanelRenderer = {
         this.error = message;
         var dom = '<span class="name SPM-title error">' + message + '</span>';
         this.titleDiv = $(dom).appendTo("#active_channel_name");
+    },
+    openPanel: function () {
+        SPM.CodeInjector.injectCode('\
+            if ($(".flex_pane_showing #flex_toggle").length == 0) {\
+                $("#flex_toggle").trigger("click");\
+            }\
+        ');
+    },
+    closePanel: function () {
+        SPM.CodeInjector.injectCode('\
+            if ($(".flex_pane_showing #flex_toggle").length !== 0) {\
+                $("#flex_toggle").trigger("click");\
+            }\
+        ');
     }
 }
+// <span class="emoji-inner" style="background: url(https://slack.global.ssl.fastly.net/19218/img/emoji_twitter_64_indexed_256colors.png);background-position:20.689655172413794% 65.51724137931033%;background-size:3000%" title="fallen_leaf">:fallen_leaf:</span>

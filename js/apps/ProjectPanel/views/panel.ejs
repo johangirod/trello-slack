@@ -5,35 +5,54 @@
         </a>
     </div>
     <div class="toolbar">
-        <div class="SPM-board_name">
-            <ul class="SPM-board-names">
-                <% boards.forEach(function(board){ %>
-                <li class="<% if (project.board && board.name === project.board.name)  { %>selected<% } %>">
-                    <%= board.name %>
-                </li>
-                <% }) %>
-            </ul>
-        </div>
-        <% boards.forEach(function(board) { %>
-        <div id="file_list_toggle SPM-lists SPM-list-<%= board.id %>" class="btn-group" <% if (project.board && board.id != project.board.id) { %>style="display:none;"<% } %>>
-            <% board.lists.forEach(function(list) { %>
-            <button id="file_list_toggle_all" class="file_list_toggle <% if (list.id == project.idList) { %>active<% } %> btn btn-mini btn-outline"><%= list.name %></button>
-            <% }) %>
-        </div>
-        <% }) %>
-    </div>
-    <div class="SPM-tab-content">
         <div class="SPM-members">
             <% project.members.forEach(function(member) {%>
                 <div class="SPM-member <% if (member.isLeader) { %>SPM-leader<% } %>">
                 <% if (member.avatarHash === null) { %>
                     <div class="SPM-member-initials"> <%= member.fullName.match(/\b\w/g).join('') %> </div>
                 <% } else {%>
-                    <img class="SPM-member-avatar" height="30" width="30" src="https://trello-avatars.s3.amazonaws.com/<%= member.avatarHash %>/30.png" alt="<% member.name %>" title="<% member.name %>">
+                    <img class="SPM-member-avatar" src="https://trello-avatars.s3.amazonaws.com/<%= member.avatarHash %>/50.png" alt="<% member.name %>" title="<% member.name %>">
                 <% } %>
                 </div>
             <% }) %>
         </div>
+        <div>
+        <% boards.forEach(function(board) { %>
+            <% if (project.idBoard == board.id) { %>
+                <div id="file_list_toggle SPM-lists SPM-list-<%= board.id %>" class="btn-group">
+                <% board.lists.forEach(function(list) { %>
+                    <button id="file_list_toggle_all" class="file_list_toggle <% if (list.id == project.idList) { %>active<% } %> btn btn-mini btn-outline"><%= list.name %></button>
+                <% }) %>
+                </div>
+            <% } %>
+        <% }) %>
+        </div>
+    </div>
+    <div class="SPM-tab-content">
+        <% if (Object.keys(project.errors).length) {%>
+            <div class="SPM-warning-alert">
+                <h4> Informations manquantes</h4>
+                <p> N'hésitez pas à prendre quelques secondes pour les compléter</p>
+                <ul>
+                    <% if (project.errors.noLeader) {%>
+                        <li> Le projet n'a pas de leader renseigné. </li>
+                    <% } if (project.errors.unknownLeader) {%>
+                        <li> Le leader renseigné n'est pas parmis les membres. Etes vous sur de l'orthographe ? Il ne peut y avoir qu'un leader par projet</li>
+                    <% } if (project.errors.tooManyMembers) {%>
+                        <li> Un projet doit avoir 5 membres au maximum. Par contre, il n'existe aucune limite pour le nombre de consultants </li>
+                    <% } if (project.errors.titleIsSlackChan) {%>
+                        <li> Le titre du projet ne doit pas être le nom du chan slack. Il vaut mieux choisir un nom explicite.</li>
+                    <% }%>
+                </ul>
+                <div> <a class="btn btn-primary" href="<%=project.url%>"><span class="lambda-label">Compléter la carte</span></a></div>
+            </div>
+        <%} else {%>
+            <div class="SPM-success-alert">
+                <h4>
+                    Le projet est à jour!
+                </h4>
+            </div>
+        <% } %>
         <div class="subsection SPM-description" data-filter="all">
             <p><%= markdown.toHTML(project.desc) %></p>
         </div>
