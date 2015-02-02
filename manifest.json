@@ -32,6 +32,7 @@
 
                 //ViewHelpers
                 "/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js",
+                "/js/ViewHelpers/EmojiRenderer.js",
 
                 "/js/connectors/TrelloConnector.js",
 

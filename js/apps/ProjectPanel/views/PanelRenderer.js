@@ -29,64 +29,73 @@ SPM.PanelRenderer = {
     },
 
     render: function(project) {
-        this.initTemplate();
         this.reset();
+        this.initTemplate();
 
         this.project = project;
 
         SPM.Utils
             .waitUntil(titleIsHere)
             .then(function () {
-                this.addTitle(SPM.Utils.getDueDate(this.project.due) + ': ' + this.project.name);
+                this.addTitle(SPM.Utils.getDueDate(this.project.due), this.project.name);
             }.bind(this))
 
         SPM.Utils
             .waitUntil(panelIsHere)
             .then(function () {
-                this.addDiv();
+                this.addPanel();
                 this.openPanel();
             }.bind(this))
     },
 
     renderNoProject: function() {
         this.reset();
-        this.addErrorTitle("Pas de carte sur trello ;(");
+        this.closePanel();
+        this.addError();
     },
 
     reset: function() {
         this.project = null;
         // remove div
-        if (this.div !== null) {
-            this.div.remove();
-        }
-        // remove title
-        if (this.titleDiv !== null) {
-            this.titleDiv.remove();
-        }
+        this.panelDiv && this.panelDiv.remove();
+        this.titleDiv && this.titleDiv.remove();
+        this.errorDiv && this.errorDiv.remove();
     },
 
-    div: null,
-    addDiv: function() {
+    panelDiv: null,
+    addPanel: function() {
         // Create the div if not here
         var div = '<div class="tab-pane active" id="projects_tab"></div>';
-        this.div = $(div).appendTo("#flex_contents");
+        this.panelDiv = $(div).appendTo("#flex_contents");
 
         this.template.update("projects_tab", {
             project: this.project,
             boards: SPM.BoardManager.boards
         });
     },
-
     titleDiv: null,
-    addTitle: function(title) {
-        var dom = '<span class="name SPM-title">' + title + '</span>';
+    addTitle: function(deadline, title) {
+        var dom = '<span class="name SPM-title">' +
+        ((deadline)? '<span class="SPM-deadline-title">' + deadline + '</span> ' : '') +
+        title + '</span>';
         this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
-    error: '',
-    addErrorTitle: function(message) {
-        this.error = message;
-        var dom = '<span class="name SPM-title error">' + message + '</span>';
-        this.titleDiv = $(dom).appendTo("#active_channel_name");
+    errorDiv: null,
+    addError: function(message) {
+        var dom = '<div id="SPM-notif" class="messages_banner"> \
+                    <span id="SPM-chan-error" class="overflow-ellipsis"> \
+                        Vous devez créer une carte Trello (si ce n\'est pas déjà fait) et renseigner ce channel slack.\
+                        <a id="SPM-copy-slack-chan" href="#"> Voir le lien.</a>\</span>\
+                </div>'
+        this.errorDiv = $(dom).insertBefore("#messages_unread_status");
+        var chanName = SPM.Utils.getProjectNameFromUrl(document.URL)
+        SPM.CodeInjector.injectCode('\
+                $("#SPM-copy-slack-chan").click(function() {\
+                    window.prompt("Copier ce texte dans la description de la carte slack", "\\n**Slack** : [' +
+                        chanName + '](https://evaneos.slack.com/messages/' +
+                        'p-chartioprod](https://evaneos.slack.com/messages/' + chanName + ')\\n\\n");\
+                });\
+        ');
     },
     openPanel: function () {
         SPM.CodeInjector.injectCode('\

@@ -45,7 +45,7 @@ SPM.Utils = {
     parseGetValueFromKey: function(desc, key) {
         var value = desc
             .toLowerCase()
-            .match(new RegExp(key + ".*?:[ ]*#?[\\w]+.*?\\n"));
+            .match(new RegExp("(\\n|^).*?" + key + ".*?:.*?(\\n|$)"));
         if (!value) {return false}
         return value[0]
             .slice(value[0].indexOf(':') + 1)
@@ -59,7 +59,7 @@ SPM.Utils = {
         } else if (diff < 0) {
             return "J+" + Math.abs(diff);
         } else {
-            return "??";
+            return "";
         }
     },
 

@@ -19,7 +19,7 @@ var setProjects = function() {
         SPM.ProjectManager.getMyProjectsInBoard(SPM.Initializer.boardsIds.seeds)
     ]).then(function(results) {
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-other_channe", "AUTRE CHANNELS", results[2]);
-        SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", results[0]);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES PROJETS SUIVIS", results[0]);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES GRAINES", results[3]);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", results[1]);
         $("#channel-list").hide();

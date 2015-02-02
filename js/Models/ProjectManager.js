@@ -37,18 +37,29 @@ var parseLeader = function (project) {
 }
 
 var parseSlack = function(project) {
-    project.slack = SPM.Utils.parseGetValueFromKey(project.desc, 'slack');
-    if (project.slack) {
-        project.slack = project.slack.slice(1);
-        project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
-
+    var slack = SPM.Utils.parseGetValueFromKey(project.desc, '(slack|channel|chanel|chan)');
+    if (!slack) {
+        return
     }
+    if (slack[0] === '#') {
+        // With the # syntax
+        slack = slack.slice(1)
+    } else if(slack[0] === '[') {
+        // With the [name](url) syntax
+        var index = slack.indexOf(']');
+        slack = slack.slice(1, index);
+    }
+    if(slack.indexOf('p-') !== 0) {
+        return null;
+    }
+    project.slack = slack;
+    project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
     return project.slack;
 }
 
-var checkErrors = function () {
-    if (project.members.length > 5) {project.errors.tooManyMembers = true};
-    if (project.title.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
+var checkErrors = function (project) {
+    if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
+    if (project.name.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
 }
 
 SPM.ProjectManager = {
@@ -56,20 +67,26 @@ SPM.ProjectManager = {
         project.errors = {};
         return getMembers(project)
         .then(function(project) {
-			var leader = parseLeader(project);
-            var slack = parseSlack(project);
-            // setLeader(project);
-            // setConsultingTeam(project);
-            // setKPI(project);
-            // setDescription(project);
-
-            // Need to 2x the line break for ISO trello markdown rendering
-            project.desc = SPM.Utils.doubleLineBreak(project.desc);
-            // Capitalize first letter
-            project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
-			return project;
+            var leader = parseLeader(project);
+            return SPM.ProjectManager.simpleInit(project);
 		})
 	},
+
+    simpleInit: function(project) {
+        project.errors = project.errors || {};
+        var slack = parseSlack(project);
+        // setLeader(project);
+        // setConsultingTeam(project);
+        // setKPI(project);
+        // setDescription(project);
+
+        // Need to 2x the line break for ISO trello markdown rendering
+        project.desc = SPM.Utils.doubleLineBreak(project.desc);
+        // Capitalize first letter
+        project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
+        checkErrors(project);
+        return project;
+    },
 
     isMyProject: function(project) {
         return _.find(project.members, function(member) {
@@ -92,6 +109,16 @@ SPM.ProjectManager = {
                 console.warn("There is several Trello cards associated to this project !");
             }
             return SPM.ProjectManager.initProject(cards[0]);
+        }.bind(this));
+    },
+
+    findProjectByChannelName: function (channelName) {
+        return this.findProject(channelName).then(function (project) {
+            if (project.slack == channelName) {
+                return Promise.resolve(project);
+            } else {
+                return Promise.reject('No project found for the slack channel ' + channelName);
+            }
         }.bind(this));
     },
 
@@ -230,7 +257,13 @@ SPM.ProjectManager = {
 
     getAllProjectsInBoard: function(boardId) {
         return SPM.TrelloConnector.request("get","/boards/" + boardId + "/cards").then(function(projects) {
-            return projects;
+            return Promise.all(_.map(projects, function(project) {
+                return SPM.ProjectManager.initProject(project);
+            })).then(function(projects) {
+                return projects;
+            }).catch(function() {
+                console.log(error);
+            });
         });
     },
 

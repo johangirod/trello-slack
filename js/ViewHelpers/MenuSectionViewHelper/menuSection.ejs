@@ -10,12 +10,15 @@
                 </span>
             </a>
         </li>
-        <% if (!channel.notProject && ( !channel.slackId || !channel.name)) { %> <div class="SPM-error"
+        <div class="SPM-message
+        <% if (!channel.notProject && ( !channel.slackId || !channel.name)) { %> SPM-error <% } %>
+        <% if (channel.errors && Object.keys(channel.errors).length > 0 ) { %> SPM-warning<% } %>"
         <% if (!channel.slackId) { %>data-text="Ce projet est présent dans Trello mais n'a pas de discussion Slack associée.
 Soit il en existe déjà une et vous avez juste à rajouter une ligne dans la description du projet sur Trello.
 Soit vous pouvez créer une nouvelle discussion slack pour ce projet."
-        <% } %> ></div> <% } %>
+        <% } %> ></div>
         <% if (!channel.notProject) { %><div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.due) %></div><% } %>
         <div class='SPM-desc'><%= channel.desc %></div>
+        <% if (SPM.ViewHelpers.EmojiRenderer[channel.idList]) { %> <div class="SPM-emoji"> <%= SPM.ViewHelpers.EmojiRenderer[channel.idList] %> </div> <% } %>
     <% }) %>
 </ul>
