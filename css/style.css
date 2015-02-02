@@ -82,3 +82,14 @@
 .SPM-leader {
     border: 2px solid gold;
 }
+
+.SPM-error {
+    border-width: 1px;
+    margin-top: -16px;
+    margin-bottom: 5px;
+    margin-left: 4px;
+    border-radius: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: red;
+}

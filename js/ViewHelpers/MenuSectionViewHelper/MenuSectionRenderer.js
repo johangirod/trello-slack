@@ -24,11 +24,9 @@ SPM.ViewHelpers.SectionRenderer = {
 
     timerUpdate: null,
     initRenderLoop: function(callback) {
-        if (this.timerUpdate == null) {
-            this.timerUpdate = setInterval(function() {
-                callback();
-            }.bind(this), 100);
-        }
+        this.timerUpdate = setInterval(function() {
+            callback();
+        }.bind(this), 100);
     },
 
     update: function(section) {
