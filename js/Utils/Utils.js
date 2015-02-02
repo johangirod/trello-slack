@@ -59,7 +59,7 @@ SPM.Utils = {
         } else if (diff < 0) {
             return "J+" + Math.abs(diff);
         } else {
-            return "??";
+            return "";
         }
     },
 

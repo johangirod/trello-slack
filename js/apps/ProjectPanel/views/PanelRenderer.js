@@ -37,7 +37,7 @@ SPM.PanelRenderer = {
         SPM.Utils
             .waitUntil(titleIsHere)
             .then(function () {
-                this.addTitle(SPM.Utils.getDueDate(this.project.due) + ': ' + this.project.name);
+                this.addTitle(SPM.Utils.getDueDate(this.project.due), this.project.name);
             }.bind(this))
 
         SPM.Utils
@@ -74,8 +74,8 @@ SPM.PanelRenderer = {
         });
     },
     titleDiv: null,
-    addTitle: function(title) {
-        var dom = '<span class="name SPM-title">' + title + '</span>';
+    addTitle: function(deadline, title) {
+        var dom = '<span class="name SPM-title"><span class="SPM-deadline-title">' + deadline + '</span> ' + title + '</span>';
         this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
     errorDiv: null,

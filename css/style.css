@@ -78,6 +78,13 @@
     color: white;
 }
 
+.SPM-deadline-title {
+    background-color: rgb(86, 133, 161);
+    color: white;
+    border-radius: 3px;
+    padding: 2px 5px;
+}
+
 .SPM-text-info {
     position: relative;
     top: 10px;
