@@ -11,11 +11,12 @@ SPM.Apps.ProjectPanel.PanelInitalizer = {
     renderCurrentProject: function() {
         return SPM.ProjectManager.findProject(this.currentProjectName).then(
             function success (project) {
-                SPM.PanelRenderer.render(project)
+                console.log(project);
+                SPM.PanelRenderer.render(project);
             },
-            function error (error) {
+            function error (err) {
                 SPM.PanelRenderer.renderNoProject();
-                console.warn(error)
+                console.warn(err);
             }
         );
     },
@@ -26,14 +27,18 @@ SPM.Apps.ProjectPanel.PanelInitalizer = {
     },
 
     checkChange: function(callback) {
-        console.log("hoho")
         // Very beautiful way to know if the layout has been changed
         return SPM.Utils
             .waitUntil(this.projectHasChanged.bind(this))
             .then(function () {
                 this.currentProjectName = SPM.Utils.getProjectNameFromUrl(document.URL);
-                this.renderCurrentProject()
+                if (this.currentProjectName) {
+                   this.renderCurrentProject();
+                } else {
+                    SPM.PanelRenderer.reset();
+                    SPM.PanelRenderer.closePanel();
+                }
                 return this.checkChange();
-            }.bind(this))
+            }.bind(this));
     }
 }

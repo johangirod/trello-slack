@@ -17,20 +17,20 @@ var setProjects = function() {
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", projects, false);
     })
     .catch(function() {
-        console.log('error setting projects');
+        console.error('error setting projects');
     });
     SPM.ProjectManager.getMyProjectsInArborium()
     .then(function (projects) {
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", projects, true);
     })
     .catch(function() {
-        console.log('error setting my projects');
+        console.error('error setting my projects');
     });
 }
 
 SPM.Apps.MyProjects.MyProjectsInitalizer = {
     init: function() {
-        waitUntilChannelsAreHere()
+        return waitUntilChannelsAreHere()
             .then(setProjects);
     }
 }

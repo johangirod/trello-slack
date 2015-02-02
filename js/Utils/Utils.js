@@ -14,8 +14,7 @@ SPM.Utils = {
     },
 
     getProjectNameFromUrl: function(url) {
-        var parts = url.split('/');
-        var channel = parts[4];
+        var channel = url.split('/')[4];
         if (channel.substring(0,2) == 'p-') {
             return channel;
         } else {
@@ -46,13 +45,11 @@ SPM.Utils = {
     parseGetValueFromKey: function(desc, key) {
         var value = desc
             .toLowerCase()
-            .match(new RegExp(key + ".*?:[ ]*#?[\\w]+.*?\\n"));
+            .match(new RegExp(key + ".*?:[ ]*?[\\w]+.*?\\n"));
         if (!value) {return false}
-        value = value[0]
-        value = value.slice(value.indexOf(':') + 1)
-            .trim()
-            .split(' ')[0]
-        return SPM.Utils.unaccent(value);
+        return value[0]
+            .slice(value.indexOf(':') + 1)
+            .trim();
     },
 
     getDueDate: function(date) {
@@ -64,6 +61,12 @@ SPM.Utils = {
         } else {
             return "??";
         }
+    },
+
+    doubleLineBreak: function (desc) {
+        return desc.replace(/[^\n]\n[^\n]/, function(str) {
+            return str[0] + "\n\n" + str[2];
+        }, "g");
     }
 
 
