@@ -53,6 +53,17 @@ SPM.Utils = {
             .trim()
             .split(' ')[0]
         return SPM.Utils.unaccent(value);
+    },
+
+    getDueDate: function(date) {
+        var diff = moment(date).diff(moment(), 'days');
+        if (diff > 0) {
+            return "J-" + diff;
+        } else if (diff < 0) {
+            return "J+" + Math.abs(diff);
+        } else {
+            return "??";
+        }
     }
 
 

@@ -2,14 +2,16 @@
 <h2 id="starred_section_header" class="overflow-ellipsis"><%= title %></h2>
 <ul id="starred-list">
     <% channels.forEach(function(channel) { %>
-    <li <% if (channel.slackId) { %> class="channel " <% } %>>
-        <a <% if (channel.slackId) { %> class="channel_name" <% if (channel.slackId)  %>data-channel-id="<%= channel.slackId %>" <% } %>>
-            <span class="overflow-ellipsis">
-                <span class="prefix">#</span>
-                <% if (channel.slackId) { %><%= channel.slack %><% } else { %><%= channel.name %><% } %>
-            </span>
-        </a>
-    </li>
-    <% if (!channel.slackId || !channel.name) {%> <div class="SPM-error"></div> <% } %>
+        <li <% if (channel.slackId) { %> class="channel " <% } %>>
+            <a <% if (channel.slackId) { %> class="channel_name" data-channel-id="<%= channel.slackId %>" <% } %>>
+                <span class="overflow-ellipsis">
+                    <span class="prefix">#</span>
+                    <% if (channel.slackId) { %><%= channel.slack %><% } else { %><%= channel.name %><% } %>
+                </span>
+            </a>
+        </li>
+        <% if (!channel.slackId || !channel.name) { %> <div class="SPM-error"></div> <% } %>
+        <div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.due) %></div>
+
     <% }) %>
 </ul>

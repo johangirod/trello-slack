@@ -8,6 +8,7 @@ SPM.Initializer = {
     */
     currentProjectName: null,
     init: function() {
+        this.initDate();
         SPM.TrelloConnector
             .initConnection()
             .then(function() {
@@ -25,6 +26,27 @@ SPM.Initializer = {
             .catch(function (error) {
                 console.error(error);
             })
+    },
+    initDate: function() {
+
+        moment.locale("fr");
+        moment.locale('fr', {
+            relativeTime : {
+                future: "%s",
+                past:   "/!\\ date passée!",
+                s:  "J",
+                m:  "J",
+                mm: "J",
+                h:  "J",
+                hh: "J",
+                d:  "J-1",
+                dd: "J-%d",
+                M:  "M-1",
+                MM: "M-%d",
+                y:  "Y-1",
+                yy: "Y-%d"
+            }
+        });
     }
 }
 
