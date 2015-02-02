@@ -75,7 +75,9 @@ SPM.PanelRenderer = {
     },
     titleDiv: null,
     addTitle: function(deadline, title) {
-        var dom = '<span class="name SPM-title"><span class="SPM-deadline-title">' + deadline + '</span> ' + title + '</span>';
+        var dom = '<span class="name SPM-title">' +
+        ((deadline)? '<span class="SPM-deadline-title">' + deadline + '</span> ' : '') +
+        title + '</span>';
         this.titleDiv = $(dom).appendTo("#active_channel_name");
     },
     errorDiv: null,
