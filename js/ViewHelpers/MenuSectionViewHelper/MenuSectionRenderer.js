@@ -5,12 +5,11 @@ SPM.ViewHelpers.SectionRenderer = {
 
     codeInserted: false,
 
-    addSection: function(id, title, channels, first) {
+    addSection: function(id, title, channels) {
         var section = {};
         section.title = title;
         section.channels = channels;
         section.id = id;
-        section.first = first;
         this.initTemplate();
         if (!this.codeInserted) {
             SPM.CodeInjector.injectFile("js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js");
@@ -36,20 +35,11 @@ SPM.ViewHelpers.SectionRenderer = {
 
     addSectionDivIfNotExist: function(section) {
         var div = '<div id="' + section.id + '" class="SPM-section-added section_holder"></div>';
+        var index = 0;
         if ($("#starred_div").length > 0) {
-            if (section.first) {
-                $("#starred_div").after(div);
-            } else {
-                $("#channels").before(div);
-            }
-
-        } else {
-            if (section.first) {
-                $("#channels_scroller").prepend(div);
-            } else {
-                $("#channels").before(div);
-            }
+            var index = 1;
         }
+        $("#channels_scroller").children().eq(index).before(div);
 
         this.template.update(section.id, {
             channels: section.channels,

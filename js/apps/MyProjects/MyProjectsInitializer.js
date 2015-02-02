@@ -12,20 +12,17 @@ var waitUntilChannelsAreHere = function() {
 };
 
 var setProjects = function() {
-    SPM.ProjectManager.getNotMyProjectsChannels()
-    .then(function (projects) {
-        SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", projects, false);
+    Promise.all([
+        SPM.ProjectManager.getNotMyProjectsChannels(),
+        SPM.ProjectManager.getMyProjectsInArborium(),
+        SPM.ProjectManager.getNotProjectsChannels()
+    ]).then(function(results) {
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-other_channe", "AUTRE CHANNELS", results[2]);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", results[0]);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", results[1]);
+        $("#channels").hide();
     })
-    .catch(function() {
-        console.log('error setting projects');
-    });
-    SPM.ProjectManager.getMyProjectsInArborium()
-    .then(function (projects) {
-        SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", projects, true);
-    })
-    .catch(function() {
-        console.log('error setting my projects');
-    });
+
 }
 
 SPM.Apps.MyProjects.MyProjectsInitalizer = {

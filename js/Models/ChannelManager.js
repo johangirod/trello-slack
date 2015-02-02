@@ -18,6 +18,16 @@ SPM.Models.ChannelManager = {
         })
     },
 
+    /*
+    * function which returns the list of channels which don't begin by 'p-'
+     */
+    getNotProjectChannelNames: function() {
+        this.initChannels();
+        return _.filter(this.getChannelNames(), function(channelName) {
+            return channelName.slice(0, 2) != 'p-';
+        })
+    },
+
     channelIds: [],
     getChannelIds: function() {
         this.initChannels();

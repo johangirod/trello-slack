@@ -10,8 +10,8 @@
                 </span>
             </a>
         </li>
-        <% if (!channel.slackId || !channel.name) { %> <div class="SPM-error"></div> <% } %>
-        <div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.due) %></div>
+        <% if (!channel.notProject && ( !channel.slackId || !channel.name)) { %> <div class="SPM-error"></div> <% } %>
+        <% if (!channel.notProject) { %><div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.due) %></div><% } %>
 
     <% }) %>
 </ul>

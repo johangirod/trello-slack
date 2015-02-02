@@ -203,6 +203,21 @@ SPM.ProjectManager = {
         });
     },
 
+    getNotProjectsChannels: function() {
+        var notProjectChannels = SPM.Models.ChannelManager.getNotProjectChannelNames();
+        var projectsChannelsFull = _.map(notProjectChannels, function(channel){
+            return {
+                name: null,
+                slackId: SPM.Models.ChannelManager.getChannelIdFromChannelName(channel),
+                slack: channel,
+                notProject: true
+            };
+        });
+        return new Promise(function(success, error) {
+            return success(projectsChannelsFull);
+        });
+    },
+
     getAllProjectsInArborium: function() {
         return SPM.TrelloConnector.request("get","/boards/IVh8Diai/cards").then(function(projects) {
             return projects;
