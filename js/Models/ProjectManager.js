@@ -41,6 +41,7 @@ var parseSlack = function(project) {
     if (project.slack) {
         project.slack = project.slack.slice(1);
         project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
+
     }
     return project.slack;
 }
@@ -256,7 +257,11 @@ SPM.ProjectManager = {
                 if (project) {
                     parseSlack(project);
                     return _.find(project.idMembers, function(idMember) {
-                        return SPM.MemberManager.me.id == idMember && !project.slackId;
+                        if (SPM.MemberManager.me.id == idMember && !project.slackId) {
+                            return true;
+                        } else {
+                            return false;
+                        }
                     })
                 } else {
                     return false;

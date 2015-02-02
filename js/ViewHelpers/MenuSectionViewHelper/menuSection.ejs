@@ -2,7 +2,7 @@
 <h2 id="starred_section_header" class="overflow-ellipsis"><%= title %></h2>
 <ul>
     <% channels.forEach(function(channel) { %>
-        <li <% if (channel.slackId) { %> class="channel " <% } %>>
+        <li <% if (channel.slackId) { %> class="channel " <% } else { %> class="SPM-no-slack" <% } %>>
             <a <% if (channel.slackId) { %> class="channel_name" data-channel-id="<%= channel.slackId %>" <% } %>>
                 <span class="overflow-ellipsis">
                     <span class="prefix">#</span>
@@ -10,8 +10,12 @@
                 </span>
             </a>
         </li>
-        <% if (!channel.notProject && ( !channel.slackId || !channel.name)) { %> <div class="SPM-error"></div> <% } %>
+        <% if (!channel.notProject && ( !channel.slackId || !channel.name)) { %> <div class="SPM-error"
+        <% if (!channel.slackId) { %>data-text="Ce projet est présent dans Trello mais n'a pas de discussion Slack associée.
+Soit il en existe déjà une et vous avez juste à rajouter une ligne dans la description du projet sur Trello.
+Soit vous pouvez créer une nouvelle discussion slack pour ce projet."
+        <% } %> ></div> <% } %>
         <% if (!channel.notProject) { %><div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.due) %></div><% } %>
-
+        <div class='SPM-desc'><%= channel.desc %></div>
     <% }) %>
 </ul>

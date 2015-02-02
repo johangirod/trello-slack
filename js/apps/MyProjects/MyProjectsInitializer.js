@@ -22,7 +22,7 @@ var setProjects = function() {
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "LES PROJETS QUE JE SUIS", results[0]);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES GRAINES", results[3]);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", results[1]);
-        $("#channels").hide();
+        $("#channel-list").hide();
     })
     .catch(function() {
         console.error('error setting projects');
