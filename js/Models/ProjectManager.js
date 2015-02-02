@@ -57,9 +57,9 @@ var parseSlack = function(project) {
     return project.slack;
 }
 
-var checkErrors = function () {
+var checkErrors = function (project) {
     if (project.members.length > 5) {project.errors.tooManyMembers = true};
-    if (project.title.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
+    if (project.name.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
 }
 
 SPM.ProjectManager = {
@@ -78,6 +78,7 @@ SPM.ProjectManager = {
             project.desc = SPM.Utils.doubleLineBreak(project.desc);
             // Capitalize first letter
             project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
+            checkErrors(project);
 			return project;
 		})
 	},
