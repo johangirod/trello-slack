@@ -84,18 +84,18 @@
 }
 
 .SPM-error {
-    border-width: 1px;
-    margin-top: -16px;
     margin-bottom: 5px;
-    margin-left: 4px;
-    border-radius: 5px;
-    width: 10px;
-    height: 10px;
+    border-radius: 3px;
     background-color: red;
+    height: 5px;
+    width: 5px;
+    margin-top: -13px;
+    margin-left: 7px;
 }
 
 .SPM-duedate {
-    margin-left: 180px;
     font-size: 10px;
     margin-top: -14px;
+    text-align: right;
+    margin-right: 1px;
 }
