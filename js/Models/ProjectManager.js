@@ -1,14 +1,5 @@
 var SPM = SPM || {};
-
-var getMembers = function (project) {
-    return Promise.all(project.idMembers.map(function (idMember) {
-        return SPM.TrelloConnector.request("members.get", idMember);
-    }))
-    .then(function (members) {
-        project.members = members;
-        return project;
-    });
-};
+SPM.Models = SPM.Models || {};
 
 var parseLeader = function (project) {
     var leader = SPM.Utils.parseGetValueFromKey(project.desc, 'leader');
@@ -19,7 +10,7 @@ var parseLeader = function (project) {
     leader = SPM.Utils.unaccent(leader);
     var leaderFound = project.members.some(function (member) {
         var memberName = SPM.Utils.unaccent(member.fullName.toLowerCase());
-        if (leader.indexOf(memberName)) {
+        if (memberName.indexOf(leader) !== -1) {
             member.isLeader = true;
             return true;
         }
@@ -41,286 +32,124 @@ var parseSlack = function(project) {
     if (!slack) {
         return
     }
-    if (slack[0] === '#') {
-        // With the # syntax
-        slack = slack.slice(1)
-    } else if(slack[0] === '[') {
+    if(slack[0] === '[') {
         // With the [name](url) syntax
         var index = slack.indexOf(']');
         slack = slack.slice(1, index);
+    }
+    if (slack[0] === '#') {
+        // With the # syntax
+        slack = slack.slice(1)
     }
     if(slack.indexOf('p-') !== 0) {
         return null;
     }
     project.slack = slack;
-    project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
     return project.slack;
 }
 
 var checkErrors = function (project) {
     if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
+    if (project.idMembers.length < 2) {project.errors.tooFewMembers = true};
     if (project.name.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
-}
+};
 
-SPM.ProjectManager = {
-	initProject: function(project) {
-        project.errors = {};
-        return getMembers(project)
-        .then(function(project) {
-            var leader = parseLeader(project);
-            return SPM.ProjectManager.simpleInit(project);
-		})
-	},
+var initProject = function(project) {
+    project.errors = {};
+    var leader = parseLeader(project);
+    var slack = parseSlack(project);
+    // Need to 2x the line break for ISO trello markdown rendering
+    project.desc = SPM.Utils.doubleLineBreak(project.desc);
+    // Capitalize first letter
+    project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
+    checkErrors(project);
+    return project;
+};
 
-    simpleInit: function(project) {
-        project.errors = project.errors || {};
-        var slack = parseSlack(project);
-        // setLeader(project);
-        // setConsultingTeam(project);
-        // setKPI(project);
-        // setDescription(project);
 
-        // Need to 2x the line break for ISO trello markdown rendering
-        project.desc = SPM.Utils.doubleLineBreak(project.desc);
-        // Capitalize first letter
-        project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
-        checkErrors(project);
-        return project;
-    },
-
+SPM.Models.ProjectManager = {
     isMyProject: function(project) {
         return _.find(project.members, function(member) {
-            return SPM.MemberManager.me.id == member.id;
+            return SPM.Models.MemberManager.me.id == member.id;
         })
     },
 
     findProject: function(query) {
         return SPM.TrelloConnector.request("get","/search", {
-                "query": '"'+query+'"',
-                "idOrganizations": _.map(SPM.BoardManager.boards, function(board) {return board.idOrganization}),
-                "idBoards" : _.map(SPM.BoardManager.boards, function(board) {return board.id})
-            })
+            "query": '"'+query+'"',
+            "idOrganizations": _.map(SPM.Models.BoardManager.boards, function(board) {return board.idOrganization}),
+            "idBoards" : _.map(SPM.Models.BoardManager.boards, function(board) {return board.id}),
+            "modelTypes": "cards",
+            "card_members": true
+        })
         .then(function(result) {
-            cards = result.cards;
+
+            var cards = result.cards;
+            var card;
             if (! cards.length) {
-                return Promise.reject("there is no card in Trello with the name: " + query);
+                card = null;
+            } else {
+                cards.forEach(function (card) {
+                    initProject(card)
+                    SPM.Storages.ProjectStorage.saveProject(card);
+                })
             }
-            if (cards.length > 1) {
-                console.warn("There is several Trello cards associated to this project !");
-            }
-            return SPM.ProjectManager.initProject(cards[0]);
+            return cards;
         }.bind(this));
+    },
+
+    findMyProjects: function () {  
+        return SPM.TrelloConnector.request("get", "/members/me/cards", {
+            "members": true,
+            "filter": "open",
+            "limit": 1000
+        }).then(function (cards) {
+            // filter cards to keep only the one in the orga board
+            var cards = cards
+                .filter(function (card) {
+                    return SPM.Models.BoardManager.isRegistredBoard(card.idBoard);
+                })
+                .map(initProject)
+            return SPM.Storages.ProjectStorage.saveMyProjects(cards)
+        });
     },
 
     findProjectByChannelName: function (channelName) {
-        return this.findProject(channelName).then(function (project) {
-            if (project.slack == channelName) {
-                return Promise.resolve(project);
-            } else {
-                return Promise.reject('No project found for the slack channel ' + channelName);
-            }
-        }.bind(this));
-    },
-
-    findProjects: function(queries) {
-        return Promise.all(queries.map(function(projectName) {
-            return SPM.ProjectManager
-                .findProject(projectName)
-                .catch(function () {
-                    return null;
-                })
-            }))
-    },
-
-    getMyProjectsWithChannels: function() {
-        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project && project.slackId) {
-                    return _.find(project.members, function(member) {
-                        return SPM.MemberManager.me.id == member.id;
-                    })
-                } else {
-                    return false;
+        return this.findProject(channelName)
+            .then(function (projects) {
+                projects = projects.filter(function (project) {
+                    return project.slack == channelName
+                });
+                if (projects.length > 1) {
+                    console.warn("More than one Trello cards found for the project " + channelName, cards);
                 }
-            });
-        });
-    },
-
-
-    getNotMyProjectsWithChannels: function() {
-        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project && project.slackId) {
-                    var isMe = _.find(project.members, function(member) {
-                        return SPM.MemberManager.me.id == member.id;
-                    })
-                    if (!isMe) {
-                        return true;
-                    } else {
-                        return false;
-                    }
+                if (projects.length == 0) {
+                    console.warn("No Trello cards found for the project " + channelName);
+                    SPM.Storages.ProjectStorage.noProjectForChannel(channelName);
+                    projects = null
                 } else {
-                    return false;
+                    projects = projects[0];
                 }
-            });
-        });
-    },
-
-    getProjectsWithChannels: function() {
-        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project && project.slackId) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
-        });
-    },
-
-    getProjectsWithoutChannels: function() {
-        return SPM.ProjectManager.findProjects(SPM.Models.ChannelManager.getProjectChannelNames())
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project && project.slackId) {
-                    return false;
-                } else {
-                    return true;
-                }
-            });
-        });
-    },
-
-    getProjectChannelsWithoutProjects: function() {
-        var projectChannels = SPM.Models.ChannelManager.getProjectChannelNames();
-        return SPM.ProjectManager.findProjects(projectChannels)
-        .then(function (projects) {
-            return _.filter(projectChannels, function(projectChannel){
-                var is = !_.find(projects, function(project) {
-                    if (project) {
-                        return project.slack == projectChannel;
-                    } else {
-                        return false;
-                    }
-                })
-                return is;
-            });
-        });
-    },
-
-    getNotMyProjectsChannels: function() {
-        var projectChannels = SPM.Models.ChannelManager.getProjectChannelNames();
-        return SPM.ProjectManager.findProjects(projectChannels)
-        .then(function (projects) {
-            var projectsChannelsFull = _.map(projectChannels, function(projectChannel){
-                var project = _.find(projects, function(project) {
-                    if (project && project.slack == projectChannel) {
-                        return project;
-                    } else {
-                        return false;
-                    }
-                })
-                if (project) {
-                    return project;
-                } else {
-                    return {
-                        name: null,
-                        slackId: SPM.Models.ChannelManager.getChannelIdFromChannelName(projectChannel),
-                        slack: projectChannel
-                    };
-                }
-            });
-            var notMyProjectsChannelsFull = _.filter(projectsChannelsFull, function(project) {
-                return !SPM.ProjectManager.isMyProject(project);
-            });
-            return notMyProjectsChannelsFull;
-        });
-    },
-
-    getNotProjectsChannels: function() {
-        var notProjectChannels = SPM.Models.ChannelManager.getNotProjectChannelNames();
-        var projectsChannelsFull = _.map(notProjectChannels, function(channel){
-            return {
-                name: null,
-                slackId: SPM.Models.ChannelManager.getChannelIdFromChannelName(channel),
-                slack: channel,
-                notProject: true
-            };
-        });
-        return new Promise(function(success, error) {
-            return success(projectsChannelsFull);
-        });
-    },
-
-    getAllProjectsInBoard: function(boardId) {
-        return SPM.TrelloConnector.request("get","/boards/" + boardId + "/cards").then(function(projects) {
-            return Promise.all(_.map(projects, function(project) {
-                return SPM.ProjectManager.initProject(project);
-            })).then(function(projects) {
                 return projects;
-            }).catch(function() {
-                console.log(error);
             });
-        });
     },
 
-    getMyProjectsInBoard: function(boardId) {
-        return this.getAllProjectsInBoard(boardId)
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project) {
-                    parseSlack(project);
-                    return _.find(project.idMembers, function(idMember) {
-                        return SPM.MemberManager.me.id == idMember;
-                    })
-                } else {
-                    return false;
-                }
-            });
-        });
+    getMyProjects: function () {
+        return SPM.Storages.ProjectStorage.getMyProjects()
+            .catch(function () {
+                return this
+                    .findMyProjects()
+                    .then(this.getMyProjects.bind(this))
+            }.bind(this))
     },
 
-    getMyProjectsInBoardWithoutChannel: function(boardId) {
-        return this.getAllProjectsInBoard(boardId)
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project) {
-                    parseSlack(project);
-                    return _.find(project.idMembers, function(idMember) {
-                        if (SPM.MemberManager.me.id == idMember && !project.slackId) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    })
-                } else {
-                    return false;
-                }
-            });
-        });
-    },
-
-    getNotMyProjectsInBoard: function(boardId) {
-        return this.getAllProjectsInBoard(boardId)
-        .then(function (projects) {
-            return _.filter(projects, function(project){
-                if (project) {
-                    parseSlack(project);
-                    var isMe = _.find(project.idMembers, function(idMember) {
-                        return SPM.MemberManager.me.id == idMember;
-                    })
-                    if (!isMe) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            });
-        });
+    getProjectByChannelName: function (channelName) {
+        return SPM.Storages.ProjectStorage.getByChannelName(channelName)
+            .catch(function () {
+                return this
+                    .findProjectByChannelName(channelName)
+                    .then(this.getProjectByChannelName.bind(this, channelName))
+            }.bind(this))
     }
+
 }

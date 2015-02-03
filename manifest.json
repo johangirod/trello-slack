@@ -25,10 +25,12 @@
 
                 // Models
                 "/js/Models/BoardManager.js",
-                "/js/Models/BoardManager.js",
-                "/js/Models/ProjectManager.js",
-                "/js/Models/MemberManager.js",
                 "/js/Models/ChannelManager.js",
+                "/js/Models/MemberManager.js",
+                "/js/Models/ProjectManager.js",
+                
+                // Storages
+                "/js/Storages/ProjectStorage.js",
 
                 //ViewHelpers
                 "/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js",

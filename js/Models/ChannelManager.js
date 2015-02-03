@@ -8,24 +8,18 @@ SPM.Models.ChannelManager = {
         return this.channelNames;
     },
 
-    /*
-    * function which returns the list of channels beginning by 'p-'
-     */
-    getProjectChannelNames: function() {
-        this.initChannels();
-        return _.filter(this.getChannelNames(), function(channelName) {
-            return channelName.slice(0, 2) == 'p-';
-        })
+    getProjectChannelNames: function () {
+        return this.getChannelNames().filter(this.isProjectChannel.bind(this));
     },
-
     /*
     * function which returns the list of channels which don't begin by 'p-'
      */
-    getNotProjectChannelNames: function() {
-        this.initChannels();
+    getNotProjectChannels: function() {
         return _.filter(this.getChannelNames(), function(channelName) {
-            return channelName.slice(0, 2) != 'p-';
-        })
+            return !this.isProjectChannel(channelName);
+        }.bind(this)).map(function (channelName) {
+            return this.createChannel(channelName);
+        }.bind(this))
     },
 
     channelIds: [],
@@ -55,7 +49,33 @@ SPM.Models.ChannelManager = {
 
     getChannelIdFromChannelName: function(channelName) {
         return this.channelIds[_.indexOf(this.channelNames, channelName)];
-    }
+    },
 
+    isProjectChannel:function (channelName) {
+        return channelName.indexOf('p-') === 0;
+    },
+
+
+    createChannel: function (channelOrProject) {
+        // 1 - If it's a channel
+        if (typeof channelOrProject === "string") {
+            var id = this.getChannelIdFromChannelName(channelOrProject)
+            return  {
+                name: channelOrProject,
+                slackId: id
+            };
+        }
+        // 2 - If it's a project
+        var project = channelOrProject;
+        var channel = {}
+        if (project.slack) {
+            channel.name = project.slack
+            channel.slackId = this.getChannelIdFromChannelName(project.slack)
+        } else {
+            channel.name = project.name;
+        }
+        channel.project = project;
+        return channel;
+    }
 
 }
