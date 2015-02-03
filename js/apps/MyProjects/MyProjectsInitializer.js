@@ -36,7 +36,7 @@ var getNotMyProjectFollowed = function() {
     return Promise.all(promises).then(function (projectOrChannelNames) {
             return projectOrChannelNames
                 .filter(function (pocn) {
-                    return  (typeof pocn === "string" ) || SPM.Models.ProjectManager.isMyProject(pocn)
+                    return  (typeof pocn === "string" ) || !SPM.Models.ProjectManager.isMyProject(pocn)
                 })
                 .map(function (pocn) {
                     return pocn.slack || pocn;
