@@ -6,7 +6,6 @@ SPM.ViewHelpers.SectionRenderer = {
     codeInserted: false,
 
     addSection: function(id, title, channels, isProjectSection) {
-        console.log(channels);
         var section = {};
         section.title = title;
         section.isProjectSection = isProjectSection;

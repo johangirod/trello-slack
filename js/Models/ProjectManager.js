@@ -32,19 +32,19 @@ var parseSlack = function(project) {
     if (!slack) {
         return
     }
-    if (slack[0] === '#') {
-        // With the # syntax
-        slack = slack.slice(1)
-    } else if(slack[0] === '[') {
+    if(slack[0] === '[') {
         // With the [name](url) syntax
         var index = slack.indexOf(']');
         slack = slack.slice(1, index);
+    }
+    if (slack[0] === '#') {
+        // With the # syntax
+        slack = slack.slice(1)
     }
     if(slack.indexOf('p-') !== 0) {
         return null;
     }
     project.slack = slack;
-    project.slackId = SPM.Models.ChannelManager.getChannelIdFromChannelName(project.slack);
     return project.slack;
 }
 
@@ -59,6 +59,7 @@ var initProject = function(project) {
     var leader = parseLeader(project);
 
     var slack = parseSlack(project);
+    console.log(project.slack)
     // Need to 2x the line break for ISO trello markdown rendering
     project.desc = SPM.Utils.doubleLineBreak(project.desc);
     // Capitalize first letter
