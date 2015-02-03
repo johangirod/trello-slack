@@ -10,7 +10,7 @@ var parseLeader = function (project) {
     leader = SPM.Utils.unaccent(leader);
     var leaderFound = project.members.some(function (member) {
         var memberName = SPM.Utils.unaccent(member.fullName.toLowerCase());
-        if (leader.indexOf(memberName)) {
+        if (memberName.indexOf(leader) !== -1) {
             member.isLeader = true;
             return true;
         }
@@ -57,7 +57,6 @@ var checkErrors = function (project) {
 var initProject = function(project) {
     project.errors = {};
     var leader = parseLeader(project);
-
     var slack = parseSlack(project);
     console.log(project.slack)
     // Need to 2x the line break for ISO trello markdown rendering
