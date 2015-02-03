@@ -161,3 +161,11 @@
     width: 58px;
     text-align: right;
 }
+
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message,
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate,
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc,
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc + .SPM-emoji
+ {
+    display: none;
+}
