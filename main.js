@@ -3,8 +3,8 @@ var SPM = SPM || {};
 
 SPM.Initializer = {
     boardsIds: {
-        arborium: "IVh8Diai",
-        seeds: "l49f2LxM"
+        arborium: "54b94910f186c08595048a8f",
+        seeds: "54b7c3955fdb8e63ba5819d8"
     },
 
     /**

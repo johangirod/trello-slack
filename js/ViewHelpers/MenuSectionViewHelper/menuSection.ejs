@@ -2,23 +2,38 @@
 <h2 id="starred_section_header" class="overflow-ellipsis"><%= title %></h2>
 <ul>
     <% channels.forEach(function(channel) { %>
-        <li <% if (channel.slackId) { %> class="channel " <% } else { %> class="SPM-no-slack" <% } %>>
-            <a <% if (channel.slackId) { %> class="channel_name" data-channel-id="<%= channel.slackId %>" <% } %>>
+        <li <% if (channel.slackId) { %> 
+                class="channel " 
+            <% } else { %> 
+                class="SPM-no-slack" 
+            <% } %>
+        >
+            <a <% if (channel.slackId) { %> 
+                    class="channel_name" data-channel-id="<%= channel.slackId %>" 
+                <% } %>
+            >
                 <span class="overflow-ellipsis">
                     <span class="prefix">#</span>
                    <%= channel.name %>
                 </span>
             </a>
         </li>
-        <div class="SPM-message
-        <% if (!channel.project || !channel.slackId)) { %> SPM-error <% } %>
-        <% if (channel.project && channel.project.errors && Object.keys(channel.errors).length > 0 ) { %> SPM-warning<% } %>"
-        <% if (!channel.slackId) { %>data-text="Ce projet est présent dans Trello mais n'a pas de discussion Slack associée.
-Soit il en existe déjà une et vous avez juste à rajouter une ligne dans la description du projet sur Trello.
-Soit vous pouvez créer une nouvelle discussion slack pour ce projet."
-        <% } %> ></div>
-        <% if (channel.project) { %><div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.project.due) %></div><% } %>
-        <div class='SPM-desc'><%= channel.project.desc %></div>
-        <% if (SPM.ViewHelpers.EmojiRenderer[channel.project.idList]) { %> <div class="SPM-emoji"> <%= SPM.ViewHelpers.EmojiRenderer[channel.project.idList] %> </div> <% } %>
+         <% if (isProjectSection) { %>
+            <div class="SPM-message
+                <% if (channel.project && !channel.slackId) { %> 
+                    SPM-error
+                <% } else if (channel.project && channel.project.errors && Object.keys(channel.project.errors).length > 0 ) { %> 
+                    SPM-warning
+                <% } %>" 
+                <% if (channel.project && !channel.slackId) { %>
+                    data-text="Ce projet est présent dans Trello mais n'a pas de discussion Slack associée. Soit il en existe déjà une et vous avez juste à rajouter une ligne dans la description du projet sur Trello. Soit vous pouvez créer une nouvelle discussion slack pour ce projet."
+                <% } %>
+            ></div>
+            <% if (channel.project) { %>
+                <div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.project.due) %></div>
+                <div class='SPM-desc'><%= channel.project.desc %></div>        
+                <% if (SPM.ViewHelpers.EmojiRenderer[channel.project.idList]) { %> <div class="SPM-emoji"> <%= SPM.ViewHelpers.EmojiRenderer[channel.project.idList] %> </div> <% } %>
+            <% } %>
+        <% } %>
     <% }) %>
 </ul>

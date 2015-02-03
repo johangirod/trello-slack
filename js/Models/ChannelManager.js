@@ -12,22 +12,16 @@ SPM.Models.ChannelManager = {
     * function which returns the list of channels beginning by 'p-'
      */
     getProjectChannelNames: function() {
-        this.initChannels();
-        return _.filter(this.getChannelNames(), function(channelName) {
-            return channelName.slice(0, 2) == 'p-';
-        })
+        return _.filter(this.getChannelNames(), this.isProjectChannel)
     },
 
     /*
     * function which returns the list of channels which don't begin by 'p-'
      */
     getNotProjectChannelNames: function() {
-        console.log("1")
-        this.initChannels();
-        console.log("1 ok")
         return _.filter(this.getChannelNames(), function(channelName) {
-            return channelName.slice(0, 2) != 'p-';
-        })
+            return !this.isProjectChannel(channelName);
+        }.bind(this))
     },
 
     channelIds: [],
@@ -59,14 +53,32 @@ SPM.Models.ChannelManager = {
         return this.channelIds[_.indexOf(this.channelNames, channelName)];
     },
 
+    isProjectChannel:function (channelName) {
+        return channelName.indexOf('p-') === 0;
+    },
+    
+    getChannelsFromPromise: function (channelNamesPromise) {
+        return channelNamesPromise.then(function (channelNames) {
+            return Promise.all(channelNames.map(function (channelName) {
+                return this.getChannel(channelName);
+            }.bind(this))).catch(console.error);
+        }.bind(this))
+    },
+
     getChannel: function (channelName) {
+        var id = this.getChannelIdFromChannelName(channelName)
         var channel =  {
             name: channelName,
-            slackId: getChannelIdFromChannelName(channelName)
+            slackId: id
         };
+        if (!this.isProjectChannel(channelName)) {
+            return Promise.resolve(channel);
+        }
         return SPM.Models.ProjectManager
-            .getProjectFromChannelName(channelName)
+            // 1 - Try with channelName 
+            .getProjectByChannelName(channelName)
             .then(function (project) {
+                // 1 - Try with projectName
                 return project || SPM.Models.ProjectManager.getProjectByName(channelName);
             })
             .then(function (project) {

@@ -56,8 +56,8 @@ var checkErrors = function (project) {
 
 var initProject = function(project) {
     project.errors = {};
-    project.errors = project.errors || {};
     var leader = parseLeader(project);
+
     var slack = parseSlack(project);
     // Need to 2x the line break for ISO trello markdown rendering
     project.desc = SPM.Utils.doubleLineBreak(project.desc);
@@ -81,24 +81,27 @@ SPM.Models.ProjectManager = {
             "idOrganizations": _.map(SPM.Models.BoardManager.boards, function(board) {return board.idOrganization}),
             "idBoards" : _.map(SPM.Models.BoardManager.boards, function(board) {return board.id}),
             "modelTypes": "cards",
-            "members": true
+            "card_members": true
         })
         .then(function(result) {
-            cards = result.cards;
+
+            var cards = result.cards;
+            var card;
             if (! cards.length) {
-                console.warn("No Trello cards found for the project " + query);
+                // console.warn("No Trello cards found for the project " + query);
+                card = null;
+            } else {
+                card = initProject(cards[0]);
+                SPM.Storages.ProjectStorage.saveProject(card);
             }
             if (cards.length > 1) {
                 console.warn("More than one Trello cards found for the project " + query, cards);
             }
-            console.log("2.SAVE")
-            return (cards.length)? 
-                SPM.Storages.ProjectStorage.save(initProject(cards[0])):
-                null
+            return card;
         }.bind(this));
     },
 
-    findMyProjects: function () {   
+    findMyProjects: function () {  
         return SPM.TrelloConnector.request("get", "/members/me/cards", {
             "members": true,
             "filter": "open",
@@ -114,32 +117,47 @@ SPM.Models.ProjectManager = {
         });
     },
 
+    findProjectByChannelName: function (channelName) {
+        return this.findProject(channelName)
+            .then(function (project) {
+                SPM.Storages.ProjectStorage.setProjectChannel(channelName, project);
+                return project;
+            });
+    },
+
+    findProjectByName: function (projectName) {
+        return this.findProject(projectName)
+            .then(function (project) {
+                SPM.Storages.ProjectStorage.setProjectName(projectName, project);
+                return project;
+            });
+    },
+
     getMyProjects: function () {
         return SPM.Storages.ProjectStorage.getMyProjects()
             .catch(function () {
-                return this.findMyProjects();
-            }.bind(this)).then(this.getMyProjects)
+                return this
+                    .findMyProjects()
+                    .then(this.getMyProjects.bind(this))
+            }.bind(this))
     },
 
     getProjectByChannelName: function (channelName) {
         return SPM.Storages.ProjectStorage.getByChannelName(channelName)
-            // If we don't know it yet 
             .catch(function () {
-                console.log("2.CATCH")
-                return this.findProject(channelName);
-            }.bind(this)).then(function () {
-                console.log("2.THEN")
-                return this.getProjectByChannelName(channelName)
-            }.bind(this));
+                return this
+                    .findProjectByChannelName(channelName)
+                    .then(this.getProjectByChannelName.bind(this, channelName))
+            }.bind(this))
     },
 
     getProjectByName: function (projectName) {
-        return SPM.Storages.ProjectStorage.getProjectByName(projectName)
+        return SPM.Storages.ProjectStorage.getByName(projectName)
             .catch(function () {
-                return this.findProject(projectName);
-            }.bind(this)).then(function () {
-                return this.getProjectByName(projectName)
-            }.bind(this));
+                return this
+                    .findProjectByName(projectName)
+                    .then(this.getProjectByName.bind(this, projectName))
+            }.bind(this))
     }
 
 

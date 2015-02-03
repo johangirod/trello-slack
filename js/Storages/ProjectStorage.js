@@ -18,7 +18,7 @@ SPM.Storages.ProjectStorage = {
 
 	saveMyProjects: function (projects) {
 		this.myProjects = [];
-		this.projects.forEach(function (project) {
+		projects.forEach(function (project) {
 			this.saveProject(project);
 			this.myProjects.push(project.id);
 		}.bind(this))
@@ -26,13 +26,23 @@ SPM.Storages.ProjectStorage = {
 	},
 
 	getMyProjects: function (projects) {
-		return (this.myProjects)? 
-			Promise.resolve(myProjects.map(function (projectId) { return this.projects[projectId] }.bind(this))):
+		return (this.myProjects)?
+			Promise.resolve(this.myProjects.map(function (projectId) { return this.projects[projectId] }.bind(this))):
 			Promise.reject("No data")
 	},
 
-	setChannelWithNoProject: function (channelName) {
-		this.projectsByChannel[channelName] = false;
+	setProjectChannel: function (channelName, project) {
+		if (!(project && project.slack)) {
+			this.projectsByChannel[channelName] = false;
+		}
+	},
+
+	setProjectName: function (name, project) {
+		if (!(project && project.name)) {
+			this.projectsByName[name] = false;
+		} else {
+			this.projectsByName[name] = project.id;
+		}
 	},
 
 	getByChannelName: function (channelName) {
@@ -42,7 +52,7 @@ SPM.Storages.ProjectStorage = {
 			Promise.resolve(this.projects[projectId]);
 	},
 
-	getByProjectName: function (projectName) {
+	getByName: function (projectName) {
 		var projectId = this.projectsByName[projectName]
 		return (projectId === undefined)? 
 			Promise.reject("No data"):

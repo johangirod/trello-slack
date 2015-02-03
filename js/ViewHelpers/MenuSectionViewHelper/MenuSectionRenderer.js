@@ -5,9 +5,11 @@ SPM.ViewHelpers.SectionRenderer = {
 
     codeInserted: false,
 
-    addSection: function(id, title, channels) {
+    addSection: function(id, title, channels, isProjectSection) {
+        console.log(channels);
         var section = {};
         section.title = title;
+        section.isProjectSection = isProjectSection;
         section.channels = channels;
         section.id = id;
         this.initTemplate();
@@ -43,7 +45,8 @@ SPM.ViewHelpers.SectionRenderer = {
 
         this.template.update(section.id, {
             channels: section.channels,
-            title: section.title
+            title: section.title,
+            isProjectSection: section.isProjectSection
         });
 
     },
