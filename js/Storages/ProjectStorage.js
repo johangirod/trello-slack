@@ -29,10 +29,8 @@ SPM.Storages.ProjectStorage = {
 			Promise.reject("No data")
 	},
 
-	setProjectChannel: function (channelName, project) {
-		if (!(project && project.slack)) {
-			this.projectsByChannel[channelName] = false;
-		}
+	noProjectForChannel: function (channelName) {
+		this.projectsByChannel[channelName] = false;
 	},
 
 	getByChannelName: function (channelName) {

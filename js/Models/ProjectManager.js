@@ -58,7 +58,6 @@ var initProject = function(project) {
     project.errors = {};
     var leader = parseLeader(project);
     var slack = parseSlack(project);
-    console.log(project.slack)
     // Need to 2x the line break for ISO trello markdown rendering
     project.desc = SPM.Utils.doubleLineBreak(project.desc);
     // Capitalize first letter
@@ -88,16 +87,14 @@ SPM.Models.ProjectManager = {
             var cards = result.cards;
             var card;
             if (! cards.length) {
-                // console.warn("No Trello cards found for the project " + query);
                 card = null;
             } else {
-                card = initProject(cards[0]);
-                SPM.Storages.ProjectStorage.saveProject(card);
+                cards.forEach(function (card) {
+                    initProject(card)
+                    SPM.Storages.ProjectStorage.saveProject(card);
+                })
             }
-            if (cards.length > 1) {
-                console.warn("More than one Trello cards found for the project " + query, cards);
-            }
-            return card;
+            return cards;
         }.bind(this));
     },
 
@@ -119,9 +116,21 @@ SPM.Models.ProjectManager = {
 
     findProjectByChannelName: function (channelName) {
         return this.findProject(channelName)
-            .then(function (project) {
-                SPM.Storages.ProjectStorage.setProjectChannel(channelName, project);
-                return project;
+            .then(function (projects) {
+                projects = projects.filter(function (project) {
+                    return project.slack == channelName
+                });
+                if (projects.length > 1) {
+                    console.warn("More than one Trello cards found for the project " + channelName, cards);
+                }
+                if (projects.length == 0) {
+                    console.warn("No Trello cards found for the project " + channelName);
+                    SPM.Storages.ProjectStorage.noProjectForChannel(channelName);
+                    projects = null
+                } else {
+                    projects = projects[0];
+                }
+                return projects;
             });
     },
 
