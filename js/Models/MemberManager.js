@@ -1,6 +1,7 @@
 var SPM = SPM || {};
+SPM.Models = SPM.Models || {};
 
-SPM.MemberManager = {
+SPM.Models.MemberManager = {
     me: null,
     setMe: function() {
         return new Promise(function(success, error){

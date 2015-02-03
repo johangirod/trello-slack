@@ -1,4 +1,5 @@
 var SPM = SPM || {};
+        console.log("-6")
 
 SPM.Initializer = {
     boardsIds: {
@@ -15,10 +16,10 @@ SPM.Initializer = {
         SPM.TrelloConnector
             .initConnection()
             .then(function() {
-                SPM.MemberManager.setMe();
+                return SPM.Models.MemberManager.setMe();
             }.bind(this))
             .then(function() {
-                return SPM.BoardManager.init(this.boardsIds);
+                return SPM.Models.BoardManager.init(this.boardsIds);
             }.bind(this))
             .then(function () {
                 SPM.Apps.ProjectPanel.PanelInitalizer.init();

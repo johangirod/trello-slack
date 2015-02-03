@@ -9,15 +9,13 @@ SPM.Apps.ProjectPanel.PanelInitalizer = {
     },
 
     renderCurrentProject: function() {
-        return SPM.ProjectManager.findProjectByChannelName(this.currentProjectName).then(
-            function success (project) {
-                SPM.PanelRenderer.render(project);
-            },
-            function error (err) {
-                SPM.PanelRenderer.renderNoProject();
-                console.warn(err);
-            }
-        );
+        return SPM.Models.ProjectManager
+            .getProjectByChannelName(this.currentProjectName)
+            .then(function(project) {
+                return (project)?
+                    SPM.PanelRenderer.render(project):
+                    SPM.PanelRenderer.renderNoProject();
+            });
     },
 
     projectHasChanged: function () {

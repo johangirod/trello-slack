@@ -22,7 +22,9 @@ SPM.Models.ChannelManager = {
     * function which returns the list of channels which don't begin by 'p-'
      */
     getNotProjectChannelNames: function() {
+        console.log("1")
         this.initChannels();
+        console.log("1 ok")
         return _.filter(this.getChannelNames(), function(channelName) {
             return channelName.slice(0, 2) != 'p-';
         })
@@ -55,7 +57,22 @@ SPM.Models.ChannelManager = {
 
     getChannelIdFromChannelName: function(channelName) {
         return this.channelIds[_.indexOf(this.channelNames, channelName)];
-    }
+    },
 
+    getChannel: function (channelName) {
+        var channel =  {
+            name: channelName,
+            slackId: getChannelIdFromChannelName(channelName)
+        };
+        return SPM.Models.ProjectManager
+            .getProjectFromChannelName(channelName)
+            .then(function (project) {
+                return project || SPM.Models.ProjectManager.getProjectByName(channelName);
+            })
+            .then(function (project) {
+                channel.project = project;
+                return channel;
+            });
+    }
 
 }
