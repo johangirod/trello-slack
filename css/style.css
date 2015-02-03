@@ -249,3 +249,11 @@ body:not(.SPM-not-show-all) .section_holder h2.SPM-plus:not(#channels_header)::a
     user-select: initial;
     overflow-y: scroll;
 }
+
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message,
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate,
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc,
+.channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc + .SPM-emoji
+ {
+    display: none;
+}
