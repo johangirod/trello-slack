@@ -20,7 +20,7 @@
         </li>
          <% if (isProjectSection) { %>
             <div class="SPM-message
-                <% if (channel.project && !channel.slackId) { %> 
+                <% if (!channel.project || !channel.slackId) { %> 
                     SPM-error
                 <% } else if (channel.project && channel.project.errors && Object.keys(channel.project.errors).length > 0 ) { %> 
                     SPM-warning
@@ -31,7 +31,7 @@
             ></div>
             <% if (channel.project) { %>
                 <div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.project.due) %></div>
-                <div class='SPM-desc'><%= channel.project.desc %></div>        
+                <div class='SPM-desc'><%= channel.project.desc %></div>
                 <% if (SPM.ViewHelpers.EmojiRenderer[channel.project.idList]) { %> <div class="SPM-emoji"> <%= SPM.ViewHelpers.EmojiRenderer[channel.project.idList] %> </div> <% } %>
             <% } %>
         <% } %>

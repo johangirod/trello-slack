@@ -125,14 +125,6 @@ SPM.Models.ProjectManager = {
             });
     },
 
-    findProjectByName: function (projectName) {
-        return this.findProject(projectName)
-            .then(function (project) {
-                SPM.Storages.ProjectStorage.setProjectName(projectName, project);
-                return project;
-            });
-    },
-
     getMyProjects: function () {
         return SPM.Storages.ProjectStorage.getMyProjects()
             .catch(function () {
@@ -149,16 +141,6 @@ SPM.Models.ProjectManager = {
                     .findProjectByChannelName(channelName)
                     .then(this.getProjectByChannelName.bind(this, channelName))
             }.bind(this))
-    },
-
-    getProjectByName: function (projectName) {
-        return SPM.Storages.ProjectStorage.getByName(projectName)
-            .catch(function () {
-                return this
-                    .findProjectByName(projectName)
-                    .then(this.getProjectByName.bind(this, projectName))
-            }.bind(this))
     }
-
 
 }

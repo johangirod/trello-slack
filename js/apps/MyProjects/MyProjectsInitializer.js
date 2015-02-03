@@ -18,13 +18,14 @@ var getMyProjectsInBoard = function(boardId) {
                 return project.idBoard == boardId;
             })
             .map(function (project) {
-                return project.slack || project.name
+                return SPM.Models.ChannelManager.createChannel(project);
             })
     })
 }
 
 var getNotMyProjectFollowed = function() {
     promises = SPM.Models.ChannelManager
+    // 1 - Get project or channel name that I follow
         .getProjectChannelNames()
         .map(function (channelName) {
             return SPM.Models.ProjectManager
@@ -33,13 +34,14 @@ var getNotMyProjectFollowed = function() {
                     return project || channelName;
                 })
         });
+    // 2 - Filter those whose I am member and transforms them to channel
     return Promise.all(promises).then(function (projectOrChannelNames) {
             return projectOrChannelNames
                 .filter(function (pocn) {
                     return  (typeof pocn === "string" ) || !SPM.Models.ProjectManager.isMyProject(pocn)
                 })
                 .map(function (pocn) {
-                    return pocn.slack || pocn;
+                    return SPM.Models.ChannelManager.createChannel(pocn);
                 })
         })
 }
@@ -47,21 +49,14 @@ var getNotMyProjectFollowed = function() {
 
 
 var renderChannels = function() {
-
-
     Promise.all([
-    // 1 - Get channel names by category
-        Promise.resolve(SPM.Models.ChannelManager.getNotProjectChannelNames()),    // Other non project Channels
+    // 1 - Get channels by category
+        Promise.resolve(SPM.Models.ChannelManager.getNotProjectChannels()),    // Other non project Channels
         getNotMyProjectFollowed(),                                          // Project followed, but not member
         getMyProjectsInBoard(SPM.Initializer.boardsIds.seeds),              // My project in seed
         getMyProjectsInBoard(SPM.Initializer.boardsIds.arborium)            // My projects in arborium
-    ]
-    // 2 - get channels objects 
-        .map(function(chanelNamesPromise) {
-            return SPM.Models.ChannelManager.getChannelsFromPromise(chanelNamesPromise);
-        })
-    ).then(function (channel) {
-    // 3 - Render the channels
+    ]).then(function (channel) {
+    // 2 - Render the channels
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-other_channe", "AUTRE CHANNELS", channel[0], false);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES PROJETS SUIVIS", channel[1], true);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES GRAINES", channel[2], true);
