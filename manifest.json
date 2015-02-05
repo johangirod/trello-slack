@@ -1,9 +1,9 @@
 {
     "manifest_version": 2,
 
-    "name": "Trello-Slack",
+    "name": "Slack Project Manager",
     "description": "This extension makes the link between trello and slack",
-    "version": "0.1",
+    "version": "0.12",
     "permissions": [
         "http://*/*",
         "https://*/*",
@@ -23,29 +23,24 @@
                 "/js/Utils/CodeInjector.js",
                 "/js/Utils/Utils.js",
 
-                // Models
                 "/js/Models/BoardManager.js",
                 "/js/Models/ChannelManager.js",
                 "/js/Models/MemberManager.js",
                 "/js/Models/ProjectManager.js",
-                
-                // Storages
+
+                "/js/Models/ProjectManager.js",
                 "/js/Storages/ProjectStorage.js",
 
-                //ViewHelpers
                 "/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js",
                 "/js/ViewHelpers/EmojiRenderer.js",
 
                 "/js/connectors/TrelloConnector.js",
 
-                //app Project Panel
                 "/js/apps/ProjectPanel/PanelInitializer.js",
                 "/js/apps/ProjectPanel/views/PanelRenderer.js",
 
-                // app My projects
                 "/js/apps/MyProjects/MyProjectsInitializer.js",
 
-                //app CheckTrelloSlack
                 "/js/apps/CheckTrelloSlack/CheckTrelloSlackInitializer.js",
 
                 "main.js"
@@ -54,11 +49,10 @@
         }
     ],
     "web_accessible_resources": [
-        //ViewHelpers
+
         "js/ViewHelpers/MenuSectionViewHelper/menuSection.ejs",
         "js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js",
 
-        //app Project Panel
         "js/apps/ProjectPanel/panelInjectedCode.js",
         "js/apps/ProjectPanel/views/panel.ejs"
     ]

@@ -39,14 +39,14 @@
                     <% } if (project.errors.unknownLeader) {%>
                         <li> Le leader renseigné n'est pas parmis les membres. Etes vous sur de l'orthographe ? Il ne peut y avoir qu'un leader par projet</li>
                     <% } if (project.errors.tooManyMembers) {%>
-                        <li> <strong> Un peu serrés ? </strong> Un projet doit avoir 5 membres au maximum. Par contre, il n'existe aucune limite pour le nombre de consultants </li>                    
+                        <li> <strong> Un peu serrés ? </strong> Un projet doit avoir 5 membres au maximum. Par contre, il n'existe aucune limite pour le nombre de consultants </li>
                     <% } if (project.errors.tooFewMembers) {%>
                         <li> <strong> En manque d'amis ? </strong> Il faut être au moins 2 pour lancer un projet :) </li>
                     <% } if (project.errors.titleIsSlackChan) {%>
                         <li> Le titre du projet ne doit pas être le nom du chan slack. Il vaut mieux choisir un nom explicite.</li>
                     <% }%>
                 </ul>
-                <div> <a class="btn btn-primary" href="<%=project.url%>"><span class="lambda-label">Compléter la carte</span></a></div>
+                <div> <a target="_blank"  class="btn btn-primary" href="<%=project.url%>"><span class="lambda-label">Compléter la carte</span></a></div>
             </div>
         <%}%>
         <div class="subsection SPM-description" data-filter="all">
@@ -56,7 +56,7 @@
             <div class="SPM-info-alert clearfix">
                 <span class="emoji-outer emoji-sizer"><span class="emoji-inner" style="background: url(https://slack.global.ssl.fastly.net/19218/img/emoji_twitter_64_indexed_256colors.png);background-position:17.241379310344826% 100%;background-size:3000%" title="sun_with_face">:sun_with_face:</span></span>
                 <span class="SPM-text-info"> La carte Trello est à jour.</span>
-                <a class="btn btn-primary pull-right" href="<%=project.url%>"><span class="lambda-label">Voir la carte</span></a>
+                <a target="_blank" class="btn btn-primary pull-right" href="<%=project.url%>"><span class="lambda-label">Voir la carte</span></a>
             </div>
         <% } %>
     </div>

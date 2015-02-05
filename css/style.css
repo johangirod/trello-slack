@@ -99,6 +99,7 @@
 .SPM-description {
     clear: both;
     padding-top: 10px;
+    line-height: 1.2em;
 }
 
 .SPM-board-names li:hover, .SPM-board-names li.selected {
@@ -164,8 +165,16 @@
 
 .SPM-not-show-all .channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message,
 .SPM-not-show-all .channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate,
-.SPM-not-show-all .channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc,
 .SPM-not-show-all .channels_list_holder ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc + .SPM-emoji
  {
     display: none;
+}
+
+.SPM-not-show-all .channels_list_holder div#SPM-my_project:not(#starred_div)>ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads),
+.SPM-not-show-all .channels_list_holder div#SPM-my_project:not(#starred_div)>ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message,
+.SPM-not-show-all .channels_list_holder div#SPM-my_project:not(#starred_div)>ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate,
+.SPM-not-show-all .channels_list_holder div#SPM-my_project:not(#starred_div)>ul li:not(.unread):not(.active):not(.show_in_list_even_though_no_unreads) + .SPM-message + .SPM-duedate + .SPM-desc + .SPM-emoji
+
+{
+    display: block;
 }

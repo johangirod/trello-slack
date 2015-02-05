@@ -54,7 +54,7 @@ SPM.Utils = {
 
     getDueDate: function(date) {
         var diff = moment(date).diff(moment(), 'days');
-        if (diff > 0) {
+        if (diff >= 0) {
             return "J-" + diff;
         } else if (diff < 0) {
             return "J+" + Math.abs(diff);
@@ -64,7 +64,7 @@ SPM.Utils = {
     },
 
     doubleLineBreak: function (desc) {
-        return desc.replace(/[^\n]\n[^\n]/, function(str) {
+        return desc.replace(/[^\n]\n[^\n]/g, function(str) {
             return str[0] + "\n\n" + str[2];
         }, "g");
     }

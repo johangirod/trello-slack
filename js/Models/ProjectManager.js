@@ -8,6 +8,10 @@ var parseLeader = function (project) {
         return false;
     }
     leader = SPM.Utils.unaccent(leader);
+    if(leader[0] === '@') {
+        // With the @name syntax
+        leader = leader.slice(1);
+    }
     var leaderFound = project.members.some(function (member) {
         var memberName = SPM.Utils.unaccent(member.fullName.toLowerCase());
         if (memberName.indexOf(leader) !== -1) {
@@ -98,7 +102,7 @@ SPM.Models.ProjectManager = {
         }.bind(this));
     },
 
-    findMyProjects: function () {  
+    findMyProjects: function () {
         return SPM.TrelloConnector.request("get", "/members/me/cards", {
             "members": true,
             "filter": "open",
