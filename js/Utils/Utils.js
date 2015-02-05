@@ -49,7 +49,7 @@ SPM.Utils = {
         if (!value) {return false}
         return value[0]
             .slice(value[0].indexOf(':') + 1)
-            .trim();
+            .trim().replace(/^\*+|\*+$/g, '').trim();
     },
 
     getDueDate: function(date) {
