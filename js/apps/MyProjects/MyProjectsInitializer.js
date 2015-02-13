@@ -65,9 +65,11 @@ var renderChannels = function() {
     })
 }
 
-SPM.Apps.MyProjects.MyProjectsInitalizer = {
+SPM.Apps.MyProjects.MyProjectsInitializer = {
     init: function() {
         return waitUntilChannelsAreHere()
             .then(renderChannels);
     }
 }
+
+
