@@ -46,7 +46,7 @@ SPM.PanelRenderer = {
             .waitUntil(panelIsHere)
             .then(function () {
                 this.addPanel();
-                this.openPanel();
+                //this.openPanel();
             }.bind(this))
     },
 

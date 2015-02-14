@@ -64,7 +64,8 @@ SPM.ViewHelpers.SectionRenderer = {
             if ($(this)[0].outerHTML != $("#channel-list .channel_" + id + ", #starred-list .channel_"+id)[0].outerHTML) {
                 $(this).replaceWith($("#channel-list .channel_" + id + ",#starred-list .channel_"+id).clone());
             }
-        })
+        });
+        SPM.CodeInjector.injectCode("TS.client.channel_pane.makeSureActiveChannelIsInView();");
     },
 
     template: null,
