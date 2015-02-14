@@ -205,13 +205,13 @@
     pointer-events: none;
 }
 
-.section_holder h2:not(#channels_header):not(#direct_messages_header)::after {
+body:not(.SPM-not-show-all) .section_holder h2:not(#channels_header):not(#direct_messages_header)::after {
 content: " -";
 cursor: pointer;
 pointer-events: all;
 }
 
-.section_holder h2.SPM-plus:not(#channels_header):not(#direct_messages_header)::after {
+body:not(.SPM-not-show-all) .section_holder h2.SPM-plus:not(#channels_header):not(#direct_messages_header)::after {
     content: " +";
 }
 

@@ -82,7 +82,6 @@ SPM.PanelRenderer = {
         ((deadline)? '<span class="SPM-deadline-title">' + deadline + '</span> ' : '') +
         title + '</span>';
         this.titleDiv = $(dom).insertAfter("#active_channel_name");
-        console.log(dom);
     },
     errorDiv: null,
     addError: function(message) {
