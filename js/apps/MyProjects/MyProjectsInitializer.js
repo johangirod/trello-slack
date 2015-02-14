@@ -56,11 +56,18 @@ var renderChannels = function() {
         getMyProjectsInBoard(SPM.Initializer.boardsIds.seeds),              // My project in seed
         getMyProjectsInBoard(SPM.Initializer.boardsIds.arborium)            // My projects in arborium
     ]).then(function (channel) {
+        var myProjectsNotDone = _.filter(channel[3], function(channel) {
+            return ["54b949c70a8cc363f4cbdf74", "54b949ca8aa6d6fba4c87700"].indexOf(channel.project.idList) != -1;
+        });
+        var myProjectsDone = _.filter(channel[3], function(channel) {
+            return ["54b949c70a8cc363f4cbdf74", "54b949ca8aa6d6fba4c87700"].indexOf(channel.project.idList) == -1;
+        });
     // 2 - Render the channels
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-other_channe", "AUTRE CHANNELS", channel[0], false);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES PROJETS SUIVIS", channel[1], true);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS FINIS", myProjectsDone, true);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES GRAINES", channel[2], true);
-        SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", channel[3], true);
+        SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", myProjectsNotDone, true);
         $("#channel-list").hide();
     })
 }
