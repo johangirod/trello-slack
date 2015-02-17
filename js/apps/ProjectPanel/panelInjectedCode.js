@@ -15,7 +15,7 @@ $( "body" ).on( "click", ".SPM-title", function() {
 
     TSM.openPanel()
 });
-if ($(".urlchagned").length == 0) {
+if ($(".urlchanged").length == 0) {
      $("body").append("<div class='urlchanged'></div>");
 }
 
