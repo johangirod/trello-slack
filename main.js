@@ -17,10 +17,10 @@ SPM.Initializer = {
         SPM.TrelloConnector
             .initConnection()
             .then(function() {
-                return SPM.Models.MemberManager.setMe();
+                return SPM.Model.MemberManager.setMe();
             }.bind(this))
             .then(function() {
-                return SPM.Models.BoardManager.init(this.boardsIds);
+                return SPM.Model.BoardManager.init(this.boardsIds);
             }.bind(this))
             .then(function () {
                 SPM.Apps.ProjectPanel.PanelInitalizer.init();
@@ -45,7 +45,7 @@ SPM.Initializer = {
     },
     update: function(id, date) {
         if (this.date.isBefore(moment(date))) {
-            SPM.Models.ProjectManager.findById(id).then(function(project) {
+            SPM.Model.ProjectManager.findById(id).then(function(project) {
                 SPM.Apps.ProjectPanel.PanelInitalizer.updateProject(project);
                 SPM.Apps.MyProjects.MyProjectsInitializer.updateProject(project);
             })

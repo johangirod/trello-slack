@@ -1,7 +1,7 @@
 var SPM = SPM || {};
-SPM.Models = SPM.Models || {};
+SPM.Model = SPM.Model || {};
 
-SPM.Models.ChannelManager = {
+SPM.Model.ChannelManager = {
     channelNames: [],
     getChannelNames: function() {
         this.initChannels();

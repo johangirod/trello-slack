@@ -12,23 +12,23 @@ var waitUntilChannelsAreHere = function() {
 };
 
 var getMyProjectsInBoard = function(boardId) {
-    return SPM.Models.ProjectManager.getMyProjects().then(function (projects) {
+    return SPM.Model.ProjectManager.getMyProjects().then(function (projects) {
         return projects
             .filter(function (project) {
                 return project.idBoard == boardId;
             })
             .map(function (project) {
-                return SPM.Models.ChannelManager.createChannel(project);
+                return SPM.Model.ChannelManager.createChannel(project);
             })
     })
 }
 
 var getNotMyProjectFollowed = function() {
-    promises = SPM.Models.ChannelManager
+    promises = SPM.Model.ChannelManager
     // 1 - Get project or channel name that I follow
         .getProjectChannelNames()
         .map(function (channelName) {
-            return SPM.Models.ProjectManager
+            return SPM.Model.ProjectManager
                 .getProjectByChannelName(channelName)
                 .then(function (project) {
                     return project || channelName;
@@ -38,10 +38,10 @@ var getNotMyProjectFollowed = function() {
     return Promise.all(promises).then(function (projectOrChannelNames) {
             return projectOrChannelNames
                 .filter(function (pocn) {
-                    return  (typeof pocn === "string" ) || !SPM.Models.ProjectManager.isMyProject(pocn)
+                    return  (typeof pocn === "string" ) || !SPM.Model.ProjectManager.isMyProject(pocn)
                 })
                 .map(function (pocn) {
-                    return SPM.Models.ChannelManager.createChannel(pocn);
+                    return SPM.Model.ChannelManager.createChannel(pocn);
                 })
         })
 }
@@ -51,7 +51,7 @@ var getNotMyProjectFollowed = function() {
 var renderChannels = function() {
     Promise.all([
     // 1 - Get channels by category
-        Promise.resolve(SPM.Models.ChannelManager.getNotProjectChannels()),    // Other non project Channels
+        Promise.resolve(SPM.Model.ChannelManager.getNotProjectChannels()),    // Other non project Channels
         getNotMyProjectFollowed(),                                          // Project followed, but not member
         getMyProjectsInBoard(SPM.Initializer.boardsIds.seeds),              // My project in seed
         getMyProjectsInBoard(SPM.Initializer.boardsIds.arborium)            // My projects in arborium
