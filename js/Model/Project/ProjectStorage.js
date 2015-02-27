@@ -1,16 +1,24 @@
-function() {
-
 var SPM = SPM || {};
-SPM.Storages = SPM.Storages || {};
+(function() {
+
+SPM.Model = SPM.Model || {};
+SPM.Model.Project = SPM.Model.Project || {};
 
 var _projects = {};
 var _projectsByChannel = {};
 var _projectsByUser = {};
 var _projectsBySearch = {};
+var _me = null;
+var _utils = null;
 
+SPM.Model.Project.ProjectStorage = {
+    setMe: function(me) {
+        _me = me;
+    },
 
-SPM.Storages.ProjectStorage = {
-
+    setUtils: function(utils) {
+        _utils = utils;
+    },
 
 	saveProject: function(project) {
 		_projects[project.id] = project;
@@ -19,11 +27,31 @@ SPM.Storages.ProjectStorage = {
 		}
         if (project.members) {
             _.map(project.members, function(member) {
-                projectsByUser[member.id].push(project);
+                if (typeof _projectsByUser[member.id] == 'undefined') {
+                    _projectsByUser[member.id] = [];
+                }
+                _projectsByUser[member.id].push(project);
             })
         }
-		return project
+		return project;
 	},
+
+    removeProjet: function(project) {
+        if (_utils.removeFromObject(project.id, _projects)) {
+            if (project.slack) {
+                _utils.removeFromObject(project.slack, _projectsByChannel);
+            }
+            if (project.members) {
+                _.map(project.members, function(member) {
+                    _utils.removeFromObject(member.id, _projectsByUser);
+                })
+            }
+            return Promise.resolve(project);
+
+        } else {
+            return Promise.reject('not here');
+        };
+    },
 
 	saveProjects: function (projects) {
 		projects.forEach(function (project) {
@@ -33,11 +61,10 @@ SPM.Storages.ProjectStorage = {
 	},
 
     searchProject: function(search) {
-        if (_projectsBySearch[search]) {
-            return Promise.resolve(_projectsBySearch[search]);
-        } else {
-            return Promise.reject("no data");
-        }
+        var projectId = _projectsBySearch[search]
+        return (projectId === undefined)?
+            Promise.reject("No data"):
+            Promise.resolve(_projects[projectId]);
     },
 
 	getProjectsByUser: function (user) {
@@ -53,6 +80,10 @@ SPM.Storages.ProjectStorage = {
         }
 	},
 
+    getMyProjects: function() {
+        return this.getProjectsByUser(_me);
+    },
+
 	noProjectForChannel: function (channelName) {
 		_projectsByChannel[channelName] = false;
 	},
@@ -61,12 +92,30 @@ SPM.Storages.ProjectStorage = {
         _projectsByUser[user.id] = false;
     },
 
-	getByChannelName: function (channelName) {
+	getProjectByChannelName: function (channelName) {
 		var projectId = _projectsByChannel[channelName]
 		return (projectId === undefined)?
 			Promise.reject("No data"):
 			Promise.resolve(_projects[projectId]);
-	}
+	},
+
+    saveResult: function(result, methodName, arguments) {
+        if (_utils.isArray(result)) {
+            this.saveProjects(result);
+        } else {
+            this.saveProject(result);
+        }
+        return true;
+    },
+
+    getById: function(id) {
+        if (typeof _projects[id] != 'undefined') {
+            return Promise.resolve(_projects[id]);
+        } else {
+            return Promise.reject('not here');
+        }
+
+    }
 }
 
-}();
+})();

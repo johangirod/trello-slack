@@ -80,7 +80,7 @@ SPM.PanelRenderer = {
 
         this.template.update("projects_tab", {
             project: this.project,
-            boards: SPM.Model.BoardManager.boards
+            boards: this.boards
         });
     },
     titleDiv: null,

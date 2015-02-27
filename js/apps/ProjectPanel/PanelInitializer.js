@@ -15,7 +15,7 @@ SPM.Apps.ProjectPanel.PanelInitalizer = {
     },
 
     renderCurrentProject: function() {
-        return SPM.Model.ProjectManager
+        return SPM.Model.Project.ProjectManager
             .getProjectByChannelName(this.currentProjectName)
             .then(function(project) {
                 return (project)?

@@ -1,14 +1,19 @@
-function() {
-
 var SPM = SPM || {};
+(function() {
+
 SPM.Model = SPM.Model || {};
 SPM.Model.Project = SPM.Model.Project || {};
 
 
 /*
-* connector Trell
+* connector Trello
  */
 var _connector = null;
+
+/*
+* ProjectBuilder
+ */
+var _projectBuilder = null;
 
 /*
 * array of boards in which all queries of projects will be done
@@ -16,15 +21,15 @@ var _connector = null;
 var _boards = [];
 
 var initLists = function (board) {
-    return SPM.TrelloConnector.request("get", "boards/" + board.id + "/lists")
+    return SPM.connector.TrelloConnector.request("get", "boards/" + board.id + "/lists")
         .then(function (lists) {
             board.lists = lists;
             return board;
         })
 }
 
-var isRegistredBoard = function (id) {
-    return this.boards.some(function (board) {
+var isRegistredBoardId = function (id) {
+    return _boards.some(function (board) {
         return board.id === id;
     })
 }
@@ -35,6 +40,10 @@ SPM.Model.Project.TrelloProjectReader = {
         _connector = connector;
     },
 
+    setProjectBuilder: function(builder) {
+        _projectBuilder = builder;
+    },
+
     setBoards: function(boardIds) {
         return Promise
         // 1- Getting all the boards
@@ -43,12 +52,16 @@ SPM.Model.Project.TrelloProjectReader = {
         }))
         // 2 - Gettin' all the list for all the boards
         .then(function (boards) {
+            _boards = boards;
             return Promise.all(boards.map(function (board) {
                 return initLists(board);
             }));
-            _boards = boards;
         })
-    }
+    },
+
+    getBoards: function() {
+        return _boards;
+    },
 
     searchProject: function(query) {
         return _connector.request("get","/search", {
@@ -73,12 +86,12 @@ SPM.Model.Project.TrelloProjectReader = {
                     _projectBuilder.build(card);
                 })
             }
-            return cards;
+            return Promise.resolve(cards);
         }.bind(this));
     },
 
     getById: function(id) {
-        return SPM.TrelloConnector.request("cards.get", id, {
+        return SPM.connector.TrelloConnector.request("cards.get", id, {
             "members": true,
             "filter": "open"
         }).then(function (card) {
@@ -89,7 +102,7 @@ SPM.Model.Project.TrelloProjectReader = {
     },
 
     getMyProjects: function () {
-        return SPM.TrelloConnector.request("get", "/members/me/cards", {
+        return SPM.connector.TrelloConnector.request("get", "/members/me/cards", {
             "members": true,
             "filter": "open",
             "limit": 1000
@@ -100,14 +113,15 @@ SPM.Model.Project.TrelloProjectReader = {
                     return isRegistredBoardId(card.idBoard);
                 })
                 .map(_projectBuilder.build);
-            return cards;
+            return Promise.resolve(cards);
         }).catch(function() {
             console.warn("no data getMyProjects");
         });
     },
 
     getProjectByChannelName: function (channelName) {
-        return this.getProject(channelName)
+
+        return this.searchProject(channelName)
             .then(function (projects) {
                 projects = projects.filter(function (project) {
                     return project.slack == channelName
@@ -129,7 +143,15 @@ SPM.Model.Project.TrelloProjectReader = {
                 return project;
             });
     },
+
+    saveResult: function(result, methodName, arguments) {
+        return true;
+    },
+
+    removeProjet: function(project) {
+        return Promise.resolve(project);
+    }
 }
 
 
-}();
+})();

@@ -12,7 +12,7 @@ var waitUntilChannelsAreHere = function() {
 };
 
 var getMyProjectsInBoard = function(boardId) {
-    return SPM.Model.ProjectManager.getMyProjects().then(function (projects) {
+    return SPM.Model.Project.ProjectManager.getMyProjects().then(function (projects) {
         return projects
             .filter(function (project) {
                 return project.idBoard == boardId;
@@ -20,6 +20,8 @@ var getMyProjectsInBoard = function(boardId) {
             .map(function (project) {
                 return SPM.Model.ChannelManager.createChannel(project);
             })
+    }).catch(function() {
+        console.log('bug in getMyProjectsInBoard');
     })
 }
 
@@ -28,33 +30,39 @@ var getNotMyProjectFollowed = function() {
     // 1 - Get project or channel name that I follow
         .getProjectChannelNames()
         .map(function (channelName) {
-            return SPM.Model.ProjectManager
+            return SPM.Model.Project.ProjectManager
                 .getProjectByChannelName(channelName)
                 .then(function (project) {
                     return project || channelName;
+                })
+                .catch(function() {
+                    console.log('getProjectByChannelName has bugged');
                 })
         });
     // 2 - Filter those whose I am member and transforms them to channel
     return Promise.all(promises).then(function (projectOrChannelNames) {
             return projectOrChannelNames
                 .filter(function (pocn) {
-                    return  (typeof pocn === "string" ) || !SPM.Model.ProjectManager.isMyProject(pocn)
+                    return  (typeof pocn === "string" ) || !SPM.Model.Project.ProjectManager.isMyProject(pocn)
                 })
                 .map(function (pocn) {
                     return SPM.Model.ChannelManager.createChannel(pocn);
                 })
         })
+        .catch(function() {
+            console.log("bug in getting getProjectByChannelName");
+        })
 }
 
-
+var _boardsIds = [];
 
 var renderChannels = function() {
     Promise.all([
     // 1 - Get channels by category
         Promise.resolve(SPM.Model.ChannelManager.getNotProjectChannels()),    // Other non project Channels
-        getNotMyProjectFollowed(),                                          // Project followed, but not member
-        getMyProjectsInBoard(SPM.Initializer.boardsIds.seeds),              // My project in seed
-        getMyProjectsInBoard(SPM.Initializer.boardsIds.arborium)            // My projects in arborium
+        getNotMyProjectFollowed(),                                         // Project followed, but not member
+        getMyProjectsInBoard(_boardsIds.seeds),              // My project in seed
+        getMyProjectsInBoard(_boardsIds.arborium)            // My projects in arborium
     ]).then(function (channel) {
         var myProjectsDone = _.partition(channel[3], function(channel) {
             return ["54b949c70a8cc363f4cbdf74", "54b949ca8aa6d6fba4c87700"].indexOf(channel.project.idList) == -1;
@@ -66,7 +74,9 @@ var renderChannels = function() {
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-project", "MES GRAINES", channel[2], true);
         SPM.ViewHelpers.SectionRenderer.addSection("SPM-my_project", "MES PROJETS", myProjectsDone[1], true);
         $("#channel-list").hide();
-    })
+    }).catch(function() {
+        console.log('bug in MyProjects app');
+    });
 }
 
 SPM.Apps.MyProjects.MyProjectsInitializer = {
@@ -77,6 +87,10 @@ SPM.Apps.MyProjects.MyProjectsInitializer = {
 
     updateProject: function(project) {
         renderChannels();
+    },
+
+    setBoardIds: function(boardIds) {
+        _boardsIds = boardIds;
     }
 }
 

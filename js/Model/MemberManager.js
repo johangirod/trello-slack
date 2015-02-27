@@ -6,7 +6,7 @@ SPM.Model.MemberManager = {
     setMe: function() {
         return new Promise(function(success, error){
             if (this.me == null) {
-                SPM.TrelloConnector.request("get","/members/me").then(function(me) {
+                SPM.connector.TrelloConnector.request("get","/members/me").then(function(me) {
                     this.me = me;
                     success();
                 }.bind(this));

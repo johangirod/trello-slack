@@ -1,6 +1,6 @@
-function() {
-
 var SPM = SPM || {};
+(function() {
+
 SPM.Model = SPM.Model || {};
 SPM.Model.Project = SPM.Model.Project || {};
 
@@ -79,10 +79,12 @@ SPM.Model.Project.TrelloProjectBuilder = {
 
 
     build: function(project) {
-        initProject(project);
+        return initProject(project);
     },
 
     setUtils: function(utils) {
         _utils = utils;
     }
 }
+
+})()

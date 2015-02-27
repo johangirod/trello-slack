@@ -26,18 +26,18 @@
                 "/js/Utils/Utils.js",
                 "/js/Utils/UrlChanged.js",
 
-                "/js/Model/BoardManager.js",
                 "/js/Model/ChannelManager.js",
                 "/js/Model/MemberManager.js",
-                "/js/Model/ProjectManager.js",
+                "/js/Model/Project/ProjectManager.js",
+                "/js/Model/Project/TrelloProjectBuilder.js",
+                "/js/Model/Project/ProjectStorage.js",
+                "/js/Model/Project/TrelloProjectReader.js",
 
-                "/js/Model/ProjectManager.js",
-                "/js/Storages/ProjectStorage.js",
 
                 "/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js",
                 "/js/ViewHelpers/EmojiRenderer.js",
 
-                "/js/connectors/TrelloConnector.js",
+                "/js/connector/TrelloConnector.js",
 
                 "/js/apps/ProjectPanel/PanelInitializer.js",
                 "/js/apps/ProjectPanel/views/PanelRenderer.js",
