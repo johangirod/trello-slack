@@ -1,12 +1,14 @@
-var SPM = SPM || {};
-SPM.Apps = SPM.Apps || {};
-SPM.Apps.ProjectPanel = SPM.Apps.ProjectPanel || {};
+var CodeInjector   = require('SPM/Utils/CodeInjector.js');
+var UrlChanged     = require('SPM/Utils/UrlChanged.js');
+var Utils          = require('SPM/Utils/Utils.js');
+var ProjectManager = require('SPM/Model/Project/ProjectManager.js');
+var PanelRenderer  = require('SPM/apps/ProjectPanel/views/PanelRenderer.js');
 
-SPM.Apps.ProjectPanel.PanelInitalizer = {
+module.exports = {
     init: function() {
-        SPM.CodeInjector.injectFile("js/apps/ProjectPanel/panelInjectedCode.js");
+        CodeInjector.injectFile("js/apps/ProjectPanel/panelInjectedCode.js");
 
-        SPM.UrlChanged.onChanged(function() {
+        UrlChanged.onChanged(function() {
             this.onChanged();
         }.bind(this));
         this.onChanged();
@@ -15,25 +17,25 @@ SPM.Apps.ProjectPanel.PanelInitalizer = {
     },
 
     renderCurrentProject: function() {
-        return SPM.Model.Project.ProjectManager
+        return ProjectManager
             .getProjectByChannelName(this.currentProjectName)
             .then(function(project) {
                 return (project)?
-                    SPM.PanelRenderer.render(project):
-                    SPM.PanelRenderer.renderNoProject();
+                    PanelRenderer.render(project):
+                    PanelRenderer.renderNoProject();
             });
     },
 
     onChanged: function(force) {
 
-        var projectName = SPM.Utils.getProjectNameFromUrl(document.URL);
+        var projectName = Utils.getProjectNameFromUrl(document.URL);
         if (force || this.currentProjectName !== projectName) {
             this.currentProjectName = projectName;
             if (this.currentProjectName) {
                this.renderCurrentProject();
             } else {
-                SPM.PanelRenderer.reset();
-                SPM.PanelRenderer.closePanel();
+                PanelRenderer.reset();
+                PanelRenderer.closePanel();
             }
         }
 

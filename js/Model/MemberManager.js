@@ -1,12 +1,11 @@
-var SPM = SPM || {};
-SPM.Model = SPM.Model || {};
+var connector = require('SPM/connector/TrelloConnector');
 
-SPM.Model.MemberManager = {
+module.exports = {
     me: null,
     setMe: function() {
         return new Promise(function(success, error){
             if (this.me == null) {
-                SPM.connector.TrelloConnector.request("get","/members/me").then(function(me) {
+                connector.request("get","/members/me").then(function(me) {
                     this.me = me;
                     success();
                 }.bind(this));

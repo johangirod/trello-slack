@@ -1,17 +1,12 @@
-var SPM = SPM || {};
-(function() {
-
-SPM.Model = SPM.Model || {};
-SPM.Model.Project = SPM.Model.Project || {};
+var Utils = require('SPM/Utils/Utils.js');
 
 var _projects = {};
 var _projectsByChannel = {};
 var _projectsByUser = {};
 var _projectsBySearch = {};
 var _me = null;
-var _utils = null;
 
-SPM.Model.Project.ProjectStorage = {
+module.exports = {
     setMe: function(me) {
         _me = me;
     },
@@ -33,8 +28,8 @@ SPM.Model.Project.ProjectStorage = {
                 _projectsByUser[member.id].push(project);
             })
         }
-		return project;
-	},
+        return project;
+    },
 
     removeProjet: function(project) {
         if (_utils.removeFromObject(project.id, _projects)) {
@@ -53,24 +48,24 @@ SPM.Model.Project.ProjectStorage = {
         };
     },
 
-	saveProjects: function (projects) {
-		projects.forEach(function (project) {
-			this.saveProject(project);
-		}.bind(this))
-		return projects;
-	},
+    saveProjects: function (projects) {
+      projects.forEach(function (project) {
+         this.saveProject(project);
+     }.bind(this))
+      return projects;
+    },
 
     searchProject: function(search) {
         var projectId = _projectsBySearch[search]
         return (projectId === undefined)?
-            Promise.reject("No data"):
-            Promise.resolve(_projects[projectId]);
+        Promise.reject("No data"):
+        Promise.resolve(_projects[projectId]);
     },
 
-	getProjectsByUser: function (user) {
+    getProjectsByUser: function (user) {
         var projects = _.filter(_projects, function(project) {
             return _.find(project.members, function(member) {
-                return member.id == user.id
+                return member.id == user.id;
             }.bind(this));
         }.bind(this));
         if (projects.length > 0) {
@@ -78,29 +73,29 @@ SPM.Model.Project.ProjectStorage = {
         } else {
             return Promise.reject("No data")
         }
-	},
+    },
 
     getMyProjects: function() {
         return this.getProjectsByUser(_me);
     },
 
-	noProjectForChannel: function (channelName) {
-		_projectsByChannel[channelName] = false;
-	},
+    noProjectForChannel: function (channelName) {
+      _projectsByChannel[channelName] = false;
+    },
 
     noProjectForUser: function (user) {
         _projectsByUser[user.id] = false;
     },
 
-	getProjectByChannelName: function (channelName) {
-		var projectId = _projectsByChannel[channelName]
-		return (projectId === undefined)?
-			Promise.reject("No data"):
-			Promise.resolve(_projects[projectId]);
-	},
+    getProjectByChannelName: function (channelName) {
+      var projectId = _projectsByChannel[channelName]
+      return (projectId === undefined)?
+      Promise.reject("No data"):
+      Promise.resolve(_projects[projectId]);
+    },
 
     saveResult: function(result, methodName, arguments) {
-        if (_utils.isArray(result)) {
+        if (Utils.isArray(result)) {
             this.saveProjects(result);
         } else {
             this.saveProject(result);
@@ -117,5 +112,3 @@ SPM.Model.Project.ProjectStorage = {
 
     }
 }
-
-})();

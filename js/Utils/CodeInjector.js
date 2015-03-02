@@ -1,5 +1,4 @@
-var SPM = SPM || {};
-SPM.CodeInjector = {
+module.exports = {
 
     injectFile: function(fileName) {
         var s = document.createElement('script');

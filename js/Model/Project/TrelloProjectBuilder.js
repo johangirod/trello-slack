@@ -1,24 +1,18 @@
-var SPM = SPM || {};
-(function() {
-
-SPM.Model = SPM.Model || {};
-SPM.Model.Project = SPM.Model.Project || {};
-
-var _utils = null;
+var Utils = require('SPM/Utils/Utils.js');
 
 var parseLeader = function (project) {
-    var leader = _utils.parseGetValueFromKey(project.desc, 'leader');
+    var leader = Utils.parseGetValueFromKey(project.desc, 'leader');
     if (!leader) {
         project.errors.noLeader = true;
         return false;
     }
-    leader = _utils.unaccent(leader);
+    leader = Utils.unaccent(leader);
     if(leader[0] === '@') {
         // With the @name syntax
         leader = leader.slice(1);
     }
     var leaderFound = project.members.some(function (member) {
-        var memberName = _utils.unaccent(member.fullName.toLowerCase());
+        var memberName = Utils.unaccent(member.fullName.toLowerCase());
         if (memberName.indexOf(leader) !== -1) {
             member.isLeader = true;
             return true;
@@ -34,10 +28,10 @@ var parseLeader = function (project) {
         project.errors.unknownLeader = true;
     }
     return leaderFound;
-}
+};
 
 var parseSlack = function(project) {
-    var slack = _utils.parseGetValueFromKey(project.desc, '(slack|channel|chanel|chan)');
+    var slack = Utils.parseGetValueFromKey(project.desc, '(slack|channel|chanel|chan)');
     if (!slack) {
         return
     }
@@ -55,7 +49,7 @@ var parseSlack = function(project) {
     }
     project.slack = slack;
     return project.slack;
-}
+};
 
 var checkErrors = function (project) {
     if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
@@ -68,23 +62,11 @@ var initProject = function(project) {
     var leader = parseLeader(project);
     var slack = parseSlack(project);
     // Need to 2x the line break for ISO trello markdown rendering
-    project.desc = _utils.doubleLineBreak(project.desc);
+    project.desc = Utils.doubleLineBreak(project.desc);
     // Capitalize first letter
     project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
     checkErrors(project);
     return project;
 };
 
-SPM.Model.Project.TrelloProjectBuilder = {
-
-
-    build: function(project) {
-        return initProject(project);
-    },
-
-    setUtils: function(utils) {
-        _utils = utils;
-    }
-}
-
-})()
+module.exports = initProject;

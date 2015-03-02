@@ -1,7 +1,7 @@
-var SPM = SPM || {};
-SPM.ViewHelpers = SPM.ViewHelpers || {};
+var CodeInjector = require('SPM/Utils/CodeInjector.js');
+var Utils        = require('SPM/Utils/Utils.js');
 
-SPM.ViewHelpers.SectionRenderer = {
+module.exports = {
 
     sections: [],
 
@@ -31,9 +31,9 @@ SPM.ViewHelpers.SectionRenderer = {
 
     _initialize: function() {
         this.initTemplate();
-        SPM.CodeInjector.injectFile("js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js");
+        CodeInjector.injectFile("js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js");
 
-        SPM.Utils.onDomChanged("#channel-list", function() {
+        Utils.onDomChanged("#channel-list", function() {
             this.update();
         }.bind(this));
     },
@@ -70,7 +70,7 @@ SPM.ViewHelpers.SectionRenderer = {
                 $(this).replaceWith($("#channel-list .channel_" + id + ",#starred-list .channel_"+id).clone());
             }
         });
-        SPM.CodeInjector.injectCode("TS.client.channel_pane.makeSureActiveChannelIsInView();");
+        CodeInjector.injectCode("TS.client.channel_pane.makeSureActiveChannelIsInView();");
     },
 
     template: null,

@@ -1,5 +1,5 @@
-var SPM = SPM || {};
-
+var Utils        = require('SPM/Utils/Utils');
+var CodeInjector = require('SPM/Utils/CodeInjector');
 /*
     PRIVATE FUNCTIONS
 */
@@ -11,7 +11,7 @@ var titleIsHere = function () {
     return $("#active_channel_name").length
 }
 
-SPM.PanelRenderer = {
+module.exports = {
 
     template: null,
     initTemplate: function() {
@@ -37,7 +37,7 @@ SPM.PanelRenderer = {
         this.reset();
         this.project = project;
         if (this.project) {
-            this.addTitle(SPM.Utils.getDueDate(this.project.due), this.project.name);
+            this.addTitle(Utils.getDueDate(this.project.due), this.project.name);
         }
 
         if (this.project.errors && this.project.errors.moreThanOneTrelloCard) {
@@ -49,7 +49,7 @@ SPM.PanelRenderer = {
 
 
 
-        SPM.Utils
+        Utils
             .waitUntil(panelIsHere)
             .then(function () {
                 this.addPanel();
@@ -97,8 +97,8 @@ SPM.PanelRenderer = {
                     <span id="SPM-chan-error" class="overflow-ellipsis"> ' + message + '\
                 </div>';
         this.errorDiv = $(dom).insertBefore("#messages_unread_status");
-        var chanName = SPM.Utils.getProjectNameFromUrl(document.URL)
-        SPM.CodeInjector.injectCode('\
+        var chanName = Utils.getProjectNameFromUrl(document.URL)
+        CodeInjector.injectCode('\
                 $("#SPM-copy-slack-chan").click(function() {\
                 window.prompt("Ctrl + C et puis copier dans la description de la carte slack", "\\n**Slack** : [' +
                 chanName + '](https://evaneos.slack.com/messages/' + chanName + ')\\n\\n");\
@@ -106,16 +106,15 @@ SPM.PanelRenderer = {
         ');
     },
     openPanel: function () {
-        SPM.CodeInjector.injectCode('\
+        CodeInjector.injectCode('\
             TSM.openPanel();\
         ');
     },
     closePanel: function () {
-        SPM.CodeInjector.injectCode('\
+        CodeInjector.injectCode('\
             if ($(".flex_pane_showing #flex_toggle").length !== 0) {\
                 $("#flex_toggle").trigger("click");\
             }\
         ');
     }
 }
-// <span class="emoji-inner" style="background: url(https://slack.global.ssl.fastly.net/19218/img/emoji_twitter_64_indexed_256colors.png);background-position:20.689655172413794% 65.51724137931033%;background-size:3000%" title="fallen_leaf">:fallen_leaf:</span>

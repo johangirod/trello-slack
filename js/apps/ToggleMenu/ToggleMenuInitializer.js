@@ -1,10 +1,8 @@
-var SPM = SPM || {};
-SPM.Apps = SPM.Apps || {};
-SPM.Apps.ToggleMenu = SPM.Apps.ToggleMenu || {};
+var CodeInjector = require('SPM/Utils/CodeInjector.js');
 
-SPM.Apps.ToggleMenu.ToggleMenuInitializer = {
+module.exports = {
     init: function() {
-        SPM.CodeInjector.injectFile("js/apps/ToggleMenu/toggleMenuInjectedCode.js");
+        CodeInjector.injectFile("js/apps/ToggleMenu/toggleMenuInjectedCode.js");
         return true;
     }
 }

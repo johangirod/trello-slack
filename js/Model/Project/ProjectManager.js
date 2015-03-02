@@ -1,6 +1,4 @@
-var SPM = SPM || {};
-SPM.Model = SPM.Model || {};
-SPM.Model.Project = SPM.Model.Project || {};
+var MemberManager = require('SPM/Model/MemberManager');
 
 var _storages = [];
 
@@ -43,7 +41,7 @@ var _updatePreviousCache = function(n, result, methodName, args) {
     return Promise.resolve(result);
 }
 
-SPM.Model.Project.ProjectManager = {
+module.exports = {
 
     addStorage: function(storage) {
         _storages.push(storage);
@@ -51,7 +49,7 @@ SPM.Model.Project.ProjectManager = {
 
     isMyProject: function(project) {
         return _.find(project.members, function(member) {
-            return SPM.Model.MemberManager.me.id == member.id;
+            return MemberManager.me.id == member.id;
         })
     },
 
@@ -76,5 +74,4 @@ SPM.Model.Project.ProjectManager = {
     getById: function(id) {
         return _getFromStorage("getById", [id]);
     }
-
 }
