@@ -1,12 +1,11 @@
 var TrelloConnector       = require('SPM/connector/TrelloConnector');
 var MemberManager         = require('SPM/Model/MemberManager');
 var ProjectManager        = require('SPM/Model/Project/ProjectManager');
-var ProjectStorage        = require('SPM/Model/Project/ProjectStorage');
-var TrelloProjectReader   = require('SPM/Model/Project/TrelloProjectReader');
 var PanelRenderer         = require('SPM/apps/ProjectPanel/views/PanelRenderer');
 var PanelInitalizer       = require('SPM/apps/ProjectPanel/PanelInitializer');
 var MyProjectsInitializer = require('SPM/apps/MyProjects/MyProjectsInitializer');
 var ToggleMenuInitializer = require('SPM/apps/ToggleMenu/ToggleMenuInitializer');
+var TrelloProjectReader   = require('SPM/Model/Project/TrelloProjectReader');
 
 
 var _boardsIds = {
@@ -15,10 +14,6 @@ var _boardsIds = {
 }
 
 var _buildModel = function() {
-
-    ProjectManager.addStorage(ProjectStorage);
-    ProjectManager.addStorage(TrelloProjectReader);
-
     return TrelloProjectReader.setBoards(_boardsIds);
 };
 
@@ -36,8 +31,7 @@ var init = {
                 return MemberManager.setMe();
             }.bind(this))
             .then(function() {
-
-                return _buildModel.apply(this);
+                return _buildModel();
             })
             .then(function() {
                 PanelRenderer.setBoards(TrelloProjectReader.getBoards());
@@ -74,6 +68,6 @@ var init = {
 }
 
 window.onload = function() {
-    debugger;
+    // debugger;
     init.init();
 }

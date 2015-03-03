@@ -20,8 +20,6 @@ var getMyProjectsInBoard = function(boardId) {
             .map(function (project) {
                 return ChannelManager.createChannel(project);
             })
-    }).catch(function() {
-        console.log('bug in getMyProjectsInBoard');
     })
 }
 
@@ -35,9 +33,6 @@ var getNotMyProjectFollowed = function() {
                 .then(function (project) {
                     return project || channelName;
                 })
-                .catch(function() {
-                    console.log('getProjectByChannelName has bugged');
-                })
         });
     // 2 - Filter those whose I am member and transforms them to channel
     return Promise.all(promises).then(function (projectOrChannelNames) {
@@ -49,9 +44,6 @@ var getNotMyProjectFollowed = function() {
                     return ChannelManager.createChannel(pocn);
                 })
         })
-        .catch(function() {
-            console.log("bug in getting getProjectByChannelName");
-        })
 }
 
 var _boardsIds = [];
@@ -59,10 +51,10 @@ var _boardsIds = [];
 var renderChannels = function() {
     Promise.all([
     // 1 - Get channels by category
-        // Promise.resolve(ChannelManager.getNotProjectChannels()),    // Other non project Channels
-        getNotMyProjectFollowed()                                         // Project followed, but not member
-        // getMyProjectsInBoard(_boardsIds.seeds),              // My project in seed
-        // getMyProjectsInBoard(_boardsIds.arborium)            // My projects in arborium
+        Promise.resolve(ChannelManager.getNotProjectChannels()),    // Other non project Channels
+        getNotMyProjectFollowed(),                                  // Project followed, but not member
+        getMyProjectsInBoard(_boardsIds.seeds),                     // My project in seed
+        getMyProjectsInBoard(_boardsIds.arborium)                   // My projects in arborium
     ]).then(function (channel) {
         var myProjectsDone = _.partition(channel[3], function(channel) {
             return ["54b949c70a8cc363f4cbdf74", "54b949ca8aa6d6fba4c87700"].indexOf(channel.project.idList) == -1;

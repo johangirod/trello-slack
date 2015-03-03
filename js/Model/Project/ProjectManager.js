@@ -1,6 +1,8 @@
-var MemberManager = require('SPM/Model/MemberManager');
+var MemberManager         = require('SPM/Model/MemberManager');
+var ProjectStorage        = require('SPM/Model/Project/ProjectStorage');
+var TrelloProjectReader   = require('SPM/Model/Project/TrelloProjectReader');
 
-var _storages = [];
+var _storages = [ProjectStorage, TrelloProjectReader];
 
 var _getFromStorageI = function(methodName, args, i) {
     if (typeof _storages[i] == 'undefined') {
@@ -16,7 +18,7 @@ var _getFromStorage = function(methodName, args, i) {
     if (typeof i == 'undefined') {
         i = 0;
     }
-     // @todo execute method with args
+    // @todo execute method with args
     return _getFromStorageI(methodName, args, i)
     .then(function(result) {
         return _updatePreviousCache(i, result, methodName, args).then(function(result) {
@@ -24,10 +26,11 @@ var _getFromStorage = function(methodName, args, i) {
         });
     }.bind(this))
     .catch(function () {
-        i ++;
         if (i == _storages.length) {
+            console.log(_storages, methodName)
             return Promise.reject('nothing in all storages :(');
         }
+        i ++;
         return _getFromStorage(methodName, args, i);
     }.bind(this))
 }
@@ -42,11 +45,6 @@ var _updatePreviousCache = function(n, result, methodName, args) {
 }
 
 module.exports = {
-
-    addStorage: function(storage) {
-        _storages.push(storage);
-    },
-
     isMyProject: function(project) {
         return _.find(project.members, function(member) {
             return MemberManager.me.id == member.id;
