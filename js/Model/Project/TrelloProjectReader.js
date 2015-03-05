@@ -1,5 +1,5 @@
 var connector      = require('SPM/connector/TrelloConnector');
-var projectBuilder = require('SPM/Model/Project/TrelloProjectBuilder');
+var buildProject   = require('SPM/Model/Project/TrelloProjectBuilder');
 
 
 var _boards = [];
@@ -19,7 +19,6 @@ var isRegistredBoardId = function (id) {
 };
 
 module.exports = {
-
     setBoards: function(boardIds) {
         return Promise
         // 1- Getting all the boards
@@ -59,10 +58,10 @@ module.exports = {
                 card = null;
             } else {
                 cards.forEach(function (card) {
-                    projectBuilder.build(card);
+                    buildProject(card);
                 });
             }
-            return Promise.resolve(cards);
+            return cards;
         }.bind(this));
     },
 
@@ -72,7 +71,7 @@ module.exports = {
             "filter": "open"
         }).then(function (card) {
             // filter cards to keep only the one in the orga board
-            projectBuilder.build(card);
+            buildProject(card);
             return card;
         });
     },
@@ -88,7 +87,7 @@ module.exports = {
                 .filter(function (card) {
                     return isRegistredBoardId(card.idBoard);
                 })
-                .map(projectBuilder.build);
+                .map(buildProject);
             return Promise.resolve(cards);
         }).catch(function() {
             console.warn("no data getMyProjects");
@@ -102,29 +101,24 @@ module.exports = {
                 projects = projects.filter(function (project) {
                     return project.slack == channelName;
                 });
+                var project = null;
                 if (projects.length > 1) {
                     console.warn("More than one Trello cards found for the project " + channelName);
                     _.map(projects, function(project) {
                         project.errors.moreThanOneTrelloCard = projects;
                     });
-                    // @todo sort by created_at date DESC
-                    project = projects[0];
+                    var maxDate = Math.max.apply(projects.map(function (p) {return p.created_at;}));
+                    project = _.find(projects, function (project) {
+                        return project.created_at === maxDate;
+                    });
                 }
                 if (projects.length === 0) {
                     console.warn("No Trello cards found for the project " + channelName);
-                    projects = null;
+                    project = null;
                 } else {
                     project = projects[0];
                 }
                 return project;
             });
-    },
-
-    saveResult: function(result, methodName, arguments) {
-        return true;
-    },
-
-    removeProjet: function(project) {
-        return Promise.resolve(project);
     }
 }

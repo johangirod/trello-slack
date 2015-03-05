@@ -13,7 +13,6 @@ module.exports = {
         }.bind(this));
         this.onChanged();
         return true;
-
     },
 
     renderCurrentProject: function() {
@@ -44,4 +43,4 @@ module.exports = {
     updateProject: function(project) {
         this.onChanged(true);
     }
-}
+};

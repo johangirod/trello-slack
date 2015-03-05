@@ -19,9 +19,9 @@ var getMyProjectsInBoard = function(boardId) {
             })
             .map(function (project) {
                 return ChannelManager.createChannel(project);
-            })
-    })
-}
+            });
+    });
+};
 
 var getNotMyProjectFollowed = function() {
     promises = ChannelManager
@@ -32,7 +32,7 @@ var getNotMyProjectFollowed = function() {
                 .getProjectByChannelName(channelName)
                 .then(function (project) {
                     return project || channelName;
-                })
+                });
         });
     // 2 - Filter those whose I am member and transforms them to channel
     return Promise.all(promises).then(function (projectOrChannelNames) {
@@ -42,9 +42,9 @@ var getNotMyProjectFollowed = function() {
                 })
                 .map(function (pocn) {
                     return ChannelManager.createChannel(pocn);
-                })
-        })
-}
+                });
+        });
+};
 
 var _boardsIds = [];
 
@@ -66,14 +66,12 @@ var renderChannels = function() {
         SectionRenderer.addSection("SPM-project", "MES GRAINES", channel[2], true);
         SectionRenderer.addSection("SPM-my_project", "MES PROJETS", myProjectsDone[1], true);
         $("#channel-list").hide();
-    }).catch(function() {
-        console.log('bug in MyProjects app');
     });
-}
+};
 
 module.exports = {
     init: function() {
-;        return waitUntilChannelsAreHere()
+        return waitUntilChannelsAreHere()
             .then(renderChannels);
     },
 
@@ -83,6 +81,11 @@ module.exports = {
 
     setBoardIds: function(boardIds) {
         _boardsIds = boardIds;
+    },
+
+    reload: function () {
+        SectionRenderer.flush();
+        renderChannels();
     }
 };
 

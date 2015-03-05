@@ -1,75 +1,28 @@
-var MemberManager         = require('SPM/Model/MemberManager');
-var ProjectStorage        = require('SPM/Model/Project/ProjectStorage');
-var TrelloProjectReader   = require('SPM/Model/Project/TrelloProjectReader');
+var LocalStorage        = require('SPM/Model/Storage/LocalStorage');
+var StorageManager      = require('SPM/Model/Storage/Manager');
 
-var _storages = [ProjectStorage, TrelloProjectReader];
+var MemberManager       = require('SPM/Model/MemberManager');
+var TrelloProjectReader = require('./TrelloProjectReader');
 
-var _getFromStorageI = function(methodName, args, i) {
-    if (typeof _storages[i] == 'undefined') {
-        return Promise.reject('storage ' + i + ' not defined');
-    }
-    if (typeof _storages[i][methodName] == 'undefined') {
-        return Promise.reject('the method ' + methodName + ' is not defined for the ' + i + 'th storage');
-    }
-    return _storages[i][methodName].apply(_storages[i], args);
+// Proxied functions (directly proxied to storages)
+var PROXIED_FUNCTIONS = ['getMyProjects', 'getProjectByChannelName', 'getById'];
+var SAVED_FUNCTIONS = PROXIED_FUNCTIONS;
+
+/*
+ *  ProjectManager extends StorageManager
+ */
+function ProjectManager() {
+    StorageManager.call(this,
+        [new LocalStorage(SAVED_FUNCTIONS), TrelloProjectReader], // Storages
+        PROXIED_FUNCTIONS
+    );
 }
 
-var _getFromStorage = function(methodName, args, i) {
-    if (typeof i == 'undefined') {
-        i = 0;
-    }
-    // @todo execute method with args
-    return _getFromStorageI(methodName, args, i)
-    .then(function(result) {
-        return _updatePreviousCache(i, result, methodName, args).then(function(result) {
-            return result;
-        });
-    }.bind(this))
-    .catch(function () {
-        if (i == _storages.length) {
-            console.log(_storages, methodName)
-            return Promise.reject('nothing in all storages :(');
-        }
-        i ++;
-        return _getFromStorage(methodName, args, i);
-    }.bind(this))
-}
+ProjectManager.prototype = Object.create(StorageManager.prototype);
+ProjectManager.prototype.isMyProject = function(project) {
+    return _.find(project.members, function(member) {
+        return MemberManager.me.id == member.id;
+    });
+};
 
-var _updatePreviousCache = function(n, result, methodName, args) {
-    if (n-1 > 0) {
-        for (var i = n - 1 ; i >= 0 ; i --) {
-            this._storages[i].saveResult(result, methodName, args);
-        }
-    }
-    return Promise.resolve(result);
-}
-
-module.exports = {
-    isMyProject: function(project) {
-        return _.find(project.members, function(member) {
-            return MemberManager.me.id == member.id;
-        })
-    },
-
-    getMyProjects: function () {
-        return _getFromStorage("getMyProjects", []);
-    },
-
-    getProjectByChannelName: function (channelName) {
-        return _getFromStorage("getProjectByChannelName", [channelName]);
-    },
-
-    updateProjectById: function(id) {
-        return _getFromStorage("getById", [id])
-        .then(function(project) {
-            return _getFromStorage("removeProjet", [project])
-        })
-        .then(function() {
-            return _getFromStorage("getById", [id]);
-        });
-    },
-
-    getById: function(id) {
-        return _getFromStorage("getById", [id]);
-    }
-}
+module.exports = new ProjectManager();
