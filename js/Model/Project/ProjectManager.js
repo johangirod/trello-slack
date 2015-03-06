@@ -1,12 +1,12 @@
-var LocalStorage        = require('SPM/Model/Storage/LocalStorage');
-var StorageManager      = require('SPM/Model/Storage/Manager');
+var LocalStorage        = require('../Storage/LocalStorage');
+var StorageManager      = require('../Storage/Manager');
 
-var MemberManager       = require('SPM/Model/MemberManager');
+var MemberManager       = require('../MemberManager');
 var TrelloProjectReader = require('./TrelloProjectReader');
 
 // Proxied functions (directly proxied to storages)
-var PROXIED_FUNCTIONS = ['getMyProjects', 'getProjectByChannelName', 'getById'];
-var SAVED_FUNCTIONS = PROXIED_FUNCTIONS;
+var PROXIED_FUNCTIONS = ['getById'];
+var SAVED_FUNCTIONS = ['getMyProjects', 'getProjectByChannelName', 'getById'];
 
 /*
  *  ProjectManager extends StorageManager
@@ -19,10 +19,20 @@ function ProjectManager() {
 }
 
 ProjectManager.prototype = Object.create(StorageManager.prototype);
-ProjectManager.prototype.isMyProject = function(project) {
-    return _.find(project.members, function(member) {
-        return MemberManager.me.id == member.id;
-    });
+ProjectManager.prototype.setBoardsIds = function (boards) {
+	this.idBoards = Object.keys(boards).map(function (name) {
+		return boards[name];
+	});
 };
-
+ProjectManager.prototype.isMyProject = function(project) {
+	return MemberManager.getMe().then(function (me) {
+	    return _.where(project.members,{id: me});
+	});
+};
+ProjectManager.prototype.getProjectByChannelName = function(channelName) {
+	return this._call('getProjectByChannelName', this.idBoards, channelName);
+};
+ProjectManager.prototype.getMyProjects = function() {
+	return this._call('getMyProjects', this.idBoards);
+};
 module.exports = new ProjectManager();

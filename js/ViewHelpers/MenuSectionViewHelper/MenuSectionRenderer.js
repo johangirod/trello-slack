@@ -1,5 +1,5 @@
-var CodeInjector = require('SPM/Utils/CodeInjector.js');
-var Utils        = require('SPM/Utils/Utils.js');
+var CodeInjector = require('../../Utils/CodeInjector.js');
+var Utils        = require('../../Utils/Utils.js');
 
 module.exports = {
 
@@ -29,6 +29,7 @@ module.exports = {
         this.updateMenuItem(section);
     },
 
+
     _initialize: function() {
         this.initTemplate();
         CodeInjector.injectFile("js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js");
@@ -57,6 +58,7 @@ module.exports = {
 
         this.template.update(section.id, {
             channels: section.channels,
+            getDueDate: Utils.getDueDate,
             title: section.title,
             isProjectSection: section.isProjectSection
         });

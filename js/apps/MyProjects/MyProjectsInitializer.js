@@ -1,7 +1,7 @@
-var Utils           = require('SPM/Utils/Utils');
-var ChannelManager  = require('SPM/Model/ChannelManager');
-var ProjectManager  = require('SPM/Model/Project/ProjectManager');
-var SectionRenderer = require('SPM/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer');
+var Utils           = require('../../Utils/Utils');
+var ChannelManager  = require('../../Model/ChannelManager');
+var ProjectManager  = require('../../Model/Project/ProjectManager');
+var SectionRenderer = require('../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer');
 
 var numberOfProjects = 0;
 
@@ -35,15 +35,11 @@ var getNotMyProjectFollowed = function() {
                 });
         });
     // 2 - Filter those whose I am member and transforms them to channel
-    return Promise.all(promises).then(function (projectOrChannelNames) {
-            return projectOrChannelNames
-                .filter(function (pocn) {
-                    return  (typeof pocn === "string" ) || !ProjectManager.isMyProject(pocn)
-                })
-                .map(function (pocn) {
-                    return ChannelManager.createChannel(pocn);
-                });
-        });
+    return Promise.filter(promises, function (pocn) {
+        return typeof pocn === "string" || ProjectManager.isMyProject(pocn).then(function (b) {return !b;});
+    }).map(function (pocn) {
+        return ChannelManager.createChannel(pocn);
+    });
 };
 
 var _boardsIds = [];

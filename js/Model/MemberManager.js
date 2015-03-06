@@ -1,9 +1,23 @@
-var connector      = require('SPM/connector/TrelloConnector');
-var ChannelManager = require('SPM/Storage/Manager');
-var LocalStorage   = require('SPM/Storage/LocalStorage');
+var LocalStorage   = require('./Storage/LocalStorage');
+var StorageManager = require('./Storage/Manager');
+var connector      = require('../connector/TrelloConnector');
 
-// TODO : Passer en mode localstorage
-function TrelloMemberReader() {};
-TrelloMemberReader.prototype.getMe = function() {
-    connector.request("get","/members/me");
+
+var TrelloMemberReader = {
+	getMe: function() {
+	    return connector.request("get","/members/me");
+	}
 };
+
+/*
+ *  MemberManager extends StorageManager
+ */
+function MemberManager() {
+    StorageManager.call(this,
+        [new LocalStorage(['getMe']), TrelloMemberReader], // Storages
+        ['getMe']
+    );
+}
+MemberManager.prototype = Object.create(StorageManager.prototype);
+
+module.exports = new MemberManager();

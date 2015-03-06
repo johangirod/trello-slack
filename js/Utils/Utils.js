@@ -12,7 +12,6 @@ module.exports = {
     },
 
     getProjectNameFromUrl: function(url) {
-        console.log(url)
         var channel = url.split('/')[4];
         if (channel && channel.substring(0,2) == 'p-') {
             return channel;

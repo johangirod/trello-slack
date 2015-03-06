@@ -27,6 +27,6 @@ module.exports = {
         .catch(function (error) {
             console.error("Error in Trello API: ", error);
             return error;
-        })
+        });
     }
 };

@@ -239,3 +239,11 @@ body:not(.SPM-not-show-all) .section_holder h2.SPM-plus:not(#channels_header)::a
     display: block;
     overflow: hidden;
 }
+
+#projects_tab {
+    -webkit-user-select: initial;
+    -moz-user-select: initial;
+    -ms-user-select: initial;
+    user-select: initial;
+    overflow-y: scroll;
+}

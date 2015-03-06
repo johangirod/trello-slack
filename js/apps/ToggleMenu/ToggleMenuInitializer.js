@@ -1,4 +1,4 @@
-var CodeInjector = require('SPM/Utils/CodeInjector.js');
+var CodeInjector = require('../../Utils/CodeInjector.js');
 
 module.exports = {
     init: function() {

@@ -17,15 +17,7 @@
             <% }) %>
         </div>
         <div>
-        <% boards.forEach(function(board) { %>
-            <% if (project.idBoard == board.id) { %>
-                <div id="file_list_toggle SPM-lists SPM-list-<%= board.id %>" class="btn-group">
-                <% board.lists.forEach(function(list) { %>
-                    <button id="file_list_toggle_all" class="file_list_toggle <% if (list.id == project.idList) { %>active<% } %> btn btn-mini btn-outline"><%= list.name %></button>
-                <% }) %>
-                </div>
-            <% } %>
-        <% }) %>
+            <%= project.board.name %>
         </div>
     </div>
     <div class="SPM-tab-content">

@@ -1,4 +1,4 @@
-CodeInjector = require('SPM/Utils/CodeInjector');
+CodeInjector = require('./CodeInjector');
 
 var UrlChanged = {
     onChanged: function(callback) {

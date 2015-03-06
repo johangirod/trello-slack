@@ -1,8 +1,8 @@
-var CodeInjector   = require('SPM/Utils/CodeInjector.js');
-var UrlChanged     = require('SPM/Utils/UrlChanged.js');
-var Utils          = require('SPM/Utils/Utils.js');
-var ProjectManager = require('SPM/Model/Project/ProjectManager.js');
-var PanelRenderer  = require('SPM/apps/ProjectPanel/views/PanelRenderer.js');
+var CodeInjector   = require('../../Utils/CodeInjector.js');
+var UrlChanged     = require('../../Utils/UrlChanged.js');
+var Utils          = require('../../Utils/Utils.js');
+var ProjectManager = require('../../Model/Project/ProjectManager.js');
+var PanelRenderer  = require('../../apps/ProjectPanel/views/PanelRenderer.js');
 
 module.exports = {
     init: function() {

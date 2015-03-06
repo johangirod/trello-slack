@@ -1,4 +1,4 @@
-var Utils = require('SPM/Utils/Utils.js');
+var Utils = require('../../Utils/Utils.js');
 
 var parseLeader = function (project) {
     var leader = Utils.parseGetValueFromKey(project.desc, 'leader');

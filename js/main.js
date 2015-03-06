@@ -1,11 +1,13 @@
-var TrelloConnector       = require('SPM/connector/TrelloConnector');
-var MemberManager         = require('SPM/Model/MemberManager');
-var ProjectManager        = require('SPM/Model/Project/ProjectManager');
-var PanelRenderer         = require('SPM/apps/ProjectPanel/views/PanelRenderer');
-var PanelInitializer      = require('SPM/apps/ProjectPanel/PanelInitializer');
-var MyProjectsInitializer = require('SPM/apps/MyProjects/MyProjectsInitializer');
-var ToggleMenuInitializer = require('SPM/apps/ToggleMenu/ToggleMenuInitializer');
-var TrelloProjectReader   = require('SPM/Model/Project/TrelloProjectReader');
+window.Promise = require('bluebird')
+
+
+var TrelloConnector       = require('./connector/TrelloConnector');
+var MemberManager         = require('./Model/MemberManager');
+var ProjectManager        = require('./Model/Project/ProjectManager');
+var PanelRenderer         = require('./apps/ProjectPanel/views/PanelRenderer');
+var PanelInitializer      = require('./apps/ProjectPanel/PanelInitializer');
+var MyProjectsInitializer = require('./apps/MyProjects/MyProjectsInitializer');
+var ToggleMenuInitializer = require('./apps/ToggleMenu/ToggleMenuInitializer');
 
 
 var BOARD_IDS = {
@@ -39,15 +41,9 @@ var init = function() {
     TrelloConnector
         .initConnection()
         .then(function() {
-            return MemberManager.setMe();
-        }.bind(this))
-        .then(function() {
-            return TrelloProjectReader.setBoards(BOARD_IDS);
-        })
-        .then(function() {
-            PanelRenderer.setBoards(TrelloProjectReader.getBoards());
-            PanelInitializer.init();
+            ProjectManager.setBoardsIds(BOARD_IDS);
             MyProjectsInitializer.setBoardIds(BOARD_IDS);
+            PanelInitializer.init();
             MyProjectsInitializer.init();
             ToggleMenuInitializer.init();
         }.bind(this))

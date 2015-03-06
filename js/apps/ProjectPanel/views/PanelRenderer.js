@@ -1,33 +1,30 @@
-var Utils        = require('SPM/Utils/Utils');
-var CodeInjector = require('SPM/Utils/CodeInjector');
+var Utils        = require('../../../Utils/Utils');
+var CodeInjector = require('../../../Utils/CodeInjector');
 /*
     PRIVATE FUNCTIONS
 */
 
 var panelIsHere = function () {
-    return $("#flex_contents").length
-}
+    return $("#flex_contents").length;
+};
 var titleIsHere = function () {
-    return $("#active_channel_name").length
-}
+    return $("#active_channel_name").length;
+};
 
-module.exports = {
-
-    template: null,
+function PanelRenderer () {
+    this.project     = null;
+    this.template    = null;
+    this.initialized = false;
+    this.panelDiv    = null;
+    this.titleDiv    = null;
+    this.errorDiv    = null;
+};
+PanelRenderer.prototype = {
     initTemplate: function() {
         if (this.template === null) {
             this.template = new EJS({url: chrome.extension.getURL('js/apps/ProjectPanel/views/panel.ejs')});
         }
     },
-
-    boards: null,
-    project: null,
-
-    setBoards: function(boards) {
-        this.boards = boards;
-        return this;
-    },
-    initialized: false,
     render: function(project) {
         if (!this.initialized) {
             this.initTemplate();
@@ -47,14 +44,12 @@ module.exports = {
             this.addError('Plusieurs projets pointent vers cette discussion Slack: ' + projects);
         }
 
-
-
         Utils
             .waitUntil(panelIsHere)
             .then(function () {
                 this.addPanel();
                 //this.openPanel();
-            }.bind(this))
+            }.bind(this));
     },
 
     renderNoProject: function() {
@@ -72,18 +67,15 @@ module.exports = {
         this.errorDiv && this.errorDiv.remove();
     },
 
-    panelDiv: null,
     addPanel: function() {
         // Create the div if not here
         var div = '<div class="tab-pane active" id="projects_tab"></div>';
         this.panelDiv = $(div).appendTo("#flex_contents");
 
         this.template.update("projects_tab", {
-            project: this.project,
-            boards: this.boards
+            project: this.project
         });
     },
-    titleDiv: null,
     addTitle: function(deadline, title) {
         $(".SPM-title").remove();
         var dom = '<span class="name SPM-title">' +
@@ -91,7 +83,6 @@ module.exports = {
         title + '</span>';
         this.titleDiv = $(dom).insertAfter("#active_channel_name");
     },
-    errorDiv: null,
     addError: function(message) {
         var dom = '<div id="SPM-notif" class="messages_banner"> \
                     <span id="SPM-chan-error" class="overflow-ellipsis"> ' + message + '\
@@ -117,4 +108,6 @@ module.exports = {
             }\
         ');
     }
-}
+};
+
+module.exports = new PanelRenderer();
