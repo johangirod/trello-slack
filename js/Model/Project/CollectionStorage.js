@@ -14,11 +14,23 @@ CollectionStorage.prototype._saveResult = function (fname, args, result) {
 };
 
 CollectionStorage.prototype._updateRessource = function (ressource) {
+	// Todo : update only it's changed
 	return Promise.all([
 		this.collectionStore.changeResult('getById', ressource.id, ressource)
 	].concat(
 		Object.keys(this.functions).map(function (fname) {
 			return this._store.update(fname, ressource, this.functions[fname])
+		})
+	));
+};
+
+CollectionStorage.prototype._deleteRessource = function (ressource) {
+	// Todo : update only it's changed
+	return Promise.all([
+		this.collectionStore.changeResult('getById', ressource.id, null)
+	].concat(
+		Object.keys(this.functions).map(function (fname) {
+			return this._store.update(fname, ressource, function(){ return false;})
 		})
 	));
 };

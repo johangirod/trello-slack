@@ -34,7 +34,7 @@ CollectionStore.prototype.changeResult = function (fname, args, newValueFn) {
 	}.bind(this))
 }
 
-CollectionStore.prototype.remove = function (fname, args, ressource) {
+CollectionStore.prototype.removeIfExists = function (fname, args, ressource) {
 	return this.changeResult(fname, args, function (oldValue) {
 		if (!Array.isArray(result)) {
 			return null
@@ -46,7 +46,7 @@ CollectionStore.prototype.remove = function (fname, args, ressource) {
 	})
 }
 
-CollectionStore.prototype.add = function (fname, args, ressource) {
+CollectionStore.prototype.addIfExists = function (fname, args, ressource) {
 	return this.changeResult(fname, args, function (result) {
 		if (!Array.isArray(result)) {
 			return ressource
@@ -61,9 +61,9 @@ CollectionStore.prototype.update = function (fname, ressource, isResultOf) {
 	return this.store.keys(fname).then(function (keys) {
 		return Promise.all(keys.map(function (key) {
 			var args = parse(key)
-			return this.remove(fname, args, ressource).finally(function () {
+			return this.removeIfExists(fname, args, ressource).finally(function () {
 				if (isResultOf(args, ressource)) {
-					return this.add(fname, args, ressource)
+					return this.addIfExists(fname, args, ressource)
 				}
 			})
 		}))
