@@ -35,4 +35,22 @@ ProjectManager.prototype.getProjectByChannelName = function(channelName) {
 ProjectManager.prototype.getMyProjects = function() {
 	return this._call('getMyProjects', this.idBoards);
 };
+// Here goes the cache logic (finally)
+ProjectManager.prototype.updateProject = function(project) {
+	this.getProjectById(project.id).then(function (oldProject) {
+		// If slack has changed
+		if (oldProject.slack != project.slack) {
+			this._flushFunction('getProjectByChannelName', this.idBoards, oldProject.slack);
+		}
+		// If my appartnance has changed
+		Promise.all([project, oldProject].map(function (project) {
+			return this.isMyProject(project);
+		})).then(function (isMyProjects) {
+			if(isMyProjects[0] !== isMyProjects[1]) {
+				return this._flushFunction('getMyProjects', this.idBoards);
+			}
+		})
+	});
+	this._broadcast('_update', project);
+};
 module.exports = new ProjectManager();
