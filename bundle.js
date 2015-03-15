@@ -438,21 +438,28 @@ ProjectManager.prototype.setBoardsIds = function (boards) {
 	});
 };
 ProjectManager.prototype.getProjectByChannelName = function(channelName) {
-	return this._call('getProjectByChannelName', this.idBoards, channelName);
+	return this._call('getProjectsByChannelName', this.idBoards, channelName).then(function (projects) {
+		if (!projects.length) {
+			return null;
+		}
+        var project = _.max(projects, 'iteration');
+        if (project.iteration < projects.length) {
+        	project.errors.tooManyCards = true;
+        } else if (project.iteration > projects.length) {
+        	project.errors.tooFewCards = true;
+        }
+        return project;
+	});
 };
-
 ProjectManager.prototype.getMyProjects = function() {
 	return this._call('getMyProjects', this.idBoards);
 };
-
 ProjectManager.prototype.addProject = function (project) {
     return this._broadcast('_addRessource', project);
 };
-
 ProjectManager.prototype.updateProject = function (project) {
     return this._broadcast('_updateRessource', project);
 };
-
 ProjectManager.prototype.removeProject = function (project) {
     return this._broadcast('_removeRessource', project);
 };
@@ -513,6 +520,32 @@ var parseSlack = function(project) {
     return project.slack;
 };
 
+var parseIteration = function (project) {
+    var name = project.name.toUpperCase();
+    var ite = 1;
+    if (name.match(/ II$/)) {
+        ite = 2;
+    } else if (name.match(/ III$/)) {
+        ite = 3;
+    } else if (name.match(/ IV$/)) {
+        ite = 4;
+    } else if (name.match(/ V$/)) {
+        ite = 5;
+    } else if (name.match(/ VI$/)) {
+        ite = 6;
+    } else if (name.match(/ VII$/)) {
+        ite = 7;
+    } else if (name.match(/ VIII$/)) {
+        ite = 8;
+    } else if (name.match(/ IX$/)) {
+        ite = 9;
+    } else if (name.match(/ X$/)) {
+        ite = 10;
+    }
+    project.iteration = ite;
+    return ite;
+}
+
 var checkErrors = function (project) {
     if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
     if (project.idMembers.length < 2) {project.errors.tooFewMembers = true};
@@ -520,13 +553,16 @@ var checkErrors = function (project) {
 };
 
 var initProject = function(project) {
-    project.errors = {};
-    var leader = parseLeader(project);
-    var slack = parseSlack(project);
-    // Need to 2x the line break for ISO trello markdown rendering
-    project.desc = Utils.doubleLineBreak(project.desc);
     // Capitalize first letter
     project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
+
+    project.errors = {};
+    parseLeader(project);
+    parseSlack(project);
+    parseIteration(project);
+
+    // Need to 2x the line break for ISO trello markdown rendering
+    project.desc = Utils.doubleLineBreak(project.desc);
     checkErrors(project);
     return project;
 };
@@ -592,30 +628,16 @@ module.exports = {
         });
     },
 
-    getProjectByChannelName: function (idBoards, channelName) {
+    getProjectsByChannelName: function (idBoards, channelName) {
         return this.searchProject(idBoards, channelName)
             .then(function (projects) {
                 projects = projects.filter(function (project) {
                     return project.slack == channelName;
                 });
-                var project = null;
-                if (projects.length > 1) {
-                    console.warn('More than one Trello cards found for the project ' + channelName);
-                    _.map(projects, function(project) {
-                        project.errors.moreThanOneTrelloCard = projects;
-                    });
-                    var maxDate = Math.min.apply(projects.map(function (p) {return p.created_at;}));
-                    project = _.find(projects, function (project) {
-                        return project.created_at === maxDate;
-                    });
-                }
                 if (projects.length === 0) {
                     console.warn('No Trello cards found for the project ' + channelName);
-                    project = null;
-                } else {
-                    project = projects[0];
                 }
-                return project;
+                return projects;
             });
     }
 }
@@ -1063,13 +1085,6 @@ PanelRenderer.prototype = {
         this.project = project;
         if (this.project) {
             this.addTitle(Utils.getDueDate(this.project.due), this.project.name);
-        }
-
-        if (this.project.errors && this.project.errors.moreThanOneTrelloCard) {
-            var projects = this.project.errors.moreThanOneTrelloCard.reduce(function(memo, project) {
-                return memo + ' - '+ project.name;
-            }, "");
-            this.addError('Plusieurs projets pointent vers cette discussion Slack: ' + projects);
         }
 
         Utils

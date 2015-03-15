@@ -57,30 +57,16 @@ module.exports = {
         });
     },
 
-    getProjectByChannelName: function (idBoards, channelName) {
+    getProjectsByChannelName: function (idBoards, channelName) {
         return this.searchProject(idBoards, channelName)
             .then(function (projects) {
                 projects = projects.filter(function (project) {
                     return project.slack == channelName;
                 });
-                var project = null;
-                if (projects.length > 1) {
-                    console.warn('More than one Trello cards found for the project ' + channelName);
-                    _.map(projects, function(project) {
-                        project.errors.moreThanOneTrelloCard = projects;
-                    });
-                    var maxDate = Math.min.apply(projects.map(function (p) {return p.created_at;}));
-                    project = _.find(projects, function (project) {
-                        return project.created_at === maxDate;
-                    });
-                }
                 if (projects.length === 0) {
                     console.warn('No Trello cards found for the project ' + channelName);
-                    project = null;
-                } else {
-                    project = projects[0];
                 }
-                return project;
+                return projects;
             });
     }
 }
