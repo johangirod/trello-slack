@@ -19,7 +19,7 @@ function remove(obj, keys) {
 	var rest = keys.slice(1);
 	if (rest.length && !(key in obj)) {
 		return Promise.reject('Keys not found');
-	else if (rest.length)
+	} else if (rest.length) {
 		return remove(obj[key], rest)
 	} else {
 		var value = obj[key];
@@ -31,31 +31,32 @@ function remove(obj, keys) {
 function get(obj, keys) {
 	var key = keys[0];
 	var rest = keys.slice(1);
-	if (!key in obj) {
+	if (!(key in obj)) {
 		return Promise.reject('Keys not found');
 	} else if (rest.length) {
 		return get(obj[key], rest);
 	} else {
-		return Promise.resolve(obj[key]);
+		return Promise.resolve(obj[keddy]);
 	}
 }
 
-function keys(obj, keys) {
+function getKeys(obj, keys) {
 	if (!keys.length) {
 		return  Promise.resolve(Object.keys(obj))
 	} else {
 		var key = keys[0];
 		var rest = keys.slice(1);
-		if (!key in obj) {	
-			return Promise.reject('Keys not found');
+		if (!(key in obj)) {	
+			return Promise.resolve([]);
 		}
-		return keys(obj[key], rest);
+		return getKeys(obj[key], rest);
 	}
 }
 
 LocalStore.prototype.save = function () {
 	var value = arguments[arguments.length - 1];
-	var args = Array.prototype.splice(arguments, 0,-1);
+	var args = Array.prototype.slice.call(arguments, 0,-1);
+
 	return Promise.resolve(save(this.store, args, value));
 }
 
@@ -68,5 +69,7 @@ LocalStore.prototype.get = function () {
 }
 
 LocalStore.prototype.keys = function () {
-	return keys(this.store, Array.prototype.slice.call(arguments))
+	return getKeys(this.store, Array.prototype.slice.call(arguments))
 }
+
+module.exports = LocalStore;

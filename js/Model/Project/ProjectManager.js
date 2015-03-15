@@ -1,46 +1,60 @@
-var LocalStorage        = require('../Storage/LocalStorage');
-var StorageManager      = require('../Storage/Manager');
+var LocalStore          = require('../Base/LocalStore');
+var StorageManager      = require('../Base/StorageManager');
+var CollectionStorage   = require('../Base/CollectionStorage');
 
 var MemberManager       = require('../MemberManager');
 var TrelloProjectReader = require('./TrelloProjectReader');
 
 // Proxied functions (directly proxied to storages)
 var PROXIED_FUNCTIONS = ['getById'];
-var SAVED_FUNCTIONS = ['getMyProjects', 'getProjectByChannelName', 'getById'];
+
+// Set up the collectionStorage, by informing the saved functions, and the cache accuracy function
+var collectionStorage = new CollectionStorage(new LocalStore());
+collectionStorage._addFunction('getMyProjects', function (_, project) {
+	return projectManager.isMyProject(project);
+});
+collectionStorage._addFunction('getProjectByChannelName', function (args, project) {
+	return project.slack === args[2];
+});
 
 
-var projectByChannelNameChanged = function (args, project) {
-	return project.slack == args[1];
-}
-/*
- *  ProjectManager extends StorageManager
- */
 function ProjectManager() {
     StorageManager.call(this,
-        [new LocalStorage(SAVED_FUNCTIONS), TrelloProjectReader], // Storages
+        [collectionStorage, TrelloProjectReader], // Storages
         PROXIED_FUNCTIONS
     );
 }
 
 ProjectManager.prototype = Object.create(StorageManager.prototype);
-ProjectManager.prototype.setBoardsIds = function (boards) {
-	this.idBoards = Object.keys(boards).map(function (name) {
-		return boards[name];
-	});
-};
 ProjectManager.prototype.isMyProject = function(project) {
 	return MemberManager.getMe().then(function (me) {
 	    return _.where(project.members,{id: me});
 	});
 };
+ProjectManager.prototype.setBoardsIds = function (boards) {
+	this.idBoards = Object.keys(boards).map(function (name) {
+		return boards[name];
+	});
+};
 ProjectManager.prototype.getProjectByChannelName = function(channelName) {
 	return this._call('getProjectByChannelName', this.idBoards, channelName);
 };
+
 ProjectManager.prototype.getMyProjects = function() {
 	return this._call('getMyProjects', this.idBoards);
 };
-// Here goes the cache logic (finally)
-ProjectManager.prototype.updateProject = function(project) {
-	
+
+ProjectManager.prototype.addProject = function (project) {
+    return this._broadcast('_addRessource', project);
 };
-module.exports = new ProjectManager();
+
+ProjectManager.prototype.updateProject = function (project) {
+    return this._broadcast('_updateRessource', project);
+};
+
+ProjectManager.prototype.removeProject = function (project) {
+    return this._broadcast('_removeRessource', project);
+};
+
+var projectManager = new ProjectManager();
+module.exports = projectManager;

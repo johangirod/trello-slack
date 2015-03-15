@@ -18,35 +18,54 @@ var BOARD_IDS = {
 
 var initDate = moment();
 
-var updateView = function(snapshot) {
-    var id = snapshot.val().id;
-    var date = snapshot.val().updated_at;
-    if (initDate.isBefore(moment(date))) {
-        ProjectManager
-            ._flushById(id)
-            .then(function() {
-                PanelInitializer.reload();
-                MyProjectsInitializer.reload();
-            });
-    }
+var addProject = function(project) {
+    return ProjectManager.getById(project.id)
+        .then(ProjectManager.addProject.bind(ProjectManager))
 };
 
+var removeProject = function (project) {
+    return ProjectManager.removeProject(project)
+};
+
+var updateProject = function (project) {
+    return ProjectManager.removeProject(project).then(function () {
+        return ProjectManager.getById(project.id)
+    })
+    .then(ProjectManager.addProject.bind(ProjectManager))
+};
+
+var wrapp = function (fn) {
+    return function (snapshot) {
+        var project = snapshot.val();
+        if (!initDate.isBefore(moment(project.updated_at))) {
+            return false;
+        }
+        return fn(project).then(function () {
+            PanelInitializer.reload();
+            MyProjectsInitializer.reload();
+        });
+    }
+}
+
 var setUpRealTime = function () {
-    new Firebase("https://trello.firebaseio.com/").child("projects")
-        .on("child_added", updateView)
-        .on("child_changed", updateView);
+    var f = new Firebase("https://trello.firebaseio.com/").child("projects");
+    f.on("child_added", wrapp(addProject));
+    f.on("child_changed", wrapp(updateProject));
+    f.on("child_removed", wrapp(removeProject));
 };
 
 var init = function() {
-    TrelloConnector
+    return TrelloConnector
         .initConnection()
         .then(function() {
             ProjectManager.setBoardsIds(BOARD_IDS);
             MyProjectsInitializer.setBoardIds(BOARD_IDS);
-            PanelInitializer.init();
-            MyProjectsInitializer.init();
-            ToggleMenuInitializer.init();
-        }.bind(this))
+            return Promise.all([
+                PanelInitializer.init(),
+                MyProjectsInitializer.init(),
+                ToggleMenuInitializer.init()
+            ])
+        })
         .catch(function (error) {
             console.error(error);
         });
@@ -55,6 +74,5 @@ var init = function() {
 
 
 window.onload = function() {
-    // debugger;
-    init();
+    init().then(setUpRealTime);
 }

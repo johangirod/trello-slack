@@ -1,4 +1,292 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/johan/evaneos/trello-slack/js/Model/ChannelManager.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js":[function(require,module,exports){
+var CollectionStore = require('./CollectionStore');
+
+function CollectionStorage (store) {
+	this._functions = {};
+	this._store = new CollectionStore(store);
+
+	// getById is automatically added.
+	this['getById'] = this._store.call.bind(this._store, 'getById');
+}
+
+CollectionStorage.prototype._addFunction = function (fname, isResultOf) {
+	this._functions[fname] = isResultOf;
+	this[fname] = this._store.call.bind(this._store, fname);
+};
+
+CollectionStorage.prototype._saveResult = function (fname, args, result) {
+	// 1 - Update saveById
+	if (Array.isArray(result)) {
+		result.map(function (project) {
+			this._store.save('getById', [project.id], project)
+		})
+	} else {
+		this._store.save('getById', [result.id], result)
+	}
+	// 2 - Save for the actual function
+	return this._store.save(fname, args, result);
+};
+
+
+CollectionStorage.prototype._addRessource = function (ressource) {
+	// Todo : update only it's changed
+	return Promise.all([
+		this._store.save('getById', [ressource.id], ressource)
+	].concat(
+		Object.keys(this._functions).map(function (fname) {
+			return this._store.update(fname, ressource, this._functions[fname])
+		}.bind(this))
+	));
+};
+
+CollectionStorage.prototype._updateRessource = function (ressource) {
+	// Todo : update only it's changed
+	return Promise.all([
+		this._store.changeResult('getById', [ressource.id], ressource)
+	].concat(
+		Object.keys(this._functions).map(function (fname) {
+			return this._store.update(fname, ressource, this._functions[fname])
+		}.bind(this))
+	));
+};
+
+CollectionStorage.prototype._deleteRessource = function (ressource) {
+	// Todo : update only it's changed
+	return Promise.all([
+		this._store.changeResult('getById', [ressource.id], null)
+	].concat(
+		Object.keys(this._functions).map(function (fname) {
+			return this._store.update(fname, ressource, function(){ return false;})
+		}.bind(this))
+	));
+};
+
+module.exports = CollectionStorage;
+
+},{"./CollectionStore":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStore.js"}],"/home/johan/projets/trello-slack/js/Model/Base/CollectionStore.js":[function(require,module,exports){
+
+// This is needed for the intelligent storage of ressource object (ie: object with an id)
+// Can use any type of storage
+var stringify = function (args) {
+	return JSON.stringify(Array.prototype.slice.call(args));
+};
+
+var parse = function (str) {
+	return JSON.parse(str);
+};
+
+function CollectionStore(store) {
+	this.store = store;
+}
+
+CollectionStore.prototype.call = function () {
+	var fname = arguments[0]
+	var args = Array.prototype.slice.call(arguments, 1);
+	return this.store.get(fname, stringify(args));
+}
+
+CollectionStore.prototype.save = function (fname, args, result) {
+	return this.store.save(fname, stringify(args), result)
+}
+
+CollectionStore.prototype.changeResult = function (fname, args, newValueFn) {
+	var args = stringify(args);
+	// Lift value with function if needed.
+	newValueFn = (typeof newValueFn === 'function') ?
+		newValueFn:
+		function() {return newValueFn;};
+	return this.store.get(fname, args).then(function (result) {
+		return this.store.save(fname, args, newValueFn(result));
+	}.bind(this))
+}
+
+CollectionStore.prototype.removeIfExists = function (fname, args, ressource) {
+	return this.changeResult(fname, args, function (oldValue) {
+		if (!Array.isArray(result)) {
+			return null
+		}
+		// If its an array, we remove only the ressource asked.
+		return result.filter(function (r) {
+			r.id !== ressource.id;
+		});
+	})
+}
+
+CollectionStore.prototype.addIfExists = function (fname, args, ressource) {
+	return this.changeResult(fname, args, function (result) {
+		if (!Array.isArray(result)) {
+			return ressource
+		} 
+		// If its an array, we add the ressource
+		result.push(ressource);
+		return result;
+	})
+}
+
+CollectionStore.prototype.update = function (fname, ressource, isResultOf) {
+	return this.store.keys(fname).then(function (keys) {
+		return Promise.all(keys.map(function (key) {
+			var args = parse(key)
+			return this.removeIfExists(fname, args, ressource).finally(function () {
+				return Promise.resolve(isResultOf(args, ressource)).then(function (isResultOf) {
+					if (isResultOf) {
+						return this.addIfExists(fname, args, ressource)
+					}
+				})
+			})
+		}))
+	})
+}
+
+module.exports = CollectionStore;
+
+},{}],"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js":[function(require,module,exports){
+function LocalStore() {
+	this.store = {};
+}
+
+function save(obj, keys, value) {
+	var key = keys[0];
+	var rest = keys.slice(1);
+	if (rest.length) {
+		obj[key] = {};
+		return save(obj[key], rest, value);
+	} else {
+		obj[key] = value;
+		return value;
+	}
+}
+
+function remove(obj, keys) {
+	var key = keys[0];
+	var rest = keys.slice(1);
+	if (rest.length && !(key in obj)) {
+		return Promise.reject('Keys not found');
+	} else if (rest.length) {
+		return remove(obj[key], rest)
+	} else {
+		var value = obj[key];
+		delete obj[key];
+		return Promise.resolve(value)
+	}	
+}
+
+function get(obj, keys) {
+	var key = keys[0];
+	var rest = keys.slice(1);
+	if (!(key in obj)) {
+		return Promise.reject('Keys not found');
+	} else if (rest.length) {
+		return get(obj[key], rest);
+	} else {
+		return Promise.resolve(obj[keddy]);
+	}
+}
+
+function getKeys(obj, keys) {
+	if (!keys.length) {
+		return  Promise.resolve(Object.keys(obj))
+	} else {
+		var key = keys[0];
+		var rest = keys.slice(1);
+		if (!(key in obj)) {	
+			return Promise.resolve([]);
+		}
+		return getKeys(obj[key], rest);
+	}
+}
+
+LocalStore.prototype.save = function () {
+	var value = arguments[arguments.length - 1];
+	var args = Array.prototype.slice.call(arguments, 0,-1);
+
+	return Promise.resolve(save(this.store, args, value));
+}
+
+LocalStore.prototype.remove = function () {
+	return remove(this.store, Array.prototype.slice.call(arguments));	
+}
+
+LocalStore.prototype.get = function () {
+	return get(this.store, Array.prototype.slice.call(arguments));
+}
+
+LocalStore.prototype.keys = function () {
+	return getKeys(this.store, Array.prototype.slice.call(arguments))
+}
+
+module.exports = LocalStore;
+},{}],"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js":[function(require,module,exports){
+
+// Private, static functions
+var getFromStorage = function (storage, fname, args) {
+    var storagePromise = null;
+    if (!(storage[fname] && typeof storage[fname] === 'function')) {
+        storagePromise = Promise.reject('No method ' + fname + ' for this storage', storage);
+    } else {
+        storagePromise = Promise.resolve(storage[fname].apply(storage, args));
+    }
+    return storagePromise;
+};
+
+var updatePreviousStorages = function (storages, fname, args, result) {
+    storages.forEach(function (storage) {
+        storage._saveResult && typeof storage._saveResult === 'function' && storage._saveResult(fname, args, result);
+    });
+};
+
+
+// Should be abstract
+function StorageManager (storages, proxyFunctions) {
+    this._storages = storages;
+    proxyFunctions.forEach(function (fname) {
+        this[fname] = this._call.bind(this, fname);
+    }.bind(this));
+}
+/*
+ * Calls a function in storage chain. If the first storage reject, calls the same function on the second etc.
+ * Return a promise resolving to the first non rejected promise in storage list.
+ *
+ * usage : call(function-name, <function arg>)
+ */
+StorageManager.prototype._call = function() {
+    var fname = arguments[0];
+    var args = Array.prototype.slice.call(arguments, 1);
+    var storages = this._storages;
+    return this._storages.reduce(function (promiseChain, storage, i) {
+        return promiseChain.then(
+            function success (result) {
+                updatePreviousStorages(storage.slice(0,i), fname, args, result);
+                return result;
+            },
+            function error () {
+                return getFromStorage(storage, fname, args);
+            });
+    }, Promise.reject())
+    // No data even after calling every storage
+    .catch(function (e) {
+        return Promise.reject('No storage can answer this function call. \n \tLast storage error message: ' + e +'\n \tLast storage stack trace: ' + e.stack );
+    });
+};
+
+
+StorageManager.prototype._broadcast = function () {
+    var fname = arguments[0];
+    var args = Array.prototype.slice.call(arguments, 1);
+    return Promise.all(this._storages
+        // Remove storage that don't provide this function from the list
+        .filter(function (storage) {
+            return storage[fname] && typeof storage[fname] === 'function';
+        })
+        // Call the function on all storage
+        .map(function (storage) {
+            return Promise.resolve(storage[fname].apply(storage, args));
+        })
+    );
+};
+
+module.exports = StorageManager;
+},{}],"/home/johan/projets/trello-slack/js/Model/ChannelManager.js":[function(require,module,exports){
 module.exports = {
     channelNames: [],
     getChannelNames: function() {
@@ -77,9 +365,11 @@ module.exports = {
     }
 
 }
-},{}],"/home/johan/evaneos/trello-slack/js/Model/MemberManager.js":[function(require,module,exports){
-var LocalStorage   = require('./Storage/LocalStorage');
-var StorageManager = require('./Storage/Manager');
+},{}],"/home/johan/projets/trello-slack/js/Model/MemberManager.js":[function(require,module,exports){
+var LocalStore          = require('./Base/LocalStore');
+var StorageManager      = require('./Base/StorageManager');
+var CollectionStorage   = require('./Base/CollectionStorage');
+
 var connector      = require('../connector/TrelloConnector');
 
 
@@ -89,60 +379,162 @@ var TrelloMemberReader = {
 	}
 };
 
+
+// Set up the collectionStorage, by informing the saved functions, and the cache accuracy function
+var collectionStorage = new CollectionStorage(new LocalStore());
+collectionStorage._addFunction('getMe', function () {
+	
+});
+
 /*
  *  MemberManager extends StorageManager
  */
 function MemberManager() {
     StorageManager.call(this,
-        [new LocalStorage(['getMe']), TrelloMemberReader], // Storages
+        [new CollectionStorage(['getMe']), TrelloMemberReader], // Storages
         ['getMe']
     );
 }
 MemberManager.prototype = Object.create(StorageManager.prototype);
 
 module.exports = new MemberManager();
-},{"../connector/TrelloConnector":"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js","./Storage/LocalStorage":"/home/johan/evaneos/trello-slack/js/Model/Storage/LocalStorage.js","./Storage/Manager":"/home/johan/evaneos/trello-slack/js/Model/Storage/Manager.js"}],"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js":[function(require,module,exports){
-var LocalStorage        = require('../Storage/LocalStorage');
-var StorageManager      = require('../Storage/Manager');
+},{"../connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","./Base/CollectionStorage":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js","./Base/LocalStore":"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js","./Base/StorageManager":"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js"}],"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js":[function(require,module,exports){
+var LocalStore          = require('../Base/LocalStore');
+var StorageManager      = require('../Base/StorageManager');
+var CollectionStorage   = require('../Base/CollectionStorage');
 
 var MemberManager       = require('../MemberManager');
 var TrelloProjectReader = require('./TrelloProjectReader');
 
 // Proxied functions (directly proxied to storages)
 var PROXIED_FUNCTIONS = ['getById'];
-var SAVED_FUNCTIONS = ['getMyProjects', 'getProjectByChannelName', 'getById'];
 
-/*
- *  ProjectManager extends StorageManager
- */
+// Set up the collectionStorage, by informing the saved functions, and the cache accuracy function
+var collectionStorage = new CollectionStorage(new LocalStore());
+collectionStorage._addFunction('getMyProjects', function (_, project) {
+	return projectManager.isMyProject(project);
+});
+collectionStorage._addFunction('getProjectByChannelName', function (args, project) {
+	return project.slack === args[2];
+});
+
+
 function ProjectManager() {
     StorageManager.call(this,
-        [new LocalStorage(SAVED_FUNCTIONS), TrelloProjectReader], // Storages
+        [collectionStorage, TrelloProjectReader], // Storages
         PROXIED_FUNCTIONS
     );
 }
 
 ProjectManager.prototype = Object.create(StorageManager.prototype);
-ProjectManager.prototype.setBoardsIds = function (boards) {
-	this.idBoards = Object.keys(boards).map(function (name) {
-		return boards[name];
-	});
-};
 ProjectManager.prototype.isMyProject = function(project) {
 	return MemberManager.getMe().then(function (me) {
 	    return _.where(project.members,{id: me});
 	});
 };
+ProjectManager.prototype.setBoardsIds = function (boards) {
+	this.idBoards = Object.keys(boards).map(function (name) {
+		return boards[name];
+	});
+};
 ProjectManager.prototype.getProjectByChannelName = function(channelName) {
 	return this._call('getProjectByChannelName', this.idBoards, channelName);
 };
+
 ProjectManager.prototype.getMyProjects = function() {
 	return this._call('getMyProjects', this.idBoards);
 };
-module.exports = new ProjectManager();
-},{"../MemberManager":"/home/johan/evaneos/trello-slack/js/Model/MemberManager.js","../Storage/LocalStorage":"/home/johan/evaneos/trello-slack/js/Model/Storage/LocalStorage.js","../Storage/Manager":"/home/johan/evaneos/trello-slack/js/Model/Storage/Manager.js","./TrelloProjectReader":"/home/johan/evaneos/trello-slack/js/Model/Project/TrelloProjectReader.js"}],"/home/johan/evaneos/trello-slack/js/Model/Project/TrelloProjectReader.js":[function(require,module,exports){
-var connector      = require('SPM/connector/TrelloConnector');
-var buildProject   = require('SPM/Model/Project/TrelloProjectBuilder');
+
+ProjectManager.prototype.addProject = function (project) {
+    return this._broadcast('_addRessource', project);
+};
+
+ProjectManager.prototype.updateProject = function (project) {
+    return this._broadcast('_updateRessource', project);
+};
+
+ProjectManager.prototype.removeProject = function (project) {
+    return this._broadcast('_removeRessource', project);
+};
+
+var projectManager = new ProjectManager();
+module.exports = projectManager;
+},{"../Base/CollectionStorage":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js","../Base/LocalStore":"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js","../Base/StorageManager":"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js","../MemberManager":"/home/johan/projets/trello-slack/js/Model/MemberManager.js","./TrelloProjectReader":"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectReader.js"}],"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectBuilder.js":[function(require,module,exports){
+var Utils = require('../../Utils/Utils.js');
+
+var parseLeader = function (project) {
+    var leader = Utils.parseGetValueFromKey(project.desc, 'leader');
+    if (!leader) {
+        project.errors.noLeader = true;
+        return false;
+    }
+    leader = Utils.unaccent(leader);
+    if(leader[0] === '@') {
+        // With the @name syntax
+        leader = leader.slice(1);
+    }
+    var leaderFound = project.members.some(function (member) {
+        var memberName = Utils.unaccent(member.fullName.toLowerCase());
+        if (memberName.indexOf(leader) !== -1) {
+            member.isLeader = true;
+            return true;
+        }
+        return false;
+    });
+    if (leaderFound) {
+        // Leader first
+        project.members.sort(function (member1, member2) {
+            return (member1.isLeader) ? -1 : (member2.isLeader) ? 1 : 0;
+        });
+    } else {
+        project.errors.unknownLeader = true;
+    }
+    return leaderFound;
+};
+
+var parseSlack = function(project) {
+    var slack = Utils.parseGetValueFromKey(project.desc, '(slack|channel|chanel|chan)');
+    if (!slack) {
+        return
+    }
+    if(slack[0] === '[') {
+        // With the [name](url) syntax
+        var index = slack.indexOf(']');
+        slack = slack.slice(1, index);
+    }
+    if (slack[0] === '#') {
+        // With the # syntax
+        slack = slack.slice(1)
+    }
+    if(slack.indexOf('p-') !== 0) {
+        return null;
+    }
+    project.slack = slack;
+    return project.slack;
+};
+
+var checkErrors = function (project) {
+    if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
+    if (project.idMembers.length < 2) {project.errors.tooFewMembers = true};
+    if (project.name.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
+};
+
+var initProject = function(project) {
+    project.errors = {};
+    var leader = parseLeader(project);
+    var slack = parseSlack(project);
+    // Need to 2x the line break for ISO trello markdown rendering
+    project.desc = Utils.doubleLineBreak(project.desc);
+    // Capitalize first letter
+    project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
+    checkErrors(project);
+    return project;
+};
+
+module.exports = initProject;
+},{"../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectReader.js":[function(require,module,exports){
+var connector      = require('../../connector/TrelloConnector');
+var buildProject   = require('./TrelloProjectBuilder');
 
 module.exports = {
     searchProject: function(idBoards, query) {
@@ -227,150 +619,7 @@ module.exports = {
             });
     }
 }
-},{"SPM/Model/Project/TrelloProjectBuilder":"/home/johan/evaneos/trello-slack/js/node_modules/SPM/Model/Project/TrelloProjectBuilder.js","SPM/connector/TrelloConnector":"/home/johan/evaneos/trello-slack/js/node_modules/SPM/connector/TrelloConnector.js"}],"/home/johan/evaneos/trello-slack/js/Model/Storage/LocalStorage.js":[function(require,module,exports){
-
-var stringify = function(args) {
-    return Array(args);
-};
-
-
-// Todo add a collectionLocalStorage (extending LocalStorage)
-function LocalStorage (proxiedFunctions) {
-    this._store = {};
-    proxiedFunctions.forEach(function (fname) {
-        this._store[fname] = {};
-        this[fname] = function() {
-            var args = stringify(arguments);
-            return (args in this._store[fname]) ?
-                // 1 - The function have already been called with thoses arguments
-                Promise.resolve(this._store[fname][args]):
-                // 2 - The result of the function is unknown
-                Promise.reject('No data for ' + fname + '(' + args.slice(1,-1) + ')');
-        };
-    }.bind(this));
-
-}
-
-LocalStorage.prototype._save = function(fname, args, result) {
-    args = stringify(args);
-    if (!(fname in this._store)) {
-        return Promise.reject('The function is not in the list of the proxyfied function');
-    }
-    this._store[fname][args] = {};
-    return Promise.resolve(result);
-};
-
-LocalStorage.prototype._flushWhen = function (isResult) {
-    for(var fname in this._store) {
-        var results = this._store[fname];
-        for (var args in results) {
-            if (isResult(results[args])) {
-                delete results[args];
-            }
-        }
-    }
-};
-
-LocalStorage._flushAll = function () {
-    this._deleteWhen(function () {
-        return true;
-    });
-};
-
-module.exports = LocalStorage;
-},{}],"/home/johan/evaneos/trello-slack/js/Model/Storage/Manager.js":[function(require,module,exports){
-
-// Private, static functions
-var getFromStorage = function (storage, fname, args) {
-    var storagePromise = null;
-    if (!(storage[fname] && typeof storage[fname] === 'function')) {
-        storagePromise = Promise.reject('No method ' + fname + ' for this storage', storage);
-    } else {
-        storagePromise = Promise.resolve(storage[fname].apply(storage, args));
-    }
-    return storagePromise;
-};
-
-var updatePreviousStorages = function (storages, fname, args, result) {
-    storages.forEach(function (storage) {
-        storage._save(fname, args, result);
-    });
-};
-
-
-// Should be abstract
-function StorageManager (storages, proxyFunctions) {
-    this._storages = storages;
-    proxyFunctions.forEach(function (fname) {
-        this[fname] = this._call.bind(this, fname);
-    }.bind(this));
-}
-/*
- * Calls a function in storage chain. If the first storage reject, calls the same function on the second etc.
- * Return a promise resolving to the first non rejected promise in storage list.
- *
- * usage : call(function-name, <function arg>)
- */
-StorageManager.prototype._call = function() {
-    var fname = arguments[0];
-    var args = Array.prototype.slice.call(arguments, 1);
-    var storages = this._storages;
-    return this._storages.reduce(function (promiseChain, storage, i) {
-        return promiseChain.then(
-            function success (result) {
-                updatePreviousStorages(storage.slice(0,i), fname, args, result);
-                return result;
-            },
-            function error () {
-                return getFromStorage(storage, fname, args);
-            });
-    }, Promise.reject())
-    // No data even after calling every storage
-    .catch(function (e) {
-        return Promise.reject('No storage can answer this function call. \n \tLast storage error message: ' + e +'\n \tLast storage stack trace: ' + e.stack );
-    });
-};
-
-
-StorageManager.prototype._broadcast = function () {
-    var fname = arguments[0];
-    var args = Array.prototype.slice.call(arguments, 1);
-    return Promise.all(this._storages
-        // Remove storage that don't provide this function from the list
-        .filter(function (storage) {
-            return storage[fname] && typeof storage[fname] === 'function';
-        })
-        // Call the function on all storage
-        .map(function (storage) {
-            return Promise.resolve(storage[fname].apply(storage, '_deleteWhen', args));
-        })
-    );
-};
-
-// Slightiest domain oriented functions
-StorageManager.prototype._flushWhen = function (condition) {
-    return this._broadcast('_flushWhen', condition);
-};
-
-StorageManager.prototype._flushAll = function () {
-    this._broadcast('_flushAll');
-};
-
-StorageManager.prototype._flushById = function (id) {
-    return this._deleteWhen(function (object) {
-        return (
-            // array and contains searched id
-            (array.constructor === Array && array.some(function (object) {
-                return object.id === id;
-            })) ||
-            // Or its the object and has searched id
-            object.id && object.id === id
-        );
-    });
-};
-
-module.exports = StorageManager;
-},{}],"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js":[function(require,module,exports){
+},{"../../connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","./TrelloProjectBuilder":"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectBuilder.js"}],"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js":[function(require,module,exports){
 module.exports = {
 
     injectFile: function(fileName) {
@@ -395,7 +644,7 @@ module.exports = {
 
     }
 }
-},{}],"/home/johan/evaneos/trello-slack/js/Utils/UrlChanged.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/Utils/UrlChanged.js":[function(require,module,exports){
 CodeInjector = require('./CodeInjector');
 
 var UrlChanged = {
@@ -446,7 +695,7 @@ var UrlChanged = {
 }
 
 module.exports = UrlChanged;
-},{"./CodeInjector":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/evaneos/trello-slack/js/Utils/Utils.js":[function(require,module,exports){
+},{"./CodeInjector":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/projets/trello-slack/js/Utils/Utils.js":[function(require,module,exports){
 module.exports = {
     waitUntil: function(isReady) {
         return new Promise(function(success, error) {
@@ -555,7 +804,7 @@ module.exports = {
     }
 }
 
-},{}],"/home/johan/evaneos/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js":[function(require,module,exports){
 var CodeInjector = require('../../Utils/CodeInjector.js');
 var Utils        = require('../../Utils/Utils.js');
 
@@ -603,6 +852,9 @@ module.exports = {
         }
     },
 
+    reset: function () {
+        this.section = [];
+    },
 
     addSectionDivIfNotExist: function(section) {
         if ($("#"+section.id).length == 0) {
@@ -642,7 +894,7 @@ module.exports = {
 
 
 }
-},{"../../Utils/CodeInjector.js":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js","../../Utils/Utils.js":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js"}],"/home/johan/evaneos/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js":[function(require,module,exports){
+},{"../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js":[function(require,module,exports){
 var Utils           = require('../../Utils/Utils');
 var ChannelManager  = require('../../Model/ChannelManager');
 var ProjectManager  = require('../../Model/Project/ProjectManager');
@@ -690,7 +942,7 @@ var getNotMyProjectFollowed = function() {
 var _boardsIds = [];
 
 var renderChannels = function() {
-    Promise.all([
+    return Promise.all([
     // 1 - Get channels by category
         Promise.resolve(ChannelManager.getNotProjectChannels()),    // Other non project Channels
         getNotMyProjectFollowed(),                                  // Project followed, but not member
@@ -716,23 +968,19 @@ module.exports = {
             .then(renderChannels);
     },
 
-    updateProject: function(project) {
-        renderChannels();
-    },
-
     setBoardIds: function(boardIds) {
         _boardsIds = boardIds;
     },
 
     reload: function () {
-        SectionRenderer.flush();
+        SectionRenderer.reset();
         renderChannels();
     }
 };
 
 
 
-},{"../../Model/ChannelManager":"/home/johan/evaneos/trello-slack/js/Model/ChannelManager.js","../../Model/Project/ProjectManager":"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/Utils":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js","../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer":"/home/johan/evaneos/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js"}],"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/PanelInitializer.js":[function(require,module,exports){
+},{"../../Model/ChannelManager":"/home/johan/projets/trello-slack/js/Model/ChannelManager.js","../../Model/Project/ProjectManager":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/Utils":"/home/johan/projets/trello-slack/js/Utils/Utils.js","../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer":"/home/johan/projets/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js"}],"/home/johan/projets/trello-slack/js/apps/ProjectPanel/PanelInitializer.js":[function(require,module,exports){
 var CodeInjector   = require('../../Utils/CodeInjector.js');
 var UrlChanged     = require('../../Utils/UrlChanged.js');
 var Utils          = require('../../Utils/Utils.js');
@@ -746,8 +994,7 @@ module.exports = {
         UrlChanged.onChanged(function() {
             this.onChanged();
         }.bind(this));
-        this.onChanged();
-        return true;
+        return Promise.resolve(this.onChanged());
     },
 
     renderCurrentProject: function() {
@@ -761,12 +1008,11 @@ module.exports = {
     },
 
     onChanged: function(force) {
-
         var projectName = Utils.getProjectNameFromUrl(document.URL);
         if (force || this.currentProjectName !== projectName) {
             this.currentProjectName = projectName;
             if (this.currentProjectName) {
-               this.renderCurrentProject();
+               return this.renderCurrentProject();
             } else {
                 PanelRenderer.reset();
                 PanelRenderer.closePanel();
@@ -775,11 +1021,11 @@ module.exports = {
 
     },
 
-    updateProject: function(project) {
+    reload: function() {
         this.onChanged(true);
     }
 };
-},{"../../Model/Project/ProjectManager.js":"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/CodeInjector.js":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js","../../Utils/UrlChanged.js":"/home/johan/evaneos/trello-slack/js/Utils/UrlChanged.js","../../Utils/Utils.js":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js","../../apps/ProjectPanel/views/PanelRenderer.js":"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js"}],"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js":[function(require,module,exports){
+},{"../../Model/Project/ProjectManager.js":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../Utils/UrlChanged.js":"/home/johan/projets/trello-slack/js/Utils/UrlChanged.js","../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js","../../apps/ProjectPanel/views/PanelRenderer.js":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js"}],"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js":[function(require,module,exports){
 var Utils        = require('../../../Utils/Utils');
 var CodeInjector = require('../../../Utils/CodeInjector');
 /*
@@ -893,16 +1139,16 @@ PanelRenderer.prototype = {
 };
 
 module.exports = new PanelRenderer();
-},{"../../../Utils/CodeInjector":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js","../../../Utils/Utils":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js"}],"/home/johan/evaneos/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js":[function(require,module,exports){
+},{"../../../Utils/CodeInjector":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../../Utils/Utils":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js":[function(require,module,exports){
 var CodeInjector = require('../../Utils/CodeInjector.js');
 
 module.exports = {
     init: function() {
         CodeInjector.injectFile("js/apps/ToggleMenu/toggleMenuInjectedCode.js");
-        return true;
+        return Promise.resolve(true);
     }
 }
-},{"../../Utils/CodeInjector.js":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js":[function(require,module,exports){
+},{"../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js":[function(require,module,exports){
 module.exports = {
     initConnection: function(success, error) {
         return new Promise(function(success, error) {
@@ -935,7 +1181,7 @@ module.exports = {
         });
     }
 };
-},{}],"/home/johan/evaneos/trello-slack/js/main.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/main.js":[function(require,module,exports){
 window.Promise = require('bluebird')
 
 
@@ -956,35 +1202,54 @@ var BOARD_IDS = {
 
 var initDate = moment();
 
-var updateView = function(snapshot) {
-    var id = snapshot.val().id;
-    var date = snapshot.val().updated_at;
-    if (initDate.isBefore(moment(date))) {
-        ProjectManager
-            ._flushById(id)
-            .then(function() {
-                PanelInitializer.reload();
-                MyProjectsInitializer.reload();
-            });
-    }
+var addProject = function(project) {
+    return ProjectManager.getById(project.id)
+        .then(ProjectManager.addProject.bind(ProjectManager))
 };
 
+var removeProject = function (project) {
+    return ProjectManager.removeProject(project)
+};
+
+var updateProject = function (project) {
+    return ProjectManager.removeProject(project).then(function () {
+        return ProjectManager.getById(project.id)
+    })
+    .then(ProjectManager.addProject.bind(ProjectManager))
+};
+
+var wrapp = function (fn) {
+    return function (snapshot) {
+        var project = snapshot.val();
+        if (!initDate.isBefore(moment(project.updated_at))) {
+            return false;
+        }
+        return fn(project).then(function () {
+            PanelInitializer.reload();
+            MyProjectsInitializer.reload();
+        });
+    }
+}
+
 var setUpRealTime = function () {
-    new Firebase("https://trello.firebaseio.com/").child("projects")
-        .on("child_added", updateView)
-        .on("child_changed", updateView);
+    var f = new Firebase("https://trello.firebaseio.com/").child("projects");
+    f.on("child_added", wrapp(addProject));
+    f.on("child_changed", wrapp(updateProject));
+    f.on("child_removed", wrapp(removeProject));
 };
 
 var init = function() {
-    TrelloConnector
+    return TrelloConnector
         .initConnection()
         .then(function() {
             ProjectManager.setBoardsIds(BOARD_IDS);
             MyProjectsInitializer.setBoardIds(BOARD_IDS);
-            PanelInitializer.init();
-            MyProjectsInitializer.init();
-            ToggleMenuInitializer.init();
-        }.bind(this))
+            return Promise.all([
+                PanelInitializer.init(),
+                MyProjectsInitializer.init(),
+                ToggleMenuInitializer.init()
+            ])
+        })
         .catch(function (error) {
             console.error(error);
         });
@@ -993,87 +1258,9 @@ var init = function() {
 
 
 window.onload = function() {
-    // debugger;
-    init();
+    init().then(setUpRealTime);
 }
-},{"./Model/MemberManager":"/home/johan/evaneos/trello-slack/js/Model/MemberManager.js","./Model/Project/ProjectManager":"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js","./apps/MyProjects/MyProjectsInitializer":"/home/johan/evaneos/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js","./apps/ProjectPanel/PanelInitializer":"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/PanelInitializer.js","./apps/ProjectPanel/views/PanelRenderer":"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js","./apps/ToggleMenu/ToggleMenuInitializer":"/home/johan/evaneos/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js","./connector/TrelloConnector":"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js","bluebird":"/home/johan/evaneos/trello-slack/node_modules/bluebird/js/browser/bluebird.js"}],"/home/johan/evaneos/trello-slack/js/node_modules/SPM/Model/Project/TrelloProjectBuilder.js":[function(require,module,exports){
-var Utils = require('../../Utils/Utils.js');
-
-var parseLeader = function (project) {
-    var leader = Utils.parseGetValueFromKey(project.desc, 'leader');
-    if (!leader) {
-        project.errors.noLeader = true;
-        return false;
-    }
-    leader = Utils.unaccent(leader);
-    if(leader[0] === '@') {
-        // With the @name syntax
-        leader = leader.slice(1);
-    }
-    var leaderFound = project.members.some(function (member) {
-        var memberName = Utils.unaccent(member.fullName.toLowerCase());
-        if (memberName.indexOf(leader) !== -1) {
-            member.isLeader = true;
-            return true;
-        }
-        return false;
-    });
-    if (leaderFound) {
-        // Leader first
-        project.members.sort(function (member1, member2) {
-            return (member1.isLeader) ? -1 : (member2.isLeader) ? 1 : 0;
-        });
-    } else {
-        project.errors.unknownLeader = true;
-    }
-    return leaderFound;
-};
-
-var parseSlack = function(project) {
-    var slack = Utils.parseGetValueFromKey(project.desc, '(slack|channel|chanel|chan)');
-    if (!slack) {
-        return
-    }
-    if(slack[0] === '[') {
-        // With the [name](url) syntax
-        var index = slack.indexOf(']');
-        slack = slack.slice(1, index);
-    }
-    if (slack[0] === '#') {
-        // With the # syntax
-        slack = slack.slice(1)
-    }
-    if(slack.indexOf('p-') !== 0) {
-        return null;
-    }
-    project.slack = slack;
-    return project.slack;
-};
-
-var checkErrors = function (project) {
-    if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
-    if (project.idMembers.length < 2) {project.errors.tooFewMembers = true};
-    if (project.name.match(/^#?p-.*/)) {project.errors.titleIsSlackChan = true};
-};
-
-var initProject = function(project) {
-    project.errors = {};
-    var leader = parseLeader(project);
-    var slack = parseSlack(project);
-    // Need to 2x the line break for ISO trello markdown rendering
-    project.desc = Utils.doubleLineBreak(project.desc);
-    // Capitalize first letter
-    project.name = project.name.charAt(0).toUpperCase() + project.name.slice(1);
-    checkErrors(project);
-    return project;
-};
-
-module.exports = initProject;
-},{"../../Utils/Utils.js":"/home/johan/evaneos/trello-slack/js/node_modules/SPM/Utils/Utils.js"}],"/home/johan/evaneos/trello-slack/js/node_modules/SPM/Utils/Utils.js":[function(require,module,exports){
-arguments[4]["/home/johan/evaneos/trello-slack/js/Utils/Utils.js"][0].apply(exports,arguments)
-},{}],"/home/johan/evaneos/trello-slack/js/node_modules/SPM/connector/TrelloConnector.js":[function(require,module,exports){
-arguments[4]["/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js"][0].apply(exports,arguments)
-},{}],"/home/johan/evaneos/trello-slack/node_modules/bluebird/js/browser/bluebird.js":[function(require,module,exports){
+},{"./Model/MemberManager":"/home/johan/projets/trello-slack/js/Model/MemberManager.js","./Model/Project/ProjectManager":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","./apps/MyProjects/MyProjectsInitializer":"/home/johan/projets/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js","./apps/ProjectPanel/PanelInitializer":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/PanelInitializer.js","./apps/ProjectPanel/views/PanelRenderer":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js","./apps/ToggleMenu/ToggleMenuInitializer":"/home/johan/projets/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js","./connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","bluebird":"/home/johan/projets/trello-slack/node_modules/bluebird/js/browser/bluebird.js"}],"/home/johan/projets/trello-slack/node_modules/bluebird/js/browser/bluebird.js":[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -1100,7 +1287,7 @@ arguments[4]["/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js"]
  * 
  */
 /**
- * bluebird build version 2.9.13
+ * bluebird build version 2.9.14
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Promise=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
@@ -4820,11 +5007,8 @@ Promise.reduce = function (promises, fn, initialValue, _each) {
 "use strict";
 var schedule;
 if (_dereq_("./util.js").isNode) {
-    var version = process.versions.node.split(".").map(Number);
-    schedule = (version[0] === 0 && version[1] > 10) || (version[0] > 0)
-        ? global.setImmediate : process.nextTick;
-}
-else if (typeof MutationObserver !== "undefined") {
+    schedule = process.nextTick;
+} else if (typeof MutationObserver !== "undefined") {
     schedule = function(fn) {
         var div = document.createElement("div");
         var observer = new MutationObserver(fn);
@@ -4832,13 +5016,11 @@ else if (typeof MutationObserver !== "undefined") {
         return function() { div.classList.toggle("foo"); };
     };
     schedule.isStatic = true;
-}
-else if (typeof setTimeout !== "undefined") {
+} else if (typeof setTimeout !== "undefined") {
     schedule = function (fn) {
         setTimeout(fn, 0);
     };
-}
-else {
+} else {
     schedule = function() {
         throw new Error("No async scheduler available\u000a\u000a    See http://goo.gl/m3OTXk\u000a");
     };
@@ -5746,7 +5928,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
+},{"_process":"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5805,4 +5987,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},["/home/johan/evaneos/trello-slack/js/main.js"]);
+},{}]},{},["/home/johan/projets/trello-slack/js/main.js"]);

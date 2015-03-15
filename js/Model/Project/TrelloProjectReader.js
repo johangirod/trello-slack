@@ -1,5 +1,5 @@
-var connector      = require('SPM/connector/TrelloConnector');
-var buildProject   = require('SPM/Model/Project/TrelloProjectBuilder');
+var connector      = require('../../connector/TrelloConnector');
+var buildProject   = require('./TrelloProjectBuilder');
 
 module.exports = {
     searchProject: function(idBoards, query) {

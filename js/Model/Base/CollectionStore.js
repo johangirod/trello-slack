@@ -62,10 +62,14 @@ CollectionStore.prototype.update = function (fname, ressource, isResultOf) {
 		return Promise.all(keys.map(function (key) {
 			var args = parse(key)
 			return this.removeIfExists(fname, args, ressource).finally(function () {
-				if (isResultOf(args, ressource)) {
-					return this.addIfExists(fname, args, ressource)
-				}
+				return Promise.resolve(isResultOf(args, ressource)).then(function (isResultOf) {
+					if (isResultOf) {
+						return this.addIfExists(fname, args, ressource)
+					}
+				})
 			})
 		}))
 	})
 }
+
+module.exports = CollectionStore;

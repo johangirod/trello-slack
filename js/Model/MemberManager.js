@@ -1,5 +1,7 @@
-var LocalStorage   = require('./Storage/LocalStorage');
-var StorageManager = require('./Storage/Manager');
+var LocalStore          = require('./Base/LocalStore');
+var StorageManager      = require('./Base/StorageManager');
+var CollectionStorage   = require('./Base/CollectionStorage');
+
 var connector      = require('../connector/TrelloConnector');
 
 
@@ -9,12 +11,19 @@ var TrelloMemberReader = {
 	}
 };
 
+
+// Set up the collectionStorage, by informing the saved functions, and the cache accuracy function
+var collectionStorage = new CollectionStorage(new LocalStore());
+collectionStorage._addFunction('getMe', function () {
+	
+});
+
 /*
  *  MemberManager extends StorageManager
  */
 function MemberManager() {
     StorageManager.call(this,
-        [new LocalStorage(['getMe']), TrelloMemberReader], // Storages
+        [new CollectionStorage(['getMe']), TrelloMemberReader], // Storages
         ['getMe']
     );
 }

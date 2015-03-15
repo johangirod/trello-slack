@@ -11,8 +11,7 @@ module.exports = {
         UrlChanged.onChanged(function() {
             this.onChanged();
         }.bind(this));
-        this.onChanged();
-        return true;
+        return Promise.resolve(this.onChanged());
     },
 
     renderCurrentProject: function() {
@@ -26,12 +25,11 @@ module.exports = {
     },
 
     onChanged: function(force) {
-
         var projectName = Utils.getProjectNameFromUrl(document.URL);
         if (force || this.currentProjectName !== projectName) {
             this.currentProjectName = projectName;
             if (this.currentProjectName) {
-               this.renderCurrentProject();
+               return this.renderCurrentProject();
             } else {
                 PanelRenderer.reset();
                 PanelRenderer.closePanel();
@@ -40,7 +38,7 @@ module.exports = {
 
     },
 
-    updateProject: function(project) {
+    reload: function() {
         this.onChanged(true);
     }
 };

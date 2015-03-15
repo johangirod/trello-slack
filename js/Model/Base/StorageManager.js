@@ -12,7 +12,7 @@ var getFromStorage = function (storage, fname, args) {
 
 var updatePreviousStorages = function (storages, fname, args, result) {
     storages.forEach(function (storage) {
-        storage._save(fname, args, result);
+        storage._saveResult && typeof storage._saveResult === 'function' && storage._saveResult(fname, args, result);
     });
 };
 
@@ -61,31 +61,9 @@ StorageManager.prototype._broadcast = function () {
         })
         // Call the function on all storage
         .map(function (storage) {
-            return Promise.resolve(storage[fname].apply(storage, '_deleteWhen', args));
+            return Promise.resolve(storage[fname].apply(storage, args));
         })
     );
-};
-
-// Slightiest domain oriented functions
-StorageManager.prototype._flushWhen = function (condition) {
-    return this._broadcast('_flushWhen', condition);
-};
-
-StorageManager.prototype._flushAll = function () {
-    this._broadcast('_flushAll');
-};
-
-StorageManager.prototype._flushById = function (id) {
-    return this._deleteWhen(function (object) {
-        return (
-            // array and contains searched id
-            (array.constructor === Array && array.some(function (object) {
-                return object.id === id;
-            })) ||
-            // Or its the object and has searched id
-            object.id && object.id === id
-        );
-    });
 };
 
 module.exports = StorageManager;

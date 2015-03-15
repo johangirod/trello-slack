@@ -45,7 +45,7 @@ var getNotMyProjectFollowed = function() {
 var _boardsIds = [];
 
 var renderChannels = function() {
-    Promise.all([
+    return Promise.all([
     // 1 - Get channels by category
         Promise.resolve(ChannelManager.getNotProjectChannels()),    // Other non project Channels
         getNotMyProjectFollowed(),                                  // Project followed, but not member
@@ -71,16 +71,12 @@ module.exports = {
             .then(renderChannels);
     },
 
-    updateProject: function(project) {
-        renderChannels();
-    },
-
     setBoardIds: function(boardIds) {
         _boardsIds = boardIds;
     },
 
     reload: function () {
-        SectionRenderer.flush();
+        SectionRenderer.reset();
         renderChannels();
     }
 };

@@ -45,6 +45,9 @@ module.exports = {
         }
     },
 
+    reset: function () {
+        this.section = [];
+    },
 
     addSectionDivIfNotExist: function(section) {
         if ($("#"+section.id).length == 0) {
