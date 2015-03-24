@@ -21,9 +21,8 @@
          <% if (isProjectSection) { %>
             <div class="SPM-project-informations">
                 <% if (channel.project) { %>
-                    <div class="SPM-duedate"><%= SPM.Utils.getDueDate(channel.project.due) %></div>
+                    <div class="SPM-duedate"><%= getDueDate(channel.project.due) %></div>
                     <div class='SPM-desc'><%= channel.project.desc %></div>
-                    <% if (SPM.ViewHelpers.EmojiRenderer[channel.project.idList]) { %> <div class="SPM-emoji"> <%= SPM.ViewHelpers.EmojiRenderer[channel.project.idList] %> </div> <% } %>
                 <% } %>
                 <div class="SPM-message
                     <% if (!channel.project || !channel.slackId) { %>

@@ -1,80 +1,60 @@
-var SPM = SPM || {};
-SPM.Model = SPM.Model || {};
-SPM.Model.Project = SPM.Model.Project || {};
+var LocalStore          = require('../Base/LocalStore');
+var StorageManager      = require('../Base/StorageManager');
+var CollectionStorage   = require('../Base/CollectionStorage');
 
-var _storages = [];
+var MemberManager       = require('../MemberManager');
+var TrelloProjectReader = require('./TrelloProjectReader');
 
-var _getFromStorageI = function(methodName, args, i) {
-    if (typeof _storages[i] == 'undefined') {
-        return Promise.reject('storage ' + i + ' not defined');
-    }
-    if (typeof _storages[i][methodName] == 'undefined') {
-        return Promise.reject('the method ' + methodName + ' is not defined for the ' + i + 'th storage');
-    }
-    return _storages[i][methodName].apply(_storages[i], args);
+// Proxied functions (directly proxied to storages)
+var PROXIED_FUNCTIONS = ['getById'];
+
+// Set up the collectionStorage, by informing the saved functions, and the cache accuracy function
+var collectionStorage = new CollectionStorage(new LocalStore());
+collectionStorage._addFunction('getMyProjects', function (_, project) {
+	return projectManager.isMyProject(project);
+});
+collectionStorage._addFunction('getProjectByChannelName', function (args, project) {
+	return project.slack === args[2];
+});
+
+
+function ProjectManager() {
+    StorageManager.call(this,
+        [collectionStorage, TrelloProjectReader], // Storages
+        PROXIED_FUNCTIONS
+    );
 }
 
-var _getFromStorage = function(methodName, args, i) {
-    if (typeof i == 'undefined') {
-        i = 0;
-    }
-     // @todo execute method with args
-    return _getFromStorageI(methodName, args, i)
-    .then(function(result) {
-        return _updatePreviousCache(i, result, methodName, args).then(function(result) {
-            return result;
-        });
-    }.bind(this))
-    .catch(function () {
-        i ++;
-        if (i == _storages.length) {
-            return Promise.reject('nothing in all storages :(');
-        }
-        return _getFromStorage(methodName, args, i);
-    }.bind(this))
-}
+ProjectManager.prototype = Object.create(StorageManager.prototype);
+ProjectManager.prototype.isMyProject = function(project) {
+	return MemberManager.getMe().then(function (me) {
+	    return _.where(project.members,{id: me});
+	});
+};
+ProjectManager.prototype.setBoardsIds = function (boards) {
+	this.idBoards = Object.keys(boards).map(function (name) {
+		return boards[name];
+	});
+};
+ProjectManager.prototype.getProjectByChannelName = function(channelName) {
+	return this._call('getProjectByChannelName', this.idBoards, channelName);
+};
 
-var _updatePreviousCache = function(n, result, methodName, args) {
-    if (n-1 > 0) {
-        for (var i = n - 1 ; i >= 0 ; i --) {
-            this._storages[i].saveResult(result, methodName, args);
-        }
-    }
-    return Promise.resolve(result);
-}
+ProjectManager.prototype.getMyProjects = function() {
+	return this._call('getMyProjects', this.idBoards);
+};
 
-SPM.Model.Project.ProjectManager = {
+ProjectManager.prototype.addProject = function (project) {
+    return this._broadcast('_addRessource', project);
+};
 
-    addStorage: function(storage) {
-        _storages.push(storage);
-    },
+ProjectManager.prototype.updateProject = function (project) {
+    return this._broadcast('_updateRessource', project);
+};
 
-    isMyProject: function(project) {
-        return _.find(project.members, function(member) {
-            return SPM.Model.MemberManager.me.id == member.id;
-        })
-    },
+ProjectManager.prototype.removeProject = function (project) {
+    return this._broadcast('_removeRessource', project);
+};
 
-    getMyProjects: function () {
-        return _getFromStorage("getMyProjects", []);
-    },
-
-    getProjectByChannelName: function (channelName) {
-        return _getFromStorage("getProjectByChannelName", [channelName]);
-    },
-
-    updateProjectById: function(id) {
-        return _getFromStorage("getById", [id])
-        .then(function(project) {
-            return _getFromStorage("removeProjet", [project])
-        })
-        .then(function() {
-            return _getFromStorage("getById", [id]);
-        });
-    },
-
-    getById: function(id) {
-        return _getFromStorage("getById", [id]);
-    }
-
-}
+var projectManager = new ProjectManager();
+module.exports = projectManager;

@@ -1,18 +1,18 @@
-var SPM = SPM || {};
+CodeInjector = require('./CodeInjector');
 
-SPM.UrlChanged = {
+var UrlChanged = {
     onChanged: function(callback) {
-        if ($(".urlchagned").length == 0) {
+        if ($(".urlchanged").length == 0) {
             this._initialize();
         }
         $(this).on('urlChanged', callback);
     },
 
     _initialize: function() {
-        if ($(".urlchagned").length == 0) {
+        if ($(".urlchanged").length == 0) {
              $("body").append("<div class='urlchanged'></div>");
         }
-        SPM.CodeInjector.injectCode('\
+        CodeInjector.injectCode('\
             (function(history){\
                 var pushState = history.pushState;\
                 history.pushState = function(state) {\
@@ -46,3 +46,5 @@ SPM.UrlChanged = {
         observer.observe(target, config);
     }
 }
+
+module.exports = UrlChanged;

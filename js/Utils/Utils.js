@@ -1,6 +1,4 @@
-var SPM = SPM || {};
-
-SPM.Utils = {
+module.exports = {
     waitUntil: function(isReady) {
         return new Promise(function(success, error) {
             var timerId
@@ -15,18 +13,11 @@ SPM.Utils = {
 
     getProjectNameFromUrl: function(url) {
         var channel = url.split('/')[4];
-        if (channel.substring(0,2) == 'p-') {
+        if (channel && channel.substring(0,2) == 'p-') {
             return channel;
         } else {
             return null;
         }
-        /*
-        channelParts = channel.split('-');
-        if (channelParts[0] == "p") {
-            var project = channelParts[1];
-             return project.replace(/_/g, " ");
-        }
-        */
     },
 
     unaccent: function (s) {
@@ -113,6 +104,4 @@ SPM.Utils = {
             return false;
         }
     }
-
-
 }

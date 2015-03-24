@@ -1,10 +1,10 @@
-var SPM = SPM || {};
-SPM.ViewHelpers = SPM.ViewHelpers || {};
+var CodeInjector = require('../../Utils/CodeInjector.js');
+var Utils        = require('../../Utils/Utils.js');
 
 var _sections = {};
 var _initialized = false;
 
-SPM.ViewHelpers.SectionRenderer = {
+module.exports = {
 
     addSection: function(id, title, channels, isProjectSection) {
         // First use, initialize
@@ -29,12 +29,13 @@ SPM.ViewHelpers.SectionRenderer = {
         this.updateMenuItem(section);
     },
 
+
     _initialize: function() {
         _initialized = true;
         this.initTemplate();
-        SPM.CodeInjector.injectFile("js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js");
+        CodeInjector.injectFile("js/ViewHelpers/MenuSectionViewHelper/menuSectionInjectedCode.js");
 
-        SPM.Utils.onDomChanged("#channel-list", function() {
+        Utils.onDomChanged("#channel-list", function() {
             this.update();
         }.bind(this));
     },
@@ -45,6 +46,9 @@ SPM.ViewHelpers.SectionRenderer = {
         }.bind(this));
     },
 
+    reset: function () {
+        this.section = [];
+    },
 
     addSectionDivIfNotExist: function(section) {
         if ($("#"+section.id).length == 0) {
@@ -58,6 +62,7 @@ SPM.ViewHelpers.SectionRenderer = {
 
         this.template.update(section.id, {
             channels: section.channels,
+            getDueDate: Utils.getDueDate,
             title: section.title,
             isProjectSection: section.isProjectSection
         });
@@ -71,7 +76,7 @@ SPM.ViewHelpers.SectionRenderer = {
                 $(this).replaceWith($("#channel-list .channel_" + id + ",#starred-list .channel_"+id).clone());
             }
         });
-        SPM.CodeInjector.injectCode("TS.client.channel_pane.makeSureActiveChannelIsInView();");
+        CodeInjector.injectCode("TS.client.channel_pane.makeSureActiveChannelIsInView();");
     },
 
     template: null,

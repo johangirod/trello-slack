@@ -1,7 +1,4 @@
-var SPM = SPM || {};
-SPM.Model = SPM.Model || {};
-
-SPM.Model.ChannelManager = {
+module.exports = {
     channelNames: [],
     getChannelNames: function() {
         this.initChannels();

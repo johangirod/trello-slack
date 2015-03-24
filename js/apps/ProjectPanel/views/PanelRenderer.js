@@ -1,33 +1,30 @@
-var SPM = SPM || {};
-
+var Utils        = require('../../../Utils/Utils');
+var CodeInjector = require('../../../Utils/CodeInjector');
 /*
     PRIVATE FUNCTIONS
 */
 
 var panelIsHere = function () {
-    return $("#flex_contents").length
-}
+    return $("#flex_contents").length;
+};
 var titleIsHere = function () {
-    return $("#active_channel_name").length
-}
+    return $("#active_channel_name").length;
+};
 
-SPM.PanelRenderer = {
-
-    template: null,
+function PanelRenderer () {
+    this.project     = null;
+    this.template    = null;
+    this.initialized = false;
+    this.panelDiv    = null;
+    this.titleDiv    = null;
+    this.errorDiv    = null;
+};
+PanelRenderer.prototype = {
     initTemplate: function() {
         if (this.template === null) {
             this.template = new EJS({url: chrome.extension.getURL('js/apps/ProjectPanel/views/panel.ejs')});
         }
     },
-
-    boards: null,
-    project: null,
-
-    setBoards: function(boards) {
-        this.boards = boards;
-        return this;
-    },
-    initialized: false,
     render: function(project) {
         if (!this.initialized) {
             this.initTemplate();
@@ -37,7 +34,7 @@ SPM.PanelRenderer = {
         this.reset();
         this.project = project;
         if (this.project) {
-            this.addTitle(SPM.Utils.getDueDate(this.project.due), this.project.name);
+            this.addTitle(Utils.getDueDate(this.project.due), this.project.name);
         }
 
         if (this.project.errors && this.project.errors.moreThanOneTrelloCard) {
@@ -47,14 +44,12 @@ SPM.PanelRenderer = {
             this.addError('Plusieurs projets pointent vers cette discussion Slack: ' + projects);
         }
 
-
-
-        SPM.Utils
+        Utils
             .waitUntil(panelIsHere)
             .then(function () {
                 this.addPanel();
                 //this.openPanel();
-            }.bind(this))
+            }.bind(this));
     },
 
     renderNoProject: function() {
@@ -72,18 +67,15 @@ SPM.PanelRenderer = {
         this.errorDiv && this.errorDiv.remove();
     },
 
-    panelDiv: null,
     addPanel: function() {
         // Create the div if not here
         var div = '<div class="tab-pane active" id="projects_tab"></div>';
         this.panelDiv = $(div).appendTo("#flex_contents");
 
         this.template.update("projects_tab", {
-            project: this.project,
-            boards: this.boards
+            project: this.project
         });
     },
-    titleDiv: null,
     addTitle: function(deadline, title) {
         $(".SPM-title").remove();
         var dom = '<span class="name SPM-title">' +
@@ -91,14 +83,13 @@ SPM.PanelRenderer = {
         title + '</span>';
         this.titleDiv = $(dom).insertAfter("#active_channel_name");
     },
-    errorDiv: null,
     addError: function(message) {
         var dom = '<div id="SPM-notif" class="messages_banner"> \
                     <span id="SPM-chan-error" class="overflow-ellipsis"> ' + message + '\
                 </div>';
         this.errorDiv = $(dom).insertBefore("#messages_unread_status");
-        var chanName = SPM.Utils.getProjectNameFromUrl(document.URL)
-        SPM.CodeInjector.injectCode('\
+        var chanName = Utils.getProjectNameFromUrl(document.URL)
+        CodeInjector.injectCode('\
                 $("#SPM-copy-slack-chan").click(function() {\
                 window.prompt("Ctrl + C et puis copier dans la description de la carte slack", "\\n**Slack** : [' +
                 chanName + '](https://evaneos.slack.com/messages/' + chanName + ')\\n\\n");\
@@ -106,16 +97,17 @@ SPM.PanelRenderer = {
         ');
     },
     openPanel: function () {
-        SPM.CodeInjector.injectCode('\
+        CodeInjector.injectCode('\
             TSM.openPanel();\
         ');
     },
     closePanel: function () {
-        SPM.CodeInjector.injectCode('\
+        CodeInjector.injectCode('\
             if ($(".flex_pane_showing #flex_toggle").length !== 0) {\
                 $("#flex_toggle").trigger("click");\
             }\
         ');
     }
-}
-// <span class="emoji-inner" style="background: url(https://slack.global.ssl.fastly.net/19218/img/emoji_twitter_64_indexed_256colors.png);background-position:20.689655172413794% 65.51724137931033%;background-size:3000%" title="fallen_leaf">:fallen_leaf:</span>
+};
+
+module.exports = new PanelRenderer();

@@ -1,10 +1,4 @@
-
-var SPM = SPM || {};
-
-(function() {
-
-SPM.connector = SPM.connector || {};
-SPM.connector.TrelloConnector = {
+module.exports = {
     initConnection: function(success, error) {
         return new Promise(function(success, error) {
             Trello.authorize({
@@ -33,8 +27,6 @@ SPM.connector.TrelloConnector = {
         .catch(function (error) {
             console.error("Error in Trello API: ", error);
             return error;
-        })
+        });
     }
 };
-
-})();
