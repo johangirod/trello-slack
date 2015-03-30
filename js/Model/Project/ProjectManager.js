@@ -37,21 +37,28 @@ ProjectManager.prototype.setBoardsIds = function (boards) {
 	});
 };
 ProjectManager.prototype.getProjectByChannelName = function(channelName) {
-	return this._call('getProjectByChannelName', this.idBoards, channelName);
+	return this._call('getProjectsByChannelName', this.idBoards, channelName).then(function (projects) {
+		if (!projects.length) {
+			return null;
+		}
+        var project = _.max(projects, 'iteration');
+        if (project.iteration < projects.length) {
+        	project.errors.tooManyCards = true;
+        } else if (project.iteration > projects.length) {
+        	project.errors.tooFewCards = true;
+        }
+        return project;
+	});
 };
-
 ProjectManager.prototype.getMyProjects = function() {
 	return this._call('getMyProjects', this.idBoards);
 };
-
 ProjectManager.prototype.addProject = function (project) {
     return this._broadcast('_addRessource', project);
 };
-
 ProjectManager.prototype.updateProject = function (project) {
     return this._broadcast('_updateRessource', project);
 };
-
 ProjectManager.prototype.removeProject = function (project) {
     return this._broadcast('_removeRessource', project);
 };

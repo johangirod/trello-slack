@@ -37,13 +37,6 @@ PanelRenderer.prototype = {
             this.addTitle(Utils.getDueDate(this.project.due), this.project.name);
         }
 
-        if (this.project.errors && this.project.errors.moreThanOneTrelloCard) {
-            var projects = this.project.errors.moreThanOneTrelloCard.reduce(function(memo, project) {
-                return memo + ' - '+ project.name;
-            }, "");
-            this.addError('Plusieurs projets pointent vers cette discussion Slack: ' + projects);
-        }
-
         Utils
             .waitUntil(panelIsHere)
             .then(function () {
