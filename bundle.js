@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/CollectionStorage.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js":[function(require,module,exports){
 var CollectionStore = require('./CollectionStore');
 
 function CollectionStorage (store) {
@@ -63,7 +63,7 @@ CollectionStorage.prototype._deleteRessource = function (ressource) {
 
 module.exports = CollectionStorage;
 
-},{"./CollectionStore":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/CollectionStore.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/CollectionStore.js":[function(require,module,exports){
+},{"./CollectionStore":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStore.js"}],"/home/johan/projets/trello-slack/js/Model/Base/CollectionStore.js":[function(require,module,exports){
 
 // This is needed for the intelligent storage of ressource object (ie: object with an id)
 // Can use any type of storage
@@ -140,7 +140,7 @@ CollectionStore.prototype.update = function (fname, ressource, isResultOf) {
 
 module.exports = CollectionStore;
 
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/LocalStore.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js":[function(require,module,exports){
 function LocalStore() {
 	this.store = {};
 }
@@ -216,7 +216,7 @@ LocalStore.prototype.keys = function () {
 }
 
 module.exports = LocalStore;
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/StorageManager.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js":[function(require,module,exports){
 
 // Private, static functions
 var getFromStorage = function (storage, fname, args) {
@@ -286,7 +286,7 @@ StorageManager.prototype._broadcast = function () {
 };
 
 module.exports = StorageManager;
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/ChannelManager.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/Model/ChannelManager.js":[function(require,module,exports){
 module.exports = {
     channelNames: [],
     getChannelNames: function() {
@@ -365,7 +365,7 @@ module.exports = {
     }
 
 }
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/MemberManager.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/Model/MemberManager.js":[function(require,module,exports){
 var LocalStore          = require('./Base/LocalStore');
 var StorageManager      = require('./Base/StorageManager');
 var CollectionStorage   = require('./Base/CollectionStorage');
@@ -398,7 +398,7 @@ function MemberManager() {
 MemberManager.prototype = Object.create(StorageManager.prototype);
 
 module.exports = new MemberManager();
-},{"../connector/TrelloConnector":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/connector/TrelloConnector.js","./Base/CollectionStorage":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/CollectionStorage.js","./Base/LocalStore":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/LocalStore.js","./Base/StorageManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/StorageManager.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/ProjectManager.js":[function(require,module,exports){
+},{"../connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","./Base/CollectionStorage":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js","./Base/LocalStore":"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js","./Base/StorageManager":"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js"}],"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js":[function(require,module,exports){
 var LocalStore          = require('../Base/LocalStore');
 var StorageManager      = require('../Base/StorageManager');
 var CollectionStorage   = require('../Base/CollectionStorage');
@@ -415,7 +415,7 @@ collectionStorage._addFunction('getMyProjects', function (_, project) {
 	return projectManager.isMyProject(project);
 });
 collectionStorage._addFunction('getProjectByChannelName', function (args, project) {
-	return project.slack === args[2];
+	return project.slack === args[2] && project.closed == false;
 });
 
 
@@ -429,7 +429,7 @@ function ProjectManager() {
 ProjectManager.prototype = Object.create(StorageManager.prototype);
 ProjectManager.prototype.isMyProject = function(project) {
 	return MemberManager.getMe().then(function (me) {
-	    return _.where(project.members,{id: me});
+	    return !!_.where(project.members,{id: me.id}).length;
 	});
 };
 ProjectManager.prototype.setBoardsIds = function (boards) {
@@ -442,12 +442,7 @@ ProjectManager.prototype.getProjectByChannelName = function(channelName) {
 		if (!projects.length) {
 			return null;
 		}
-        var project = _.max(projects, 'iteration');
-        if (project.iteration < projects.length) {
-        	project.errors.tooManyCards = true;
-        } else if (project.iteration > projects.length) {
-        	project.errors.tooFewCards = true;
-        }
+        var project = projects[0];
         return project;
 	});
 };
@@ -466,7 +461,7 @@ ProjectManager.prototype.removeProject = function (project) {
 
 var projectManager = new ProjectManager();
 module.exports = projectManager;
-},{"../Base/CollectionStorage":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/CollectionStorage.js","../Base/LocalStore":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/LocalStore.js","../Base/StorageManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Base/StorageManager.js","../MemberManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/MemberManager.js","./TrelloProjectReader":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/TrelloProjectReader.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/TrelloProjectBuilder.js":[function(require,module,exports){
+},{"../Base/CollectionStorage":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js","../Base/LocalStore":"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js","../Base/StorageManager":"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js","../MemberManager":"/home/johan/projets/trello-slack/js/Model/MemberManager.js","./TrelloProjectReader":"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectReader.js"}],"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectBuilder.js":[function(require,module,exports){
 var Utils = require('../../Utils/Utils.js');
 
 var parseLeader = function (project) {
@@ -520,32 +515,6 @@ var parseSlack = function(project) {
     return project.slack;
 };
 
-var parseIteration = function (project) {
-    var name = project.name.toUpperCase();
-    var ite = 1;
-    if (name.match(/ II$/)) {
-        ite = 2;
-    } else if (name.match(/ III$/)) {
-        ite = 3;
-    } else if (name.match(/ IV$/)) {
-        ite = 4;
-    } else if (name.match(/ V$/)) {
-        ite = 5;
-    } else if (name.match(/ VI$/)) {
-        ite = 6;
-    } else if (name.match(/ VII$/)) {
-        ite = 7;
-    } else if (name.match(/ VIII$/)) {
-        ite = 8;
-    } else if (name.match(/ IX$/)) {
-        ite = 9;
-    } else if (name.match(/ X$/)) {
-        ite = 10;
-    }
-    project.iteration = ite;
-    return ite;
-}
-
 var checkErrors = function (project) {
     if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
     if (project.idMembers.length < 2) {project.errors.tooFewMembers = true};
@@ -559,7 +528,6 @@ var initProject = function(project) {
     project.errors = {};
     parseLeader(project);
     parseSlack(project);
-    parseIteration(project);
 
     // Need to 2x the line break for ISO trello markdown rendering
     project.desc = Utils.doubleLineBreak(project.desc);
@@ -568,7 +536,7 @@ var initProject = function(project) {
 };
 
 module.exports = initProject;
-},{"../../Utils/Utils.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/Utils.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/TrelloProjectReader.js":[function(require,module,exports){
+},{"../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectReader.js":[function(require,module,exports){
 var connector      = require('../../connector/TrelloConnector');
 var buildProject   = require('./TrelloProjectBuilder');
 
@@ -641,7 +609,7 @@ module.exports = {
             });
     }
 }
-},{"../../connector/TrelloConnector":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/connector/TrelloConnector.js","./TrelloProjectBuilder":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/TrelloProjectBuilder.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/CodeInjector.js":[function(require,module,exports){
+},{"../../connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","./TrelloProjectBuilder":"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectBuilder.js"}],"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js":[function(require,module,exports){
 module.exports = {
 
     injectFile: function(fileName) {
@@ -666,7 +634,7 @@ module.exports = {
 
     }
 }
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/UrlChanged.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/Utils/UrlChanged.js":[function(require,module,exports){
 CodeInjector = require('./CodeInjector');
 
 var UrlChanged = {
@@ -717,7 +685,7 @@ var UrlChanged = {
 }
 
 module.exports = UrlChanged;
-},{"./CodeInjector":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/CodeInjector.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/Utils.js":[function(require,module,exports){
+},{"./CodeInjector":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/projets/trello-slack/js/Utils/Utils.js":[function(require,module,exports){
 module.exports = {
     waitUntil: function(isReady) {
         return new Promise(function(success, error) {
@@ -826,7 +794,7 @@ module.exports = {
     }
 }
 
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js":[function(require,module,exports){
 var CodeInjector = require('../../Utils/CodeInjector.js');
 var Utils        = require('../../Utils/Utils.js');
 
@@ -917,7 +885,7 @@ module.exports = {
 
 
 }
-},{"../../Utils/CodeInjector.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/CodeInjector.js","../../Utils/Utils.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/Utils.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/MyProjects/MyProjectsInitializer.js":[function(require,module,exports){
+},{"../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js":[function(require,module,exports){
 var Utils           = require('../../Utils/Utils');
 var ChannelManager  = require('../../Model/ChannelManager');
 var ProjectManager  = require('../../Model/Project/ProjectManager');
@@ -1003,7 +971,7 @@ module.exports = {
 
 
 
-},{"../../Model/ChannelManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/ChannelManager.js","../../Model/Project/ProjectManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/ProjectManager.js","../../Utils/Utils":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/Utils.js","../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ProjectPanel/PanelInitializer.js":[function(require,module,exports){
+},{"../../Model/ChannelManager":"/home/johan/projets/trello-slack/js/Model/ChannelManager.js","../../Model/Project/ProjectManager":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/Utils":"/home/johan/projets/trello-slack/js/Utils/Utils.js","../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer":"/home/johan/projets/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js"}],"/home/johan/projets/trello-slack/js/apps/ProjectPanel/PanelInitializer.js":[function(require,module,exports){
 var CodeInjector   = require('../../Utils/CodeInjector.js');
 var UrlChanged     = require('../../Utils/UrlChanged.js');
 var Utils          = require('../../Utils/Utils.js');
@@ -1048,7 +1016,7 @@ module.exports = {
         this.onChanged(true);
     }
 };
-},{"../../Model/Project/ProjectManager.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/ProjectManager.js","../../Utils/CodeInjector.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/CodeInjector.js","../../Utils/UrlChanged.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/UrlChanged.js","../../Utils/Utils.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/Utils.js","../../apps/ProjectPanel/views/PanelRenderer.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ProjectPanel/views/PanelRenderer.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ProjectPanel/views/PanelRenderer.js":[function(require,module,exports){
+},{"../../Model/Project/ProjectManager.js":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../Utils/UrlChanged.js":"/home/johan/projets/trello-slack/js/Utils/UrlChanged.js","../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js","../../apps/ProjectPanel/views/PanelRenderer.js":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js"}],"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js":[function(require,module,exports){
 var Utils        = require('../../../Utils/Utils');
 var CodeInjector = require('../../../Utils/CodeInjector');
 /*
@@ -1155,7 +1123,7 @@ PanelRenderer.prototype = {
 };
 
 module.exports = new PanelRenderer();
-},{"../../../Utils/CodeInjector":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/CodeInjector.js","../../../Utils/Utils":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/Utils.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ToggleMenu/ToggleMenuInitializer.js":[function(require,module,exports){
+},{"../../../Utils/CodeInjector":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../../Utils/Utils":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js":[function(require,module,exports){
 var CodeInjector = require('../../Utils/CodeInjector.js');
 
 module.exports = {
@@ -1164,7 +1132,7 @@ module.exports = {
         return Promise.resolve(true);
     }
 }
-},{"../../Utils/CodeInjector.js":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Utils/CodeInjector.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/connector/TrelloConnector.js":[function(require,module,exports){
+},{"../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js":[function(require,module,exports){
 module.exports = {
     initConnection: function(success, error) {
         return new Promise(function(success, error) {
@@ -1197,7 +1165,7 @@ module.exports = {
         });
     }
 };
-},{}],"/Users/yvanwibaux2/Workspace/slack-project-manager/js/main.js":[function(require,module,exports){
+},{}],"/home/johan/projets/trello-slack/js/main.js":[function(require,module,exports){
 window.Promise = require('bluebird')
 
 
@@ -1276,7 +1244,7 @@ var init = function() {
 window.onload = function() {
     init().then(setUpRealTime);
 }
-},{"./Model/MemberManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/MemberManager.js","./Model/Project/ProjectManager":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/Model/Project/ProjectManager.js","./apps/MyProjects/MyProjectsInitializer":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/MyProjects/MyProjectsInitializer.js","./apps/ProjectPanel/PanelInitializer":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ProjectPanel/PanelInitializer.js","./apps/ProjectPanel/views/PanelRenderer":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ProjectPanel/views/PanelRenderer.js","./apps/ToggleMenu/ToggleMenuInitializer":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/apps/ToggleMenu/ToggleMenuInitializer.js","./connector/TrelloConnector":"/Users/yvanwibaux2/Workspace/slack-project-manager/js/connector/TrelloConnector.js","bluebird":"/Users/yvanwibaux2/Workspace/slack-project-manager/node_modules/bluebird/js/browser/bluebird.js"}],"/Users/yvanwibaux2/Workspace/slack-project-manager/node_modules/bluebird/js/browser/bluebird.js":[function(require,module,exports){
+},{"./Model/MemberManager":"/home/johan/projets/trello-slack/js/Model/MemberManager.js","./Model/Project/ProjectManager":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","./apps/MyProjects/MyProjectsInitializer":"/home/johan/projets/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js","./apps/ProjectPanel/PanelInitializer":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/PanelInitializer.js","./apps/ProjectPanel/views/PanelRenderer":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js","./apps/ToggleMenu/ToggleMenuInitializer":"/home/johan/projets/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js","./connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","bluebird":"/home/johan/projets/trello-slack/node_modules/bluebird/js/browser/bluebird.js"}],"/home/johan/projets/trello-slack/node_modules/bluebird/js/browser/bluebird.js":[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -5944,7 +5912,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":"/Users/yvanwibaux2/npm/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/yvanwibaux2/npm/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
+},{"_process":"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -6003,4 +5971,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},["/Users/yvanwibaux2/Workspace/slack-project-manager/js/main.js"]);
+},{}]},{},["/home/johan/projets/trello-slack/js/main.js"]);

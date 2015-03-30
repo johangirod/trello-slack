@@ -14,7 +14,7 @@ collectionStorage._addFunction('getMyProjects', function (_, project) {
 	return projectManager.isMyProject(project);
 });
 collectionStorage._addFunction('getProjectByChannelName', function (args, project) {
-	return project.slack === args[2];
+	return project.slack === args[2] && project.closed == false;
 });
 
 
@@ -28,7 +28,7 @@ function ProjectManager() {
 ProjectManager.prototype = Object.create(StorageManager.prototype);
 ProjectManager.prototype.isMyProject = function(project) {
 	return MemberManager.getMe().then(function (me) {
-	    return _.where(project.members,{id: me});
+	    return !!_.where(project.members,{id: me.id}).length;
 	});
 };
 ProjectManager.prototype.setBoardsIds = function (boards) {
@@ -41,12 +41,7 @@ ProjectManager.prototype.getProjectByChannelName = function(channelName) {
 		if (!projects.length) {
 			return null;
 		}
-        var project = _.max(projects, 'iteration');
-        if (project.iteration < projects.length) {
-        	project.errors.tooManyCards = true;
-        } else if (project.iteration > projects.length) {
-        	project.errors.tooFewCards = true;
-        }
+        var project = projects[0];
         return project;
 	});
 };

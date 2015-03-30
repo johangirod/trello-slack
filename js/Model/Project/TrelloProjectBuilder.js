@@ -51,32 +51,6 @@ var parseSlack = function(project) {
     return project.slack;
 };
 
-var parseIteration = function (project) {
-    var name = project.name.toUpperCase();
-    var ite = 1;
-    if (name.match(/ II$/)) {
-        ite = 2;
-    } else if (name.match(/ III$/)) {
-        ite = 3;
-    } else if (name.match(/ IV$/)) {
-        ite = 4;
-    } else if (name.match(/ V$/)) {
-        ite = 5;
-    } else if (name.match(/ VI$/)) {
-        ite = 6;
-    } else if (name.match(/ VII$/)) {
-        ite = 7;
-    } else if (name.match(/ VIII$/)) {
-        ite = 8;
-    } else if (name.match(/ IX$/)) {
-        ite = 9;
-    } else if (name.match(/ X$/)) {
-        ite = 10;
-    }
-    project.iteration = ite;
-    return ite;
-}
-
 var checkErrors = function (project) {
     if (project.idMembers.length > 5) {project.errors.tooManyMembers = true};
     if (project.idMembers.length < 2) {project.errors.tooFewMembers = true};
@@ -90,7 +64,6 @@ var initProject = function(project) {
     project.errors = {};
     parseLeader(project);
     parseSlack(project);
-    parseIteration(project);
 
     // Need to 2x the line break for ISO trello markdown rendering
     project.desc = Utils.doubleLineBreak(project.desc);

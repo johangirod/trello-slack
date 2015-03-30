@@ -36,10 +36,6 @@
                         <li> <strong> En manque d'amis ? </strong> Il faut être au moins 2 pour lancer un projet :) </li>
                     <% } if (project.errors.titleIsSlackChan) {%>
                         <li> Le titre du projet ne doit pas être le nom du chan slack. Il vaut mieux choisir un nom explicite.</li>
-                    <% } if (project.errors.tooManyCards) {%>
-                        <li> Il y a trop de carte Trello associées à ce projet. Si ce projet a plusieurs itérations, il faut que le numéro de l'itération apparaissent à la fin du titre de la carte en chiffre romain (exemple : <code> Mon Projet - III </code>).</li>
-                    <% } if (project.errors.tooFewCards) {%>
-                        <li> Ce projet en est à l'iteration <%= project.iteration %> mais impossible de trouver les cartes associées aux itérations précédentes.</li>
                     <% }%>
                 </ul>
                 <div> <a target="_blank"  class="btn btn-primary" href="<%=project.url%>"><span class="lambda-label">Compléter la carte</span></a></div>
