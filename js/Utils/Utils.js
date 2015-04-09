@@ -68,7 +68,7 @@ module.exports = {
         // create an observer instance
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
-                callback();
+                callback(mutation);
             }.bind(this));
         }.bind(this));
 

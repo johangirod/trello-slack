@@ -50,6 +50,15 @@ module.exports = {
         this.section = [];
     },
 
+// TODO REFACTO
+    onChanAdded: function (callback) {
+        Utils.onDomChanged("#channel-list", function(mutation) {
+            if (mutation.addedNodes.length > mutation.removedNodes.length) {
+                callback();
+            }
+        });
+    },
+
     addSectionDivIfNotExist: function(section) {
         if ($("#"+section.id).length == 0) {
             var div = '<div id="' + section.id + '" class="SPM-section-added section_holder"></div>';
@@ -72,7 +81,10 @@ module.exports = {
     updateMenuItem: function(section) {
         $("#" + section.id + " li.channel").each(function(index) {
             var id = $(this).find(".channel_name").attr("data-channel-id");
-            if ($(this)[0].outerHTML != $("#channel-list .channel_" + id + ", #starred-list .channel_"+id)[0].outerHTML) {
+            var chan = $("#channel-list .channel_" + id + ", #starred-list .channel_"+id);
+            if (!chan.length) {
+                $(this).remove();
+            } else if ($(this)[0].outerHTML != chan[0].outerHTML) {
                 $(this).replaceWith($("#channel-list .channel_" + id + ",#starred-list .channel_"+id).clone());
             }
         });

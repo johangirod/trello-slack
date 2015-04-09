@@ -49,7 +49,11 @@ var renderChannels = function() {
     // 1 - Get channels by category
         Promise.resolve(ChannelManager.getNotProjectChannels()),    // Other non project Channels
         getNotMyProjectFollowed(),                                  // Project followed, but not member
-        getMyProjectsInBoard(_boardsIds.seeds),                     // My project in seed
+        getMyProjectsInBoard(_boardsIds.seeds).then(function (channels) {
+            return channels.filter(function (channel) {
+                return channel.slackId;
+            });
+        }),                                                          // My project in seed, display only those who have a channel
         getMyProjectsInBoard(_boardsIds.arborium)                   // My projects in arborium
     ]).then(function (channel) {
         var myProjectsDone = _.partition(channel[3], function(channel) {
@@ -68,7 +72,8 @@ var renderChannels = function() {
 module.exports = {
     init: function() {
         return waitUntilChannelsAreHere()
-            .then(renderChannels);
+            .then(renderChannels)
+            .then(SectionRenderer.onChanAdded.bind(this, this.reload.bind(this)));
     },
 
     setBoardIds: function(boardIds) {

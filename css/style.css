@@ -3,6 +3,10 @@
     margin-bottom: 2px;
 }
 
+.SPM-no-slack {
+    word-spacing: nowrap;
+}
+
 .SPM-member {
     display: inline-block;
     height: 50px;

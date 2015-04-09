@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/johan/evaneos/trello-slack/js/Model/Base/CollectionStorage.js":[function(require,module,exports){
 var CollectionStore = require('./CollectionStore');
 
 function CollectionStorage (store) {
@@ -63,7 +63,7 @@ CollectionStorage.prototype._deleteRessource = function (ressource) {
 
 module.exports = CollectionStorage;
 
-},{"./CollectionStore":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStore.js"}],"/home/johan/projets/trello-slack/js/Model/Base/CollectionStore.js":[function(require,module,exports){
+},{"./CollectionStore":"/home/johan/evaneos/trello-slack/js/Model/Base/CollectionStore.js"}],"/home/johan/evaneos/trello-slack/js/Model/Base/CollectionStore.js":[function(require,module,exports){
 
 // This is needed for the intelligent storage of ressource object (ie: object with an id)
 // Can use any type of storage
@@ -140,7 +140,7 @@ CollectionStore.prototype.update = function (fname, ressource, isResultOf) {
 
 module.exports = CollectionStore;
 
-},{}],"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/Model/Base/LocalStore.js":[function(require,module,exports){
 function LocalStore() {
 	this.store = {};
 }
@@ -216,7 +216,7 @@ LocalStore.prototype.keys = function () {
 }
 
 module.exports = LocalStore;
-},{}],"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/Model/Base/StorageManager.js":[function(require,module,exports){
 
 // Private, static functions
 var getFromStorage = function (storage, fname, args) {
@@ -286,7 +286,7 @@ StorageManager.prototype._broadcast = function () {
 };
 
 module.exports = StorageManager;
-},{}],"/home/johan/projets/trello-slack/js/Model/ChannelManager.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/Model/ChannelManager.js":[function(require,module,exports){
 module.exports = {
     channelNames: [],
     getChannelNames: function() {
@@ -365,7 +365,7 @@ module.exports = {
     }
 
 }
-},{}],"/home/johan/projets/trello-slack/js/Model/MemberManager.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/Model/MemberManager.js":[function(require,module,exports){
 var LocalStore          = require('./Base/LocalStore');
 var StorageManager      = require('./Base/StorageManager');
 var CollectionStorage   = require('./Base/CollectionStorage');
@@ -398,7 +398,7 @@ function MemberManager() {
 MemberManager.prototype = Object.create(StorageManager.prototype);
 
 module.exports = new MemberManager();
-},{"../connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","./Base/CollectionStorage":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js","./Base/LocalStore":"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js","./Base/StorageManager":"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js"}],"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js":[function(require,module,exports){
+},{"../connector/TrelloConnector":"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js","./Base/CollectionStorage":"/home/johan/evaneos/trello-slack/js/Model/Base/CollectionStorage.js","./Base/LocalStore":"/home/johan/evaneos/trello-slack/js/Model/Base/LocalStore.js","./Base/StorageManager":"/home/johan/evaneos/trello-slack/js/Model/Base/StorageManager.js"}],"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js":[function(require,module,exports){
 var LocalStore          = require('../Base/LocalStore');
 var StorageManager      = require('../Base/StorageManager');
 var CollectionStorage   = require('../Base/CollectionStorage');
@@ -461,7 +461,7 @@ ProjectManager.prototype.removeProject = function (project) {
 
 var projectManager = new ProjectManager();
 module.exports = projectManager;
-},{"../Base/CollectionStorage":"/home/johan/projets/trello-slack/js/Model/Base/CollectionStorage.js","../Base/LocalStore":"/home/johan/projets/trello-slack/js/Model/Base/LocalStore.js","../Base/StorageManager":"/home/johan/projets/trello-slack/js/Model/Base/StorageManager.js","../MemberManager":"/home/johan/projets/trello-slack/js/Model/MemberManager.js","./TrelloProjectReader":"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectReader.js"}],"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectBuilder.js":[function(require,module,exports){
+},{"../Base/CollectionStorage":"/home/johan/evaneos/trello-slack/js/Model/Base/CollectionStorage.js","../Base/LocalStore":"/home/johan/evaneos/trello-slack/js/Model/Base/LocalStore.js","../Base/StorageManager":"/home/johan/evaneos/trello-slack/js/Model/Base/StorageManager.js","../MemberManager":"/home/johan/evaneos/trello-slack/js/Model/MemberManager.js","./TrelloProjectReader":"/home/johan/evaneos/trello-slack/js/Model/Project/TrelloProjectReader.js"}],"/home/johan/evaneos/trello-slack/js/Model/Project/TrelloProjectBuilder.js":[function(require,module,exports){
 var Utils = require('../../Utils/Utils.js');
 
 var parseLeader = function (project) {
@@ -536,7 +536,7 @@ var initProject = function(project) {
 };
 
 module.exports = initProject;
-},{"../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectReader.js":[function(require,module,exports){
+},{"../../Utils/Utils.js":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js"}],"/home/johan/evaneos/trello-slack/js/Model/Project/TrelloProjectReader.js":[function(require,module,exports){
 var connector      = require('../../connector/TrelloConnector');
 var buildProject   = require('./TrelloProjectBuilder');
 
@@ -609,7 +609,7 @@ module.exports = {
             });
     }
 }
-},{"../../connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","./TrelloProjectBuilder":"/home/johan/projets/trello-slack/js/Model/Project/TrelloProjectBuilder.js"}],"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js":[function(require,module,exports){
+},{"../../connector/TrelloConnector":"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js","./TrelloProjectBuilder":"/home/johan/evaneos/trello-slack/js/Model/Project/TrelloProjectBuilder.js"}],"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js":[function(require,module,exports){
 module.exports = {
 
     injectFile: function(fileName) {
@@ -634,7 +634,7 @@ module.exports = {
 
     }
 }
-},{}],"/home/johan/projets/trello-slack/js/Utils/UrlChanged.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/Utils/UrlChanged.js":[function(require,module,exports){
 CodeInjector = require('./CodeInjector');
 
 var UrlChanged = {
@@ -685,7 +685,7 @@ var UrlChanged = {
 }
 
 module.exports = UrlChanged;
-},{"./CodeInjector":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/projets/trello-slack/js/Utils/Utils.js":[function(require,module,exports){
+},{"./CodeInjector":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/evaneos/trello-slack/js/Utils/Utils.js":[function(require,module,exports){
 module.exports = {
     waitUntil: function(isReady) {
         return new Promise(function(success, error) {
@@ -756,7 +756,7 @@ module.exports = {
         // create an observer instance
         var observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
-                callback();
+                callback(mutation);
             }.bind(this));
         }.bind(this));
 
@@ -794,7 +794,7 @@ module.exports = {
     }
 }
 
-},{}],"/home/johan/projets/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js":[function(require,module,exports){
 var CodeInjector = require('../../Utils/CodeInjector.js');
 var Utils        = require('../../Utils/Utils.js');
 
@@ -847,6 +847,15 @@ module.exports = {
         this.section = [];
     },
 
+// TODO REFACTO
+    onChanAdded: function (callback) {
+        Utils.onDomChanged("#channel-list", function(mutation) {
+            if (mutation.addedNodes.length > mutation.removedNodes.length) {
+                callback();
+            }
+        });
+    },
+
     addSectionDivIfNotExist: function(section) {
         if ($("#"+section.id).length == 0) {
             var div = '<div id="' + section.id + '" class="SPM-section-added section_holder"></div>';
@@ -869,7 +878,10 @@ module.exports = {
     updateMenuItem: function(section) {
         $("#" + section.id + " li.channel").each(function(index) {
             var id = $(this).find(".channel_name").attr("data-channel-id");
-            if ($(this)[0].outerHTML != $("#channel-list .channel_" + id + ", #starred-list .channel_"+id)[0].outerHTML) {
+            var chan = $("#channel-list .channel_" + id + ", #starred-list .channel_"+id);
+            if (!chan.length) {
+                $(this).remove();
+            } else if ($(this)[0].outerHTML != chan[0].outerHTML) {
                 $(this).replaceWith($("#channel-list .channel_" + id + ",#starred-list .channel_"+id).clone());
             }
         });
@@ -885,7 +897,7 @@ module.exports = {
 
 
 }
-},{"../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js":[function(require,module,exports){
+},{"../../Utils/CodeInjector.js":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js","../../Utils/Utils.js":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js"}],"/home/johan/evaneos/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js":[function(require,module,exports){
 var Utils           = require('../../Utils/Utils');
 var ChannelManager  = require('../../Model/ChannelManager');
 var ProjectManager  = require('../../Model/Project/ProjectManager');
@@ -937,7 +949,11 @@ var renderChannels = function() {
     // 1 - Get channels by category
         Promise.resolve(ChannelManager.getNotProjectChannels()),    // Other non project Channels
         getNotMyProjectFollowed(),                                  // Project followed, but not member
-        getMyProjectsInBoard(_boardsIds.seeds),                     // My project in seed
+        getMyProjectsInBoard(_boardsIds.seeds).then(function (channels) {
+            return channels.filter(function (channel) {
+                return channel.slackId;
+            });
+        }),                                                          // My project in seed, display only those who have a channel
         getMyProjectsInBoard(_boardsIds.arborium)                   // My projects in arborium
     ]).then(function (channel) {
         var myProjectsDone = _.partition(channel[3], function(channel) {
@@ -956,7 +972,8 @@ var renderChannels = function() {
 module.exports = {
     init: function() {
         return waitUntilChannelsAreHere()
-            .then(renderChannels);
+            .then(renderChannels)
+            .then(SectionRenderer.onChanAdded.bind(this, this.reload.bind(this)));
     },
 
     setBoardIds: function(boardIds) {
@@ -971,7 +988,7 @@ module.exports = {
 
 
 
-},{"../../Model/ChannelManager":"/home/johan/projets/trello-slack/js/Model/ChannelManager.js","../../Model/Project/ProjectManager":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/Utils":"/home/johan/projets/trello-slack/js/Utils/Utils.js","../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer":"/home/johan/projets/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js"}],"/home/johan/projets/trello-slack/js/apps/ProjectPanel/PanelInitializer.js":[function(require,module,exports){
+},{"../../Model/ChannelManager":"/home/johan/evaneos/trello-slack/js/Model/ChannelManager.js","../../Model/Project/ProjectManager":"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/Utils":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js","../../ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer":"/home/johan/evaneos/trello-slack/js/ViewHelpers/MenuSectionViewHelper/MenuSectionRenderer.js"}],"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/PanelInitializer.js":[function(require,module,exports){
 var CodeInjector   = require('../../Utils/CodeInjector.js');
 var UrlChanged     = require('../../Utils/UrlChanged.js');
 var Utils          = require('../../Utils/Utils.js');
@@ -1016,7 +1033,7 @@ module.exports = {
         this.onChanged(true);
     }
 };
-},{"../../Model/Project/ProjectManager.js":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../Utils/UrlChanged.js":"/home/johan/projets/trello-slack/js/Utils/UrlChanged.js","../../Utils/Utils.js":"/home/johan/projets/trello-slack/js/Utils/Utils.js","../../apps/ProjectPanel/views/PanelRenderer.js":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js"}],"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js":[function(require,module,exports){
+},{"../../Model/Project/ProjectManager.js":"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js","../../Utils/CodeInjector.js":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js","../../Utils/UrlChanged.js":"/home/johan/evaneos/trello-slack/js/Utils/UrlChanged.js","../../Utils/Utils.js":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js","../../apps/ProjectPanel/views/PanelRenderer.js":"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js"}],"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js":[function(require,module,exports){
 var Utils        = require('../../../Utils/Utils');
 var CodeInjector = require('../../../Utils/CodeInjector');
 /*
@@ -1123,7 +1140,7 @@ PanelRenderer.prototype = {
 };
 
 module.exports = new PanelRenderer();
-},{"../../../Utils/CodeInjector":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js","../../../Utils/Utils":"/home/johan/projets/trello-slack/js/Utils/Utils.js"}],"/home/johan/projets/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js":[function(require,module,exports){
+},{"../../../Utils/CodeInjector":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js","../../../Utils/Utils":"/home/johan/evaneos/trello-slack/js/Utils/Utils.js"}],"/home/johan/evaneos/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js":[function(require,module,exports){
 var CodeInjector = require('../../Utils/CodeInjector.js');
 
 module.exports = {
@@ -1132,7 +1149,7 @@ module.exports = {
         return Promise.resolve(true);
     }
 }
-},{"../../Utils/CodeInjector.js":"/home/johan/projets/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js":[function(require,module,exports){
+},{"../../Utils/CodeInjector.js":"/home/johan/evaneos/trello-slack/js/Utils/CodeInjector.js"}],"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js":[function(require,module,exports){
 module.exports = {
     initConnection: function(success, error) {
         return new Promise(function(success, error) {
@@ -1165,7 +1182,7 @@ module.exports = {
         });
     }
 };
-},{}],"/home/johan/projets/trello-slack/js/main.js":[function(require,module,exports){
+},{}],"/home/johan/evaneos/trello-slack/js/main.js":[function(require,module,exports){
 window.Promise = require('bluebird')
 
 
@@ -1244,7 +1261,7 @@ var init = function() {
 window.onload = function() {
     init().then(setUpRealTime);
 }
-},{"./Model/MemberManager":"/home/johan/projets/trello-slack/js/Model/MemberManager.js","./Model/Project/ProjectManager":"/home/johan/projets/trello-slack/js/Model/Project/ProjectManager.js","./apps/MyProjects/MyProjectsInitializer":"/home/johan/projets/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js","./apps/ProjectPanel/PanelInitializer":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/PanelInitializer.js","./apps/ProjectPanel/views/PanelRenderer":"/home/johan/projets/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js","./apps/ToggleMenu/ToggleMenuInitializer":"/home/johan/projets/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js","./connector/TrelloConnector":"/home/johan/projets/trello-slack/js/connector/TrelloConnector.js","bluebird":"/home/johan/projets/trello-slack/node_modules/bluebird/js/browser/bluebird.js"}],"/home/johan/projets/trello-slack/node_modules/bluebird/js/browser/bluebird.js":[function(require,module,exports){
+},{"./Model/MemberManager":"/home/johan/evaneos/trello-slack/js/Model/MemberManager.js","./Model/Project/ProjectManager":"/home/johan/evaneos/trello-slack/js/Model/Project/ProjectManager.js","./apps/MyProjects/MyProjectsInitializer":"/home/johan/evaneos/trello-slack/js/apps/MyProjects/MyProjectsInitializer.js","./apps/ProjectPanel/PanelInitializer":"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/PanelInitializer.js","./apps/ProjectPanel/views/PanelRenderer":"/home/johan/evaneos/trello-slack/js/apps/ProjectPanel/views/PanelRenderer.js","./apps/ToggleMenu/ToggleMenuInitializer":"/home/johan/evaneos/trello-slack/js/apps/ToggleMenu/ToggleMenuInitializer.js","./connector/TrelloConnector":"/home/johan/evaneos/trello-slack/js/connector/TrelloConnector.js","bluebird":"/home/johan/evaneos/trello-slack/node_modules/bluebird/js/browser/bluebird.js"}],"/home/johan/evaneos/trello-slack/node_modules/bluebird/js/browser/bluebird.js":[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -1271,7 +1288,7 @@ window.onload = function() {
  * 
  */
 /**
- * bluebird build version 2.9.14
+ * bluebird build version 2.9.13
  * Features enabled: core, race, call_get, generators, map, nodeify, promisify, props, reduce, settle, some, progress, cancel, using, filter, any, each, timers
 */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.Promise=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
@@ -4991,8 +5008,11 @@ Promise.reduce = function (promises, fn, initialValue, _each) {
 "use strict";
 var schedule;
 if (_dereq_("./util.js").isNode) {
-    schedule = process.nextTick;
-} else if (typeof MutationObserver !== "undefined") {
+    var version = process.versions.node.split(".").map(Number);
+    schedule = (version[0] === 0 && version[1] > 10) || (version[0] > 0)
+        ? global.setImmediate : process.nextTick;
+}
+else if (typeof MutationObserver !== "undefined") {
     schedule = function(fn) {
         var div = document.createElement("div");
         var observer = new MutationObserver(fn);
@@ -5000,11 +5020,13 @@ if (_dereq_("./util.js").isNode) {
         return function() { div.classList.toggle("foo"); };
     };
     schedule.isStatic = true;
-} else if (typeof setTimeout !== "undefined") {
+}
+else if (typeof setTimeout !== "undefined") {
     schedule = function (fn) {
         setTimeout(fn, 0);
     };
-} else {
+}
+else {
     schedule = function() {
         throw new Error("No async scheduler available\u000a\u000a    See http://goo.gl/m3OTXk\u000a");
     };
@@ -5912,7 +5934,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/usr/local/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
+},{"_process":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5971,4 +5993,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},["/home/johan/projets/trello-slack/js/main.js"]);
+},{}]},{},["/home/johan/evaneos/trello-slack/js/main.js"]);
